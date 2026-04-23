@@ -16,7 +16,11 @@
       "Bash(npx shadcn@latest add button input card dialog table form toast label textarea select badge separator --yes)",
       "Bash(npx shadcn@latest add button input card dialog table form sonner label textarea select badge separator --yes)",
       "Bash(npx prisma *)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(npm ls *)",
+      "Bash(node -e \"const p=require\\('./node_modules/next/package.json'\\); console.log\\('next:', p.version\\)\")",
+      "Bash(node -e \"const p=require\\('./node_modules/react/package.json'\\); console.log\\('react:', p.version\\)\")",
+      "Bash(node -e \"const p=require\\('./node_modules/puppeteer/package.json'\\); console.log\\('puppeteer:', p.version\\)\")"
     ]
   }
 }

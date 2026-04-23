@@ -1,0 +1,76 @@
+{
+  "landing": {
+    "title": "JobPilot — AI Resume Builder",
+    "subtitle": "Generate professional resumes and cover letters with AI to stand out in your job search",
+    "cta": "Get Started"
+  },
+  "auth": {
+    "login": "Log In",
+    "register": "Sign Up",
+    "logout": "Log Out",
+    "email": "Email",
+    "password": "Password",
+    "name": "Full Name",
+    "google": "Continue with Google",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?"
+  },
+  "dashboard": {
+    "title": "My Documents",
+    "resumes": "Resumes",
+    "coverLetters": "Cover Letters",
+    "newResume": "Build Resume",
+    "uploadResume": "Upload PDF",
+    "newCoverLetter": "Generate Cover Letter",
+    "usageRemaining": "{remaining}/{limit} uses remaining today"
+  },
+  "resume": {
+    "builder": {
+      "steps": ["Personal Info", "Experience", "Education & Skills", "Template"],
+      "personalInfo": "Personal Information",
+      "experience": "Work Experience",
+      "education": "Education",
+      "skills": "Skills",
+      "achievements": "Achievements",
+      "template": "Choose Template",
+      "language": "Content Language",
+      "generate": "Generate with AI",
+      "generating": "Generating..."
+    },
+    "upload": {
+      "title": "Upload Resume PDF",
+      "dropzone": "Drag & drop PDF here, or click to select",
+      "parsing": "AI is parsing...",
+      "maxSize": "Max 5MB, PDF only"
+    },
+    "download": "Download PDF",
+    "edit": "Edit"
+  },
+  "coverLetter": {
+    "title": "Generate Cover Letter",
+    "selectResume": "Select Resume",
+    "pasteResume": "Paste Resume Summary",
+    "jobTitle": "Job Title",
+    "jobDesc": "Job Description",
+    "wordCount": "Length",
+    "short": "Short",
+    "medium": "Medium",
+    "long": "Long",
+    "generate": "Generate Cover Letter",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "download": "Download .txt"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "loading": "Loading...",
+    "error": "Something went wrong. Please try again.",
+    "upgradeTitle": "Daily Limit Reached",
+    "upgradeDesc": "Free plan includes 3 AI operations per day. Upgrade to PRO for unlimited use."
+  }
+}
