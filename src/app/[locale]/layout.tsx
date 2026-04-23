@@ -2,6 +2,8 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
+import { Providers } from '@/components/shared/Providers'
+import { Header } from '@/components/shared/Header'
 
 interface LocaleLayoutProps {
   children: React.ReactNode
@@ -15,7 +17,10 @@ export default async function LocaleLayout({ children, params: { locale } }: Loc
 
   return (
     <NextIntlClientProvider messages={messages}>
-      {children}
+      <Providers>
+        <Header />
+        <main>{children}</main>
+      </Providers>
     </NextIntlClientProvider>
   )
 }

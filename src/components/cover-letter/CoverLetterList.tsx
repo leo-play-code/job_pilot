@@ -1,10 +1,16 @@
 'use client'
 
-import type { CoverLetter } from '@prisma/client'
 import { Link } from '@/i18n/navigation'
 
+interface CoverLetterItem {
+  id: string
+  jobTitle: string
+  wordCount: string
+  createdAt: string
+}
+
 interface CoverLetterListProps {
-  coverLetters: CoverLetter[]
+  coverLetters: CoverLetterItem[]
 }
 
 export function CoverLetterList({ coverLetters }: CoverLetterListProps) {

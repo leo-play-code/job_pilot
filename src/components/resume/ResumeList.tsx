@@ -1,10 +1,16 @@
 'use client'
 
-import type { Resume } from '@prisma/client'
 import { Link } from '@/i18n/navigation'
 
+interface ResumeItem {
+  id: string
+  title: string
+  templateId: string
+  createdAt: string
+}
+
 interface ResumeListProps {
-  resumes: Resume[]
+  resumes: ResumeItem[]
 }
 
 export function ResumeList({ resumes }: ResumeListProps) {
