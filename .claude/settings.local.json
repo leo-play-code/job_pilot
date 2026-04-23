@@ -20,7 +20,9 @@
       "Bash(npm ls *)",
       "Bash(node -e \"const p=require\\('./node_modules/next/package.json'\\); console.log\\('next:', p.version\\)\")",
       "Bash(node -e \"const p=require\\('./node_modules/react/package.json'\\); console.log\\('react:', p.version\\)\")",
-      "Bash(node -e \"const p=require\\('./node_modules/puppeteer/package.json'\\); console.log\\('puppeteer:', p.version\\)\")"
+      "Bash(node -e \"const p=require\\('./node_modules/puppeteer/package.json'\\); console.log\\('puppeteer:', p.version\\)\")",
+      "Bash(npm test *)"
     ]
   }
+  
 }

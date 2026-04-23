@@ -4,8 +4,10 @@
 
 不需要讀 MASTER_SPEC.md。
 
-根據 specs/data-models.md 的內容，執行以下任務：
-$ARGUMENTS
+根據 specs/data-models.md 的內容，判斷目前哪些 model 還沒有實作或需要更新：
+- 對比 `prisma/schema.prisma` 現有內容
+- 找出 spec 裡有但 schema 裡沒有的 model 或欄位
+- 只實作差異的部分，不重複做已經存在的
 
 完成後：
 - 輸出更新後的 schema.prisma

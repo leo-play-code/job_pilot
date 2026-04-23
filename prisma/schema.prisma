@@ -42,6 +42,10 @@ model User {
   resumes      Resume[]
   coverLetters CoverLetter[]
   usageLogs    UsageLog[]
+
+  @@index([plan])
+  @@index([createdAt])
+  @@map("users")
 }
 
 model Account {
@@ -61,6 +65,8 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("accounts")
 }
 
 model Session {
@@ -70,6 +76,9 @@ model Session {
   expires      DateTime
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
 }
 
 model VerificationToken {
@@ -78,6 +87,7 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+  @@map("verification_tokens")
 }
 
 model Resume {
@@ -94,6 +104,8 @@ model Resume {
   coverLetters CoverLetter[]
 
   @@index([userId])
+  @@index([createdAt])
+  @@map("resumes")
 }
 
 model CoverLetter {
@@ -112,6 +124,8 @@ model CoverLetter {
   resume Resume? @relation(fields: [resumeId], references: [id], onDelete: SetNull)
 
   @@index([userId])
+  @@index([resumeId])
+  @@map("cover_letters")
 }
 
 model UsageLog {
@@ -124,4 +138,5 @@ model UsageLog {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, date])
+  @@map("usage_logs")
 }

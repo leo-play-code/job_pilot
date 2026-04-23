@@ -1,6 +1,15 @@
 import { NextResponse } from 'next/server'
+import { z } from 'zod'
 import { auth } from '@/auth'
+import { prisma } from '@/lib/prisma'
+import { enhanceResume } from '@/lib/ai'
 import { checkDailyLimit, recordUsage } from '@/lib/usage'
+
+const generateResumeSchema = z.object({
+  content: z.union([z.string().min(1), z.record(z.unknown())]),
+  templateId: z.enum(['modern', 'professional', 'creative']),
+  language: z.enum(['zh', 'en']),
+})
 
 export async function POST(request: Request) {
   const session = await auth()
@@ -12,7 +21,31 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'daily_limit_reached' }, { status: 429 })
   }
 
-  // TODO: validate body, call enhanceResume(), save Resume, recordUsage
+  const body = await request.json()
+  const parsed = generateResumeSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Invalid input' }, { status: 422 })
+  }
+
+  const { content, templateId, language } = parsed.data
+  const rawInput = typeof content === 'string' ? content : JSON.stringify(content)
+  const enhanced = await enhanceResume(rawInput, language)
+
+  const title = enhanced.personalInfo.name
+    ? `${enhanced.personalInfo.name} — ${new Date().toLocaleDateString()}`
+    : `Resume ${new Date().toLocaleDateString()}`
+
+  const resume = await prisma.resume.create({
+    data: {
+      userId: session.user.id,
+      title,
+      content: enhanced as object,
+      templateId,
+      language,
+    },
+  })
+
   await recordUsage(session.user.id, 'GENERATE_RESUME')
-  return NextResponse.json({ data: null }, { status: 501 })
+
+  return NextResponse.json({ data: { resumeId: resume.id, content: enhanced } })
 }

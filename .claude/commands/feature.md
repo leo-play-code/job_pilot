@@ -16,5 +16,7 @@ $ARGUMENTS
    - 有新路由 → 更新 specs/api-contracts.md
    - 有新頁面或元件 → 更新 specs/frontend-spec.md
 4. 把功能摘要更新回 MASTER_SPEC.md 的 Core Features 區塊
-5. 輸出給我下一步要下的指令，例如：
-   「接下來請執行 /project:db 實作 XXX」
+5. 完成後輸出建議的下一步指令順序，例如：
+   - 「先執行 /project:db 同步資料庫」
+   - 「再執行 /project:backend 實作 API」
+   - 「最後執行 /project:frontend 實作 UI」
