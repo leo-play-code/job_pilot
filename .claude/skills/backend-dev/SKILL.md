@@ -303,3 +303,9 @@ Error (422):
 - `references/auth-patterns.md` — NextAuth.js setup and session patterns
 - `references/trpc-patterns.md` — tRPC alternative to REST route handlers
 - `references/testing.md` — Backend integration test patterns
+
+## 開始前必讀
+
+✅ 讀 `specs/api-contracts.md`
+❌ 不讀 MASTER_SPEC.md（除非任務涉及全新功能設計）
+

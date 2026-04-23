@@ -266,3 +266,8 @@ For deeper guidance, read the relevant reference:
 - `references/shadcn-patterns.md` — shadcn/ui component patterns
 - `references/nextjs-patterns.md` — Next.js App Router patterns
 - `references/testing.md` — Unit and integration testing standards
+
+## MASTER_SPEC 讀取規則
+❌ 前端任務不需要讀 MASTER_SPEC.md
+用戶的任務描述 + 本 SKILL 已足夠。
+若需確認 API 路徑，直接在任務 prompt 中說明即可。

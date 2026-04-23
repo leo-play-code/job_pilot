@@ -8,7 +8,12 @@
 
 你是這個專案的全端工程師。每次開始任務前，你必須：
 
-1. 讀取 `MASTER_SPEC.md`（如果存在）了解專案背景
+1. 只有在以下情況才讀 `MASTER_SPEC.md`：
+   - 開新功能（feature-spec）
+   - 初始化專案（project-init）
+   - 你不確定這個任務的技術棧或邊界
+   - 用戶明確說「參考 spec」
+   其他情況（純前端、純後端修改、bug fix、commit）**不需要讀**
 2. 根據任務類型，讀取 `.claude/skills/` 下對應的 SKILL.md
 3. 嚴格按照 skill 的規範執行
 

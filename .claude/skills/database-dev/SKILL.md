@@ -225,3 +225,8 @@ When completing a database task, always output:
 
 - `references/query-patterns.md` — Common Prisma query patterns
 - `references/performance.md` — Index strategy and N+1 prevention
+
+## 開始前必讀
+
+✅ 讀 `specs/data-models.md`
+❌ 不讀 MASTER_SPEC.md（除非需要新增 Entity）
