@@ -29,7 +29,14 @@ export async function POST(request: Request) {
 
   const { content, templateId, language } = parsed.data
   const rawInput = typeof content === 'string' ? content : JSON.stringify(content)
-  const enhanced = await enhanceResume(rawInput, language)
+
+  let enhanced
+  try {
+    enhanced = await enhanceResume(rawInput, language)
+  } catch (err) {
+    console.error('[resume/generate] AI error:', err)
+    return NextResponse.json({ error: 'ai_unavailable' }, { status: 503 })
+  }
 
   const title = enhanced.personalInfo.name
     ? `${enhanced.personalInfo.name} — ${new Date().toLocaleDateString()}`

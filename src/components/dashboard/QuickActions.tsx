@@ -16,7 +16,7 @@ export function QuickActions() {
         <FileText className="h-5 w-5 text-primary shrink-0" />
         <div>
           <p className="font-medium text-sm">{t('newResume')}</p>
-          <p className="text-xs text-muted-foreground">AI 生成專業履歷</p>
+          <p className="text-xs text-muted-foreground">{t('newResumeDesc')}</p>
         </div>
       </Link>
       <Link
@@ -26,7 +26,7 @@ export function QuickActions() {
         <Upload className="h-5 w-5 text-primary shrink-0" />
         <div>
           <p className="font-medium text-sm">{t('uploadResume')}</p>
-          <p className="text-xs text-muted-foreground">解析現有 PDF 履歷</p>
+          <p className="text-xs text-muted-foreground">{t('uploadResumeDesc')}</p>
         </div>
       </Link>
       <Link
@@ -36,7 +36,7 @@ export function QuickActions() {
         <Mail className="h-5 w-5 text-primary shrink-0" />
         <div>
           <p className="font-medium text-sm">{t('newCoverLetter')}</p>
-          <p className="text-xs text-muted-foreground">AI 生成自薦信</p>
+          <p className="text-xs text-muted-foreground">{t('newCoverLetterDesc')}</p>
         </div>
       </Link>
     </div>

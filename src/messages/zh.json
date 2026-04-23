@@ -20,8 +20,13 @@
     "resumes": "履歷",
     "coverLetters": "自薦信",
     "newResume": "建立履歷",
+    "newResumeDesc": "AI 生成專業履歷",
     "uploadResume": "上傳 PDF",
+    "uploadResumeDesc": "解析現有 PDF 履歷",
     "newCoverLetter": "生成自薦信",
+    "newCoverLetterDesc": "AI 生成自薦信",
+    "noResumes": "尚無履歷，立即建立第一份。",
+    "noCoverLetters": "尚無自薦信，立即生成。",
     "usageRemaining": "今日剩餘 {remaining}/{limit} 次"
   },
   "resume": {

@@ -30,6 +30,19 @@
 | 前端、UI、component | `.claude/skills/frontend-dev/SKILL.md` |
 | Bug、error、壞掉 | `.claude/skills/debug-triage/SKILL.md` |
 | Commit、push、release | `.claude/skills/git-workflow/SKILL.md` |
+| 單元/整合/E2E 測試 | `.claude/skills/testing-dev/SKILL.md` |
+| 執行所有層、自動分工、修改路由 | `.claude/skills/orchestrator/SKILL.md` |
+
+---
+
+## 標準 Workflow
+
+```
+討論需求 → /project:plan → 確認所有 spec
+說「開始執行」 → /project:exec → 自動 DB → Backend → Frontend → Testing
+修改功能 → /project:modify [描述] → 自動分析影響層 → 路由到正確 subagent
+Bug 修復 → /project:bug [描述] → 修復後自動更新 testing-spec
+```
 
 ---
 

@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations, useLocale } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 
 interface ResumeItem {
@@ -14,8 +15,11 @@ interface ResumeListProps {
 }
 
 export function ResumeList({ resumes }: ResumeListProps) {
+  const t = useTranslations('dashboard')
+  const locale = useLocale()
+
   if (resumes.length === 0) {
-    return <p className="text-muted-foreground text-sm">尚無履歷，立即建立第一份。</p>
+    return <p className="text-muted-foreground text-sm">{t('noResumes')}</p>
   }
 
   return (
@@ -29,7 +33,7 @@ export function ResumeList({ resumes }: ResumeListProps) {
             <div>
               <p className="font-medium">{r.title}</p>
               <p className="text-xs text-muted-foreground">
-                {new Date(r.createdAt).toLocaleDateString('zh-TW')}
+                {new Date(r.createdAt).toLocaleDateString(locale === 'zh' ? 'zh-TW' : 'en-US')}
               </p>
             </div>
             <span className="text-xs text-muted-foreground capitalize">{r.templateId}</span>

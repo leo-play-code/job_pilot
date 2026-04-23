@@ -33,7 +33,14 @@ export async function POST(request: Request) {
   const buffer = Buffer.from(arrayBuffer)
   const rawText = await parsePdf(buffer)
   const language = (formData.get('language') as 'zh' | 'en' | null) ?? 'zh'
-  const content = await enhanceResume(rawText, language)
+
+  let content
+  try {
+    content = await enhanceResume(rawText, language)
+  } catch (err) {
+    console.error('[pdf/parse] AI error:', err)
+    return NextResponse.json({ error: 'ai_unavailable' }, { status: 503 })
+  }
 
   await recordUsage(session.user.id, 'PARSE_PDF')
 

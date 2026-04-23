@@ -1,5 +1,6 @@
 import { auth } from '@/auth'
 import { redirect, notFound } from 'next/navigation'
+import { getLocale } from 'next-intl/server'
 import { prisma } from '@/lib/prisma'
 import { ResumeRenderer } from '@/components/resume/ResumeRenderer'
 import { ResumeActions } from '@/components/resume/ResumeActions'
@@ -10,8 +11,8 @@ interface ResumeDetailPageProps {
 }
 
 export default async function ResumeDetailPage({ params }: ResumeDetailPageProps) {
-  const session = await auth()
-  if (!session) redirect('/zh/login')
+  const [session, locale] = await Promise.all([auth(), getLocale()])
+  if (!session) redirect(`/${locale}/login`)
 
   const { id } = await params
   const resume = await prisma.resume.findFirst({

@@ -25,11 +25,11 @@
 1. 執行 `git diff HEAD` 與 `git status`，完整分析這次所有變更
 2. 如果沒有任何變更，告訴我「目前沒有任何變更需要 commit」然後結束
 3. 根據變更內容，依照 SKILL.md 的 Conventional Commits 格式自動產生 commit message：
-   - 判斷正確的 type（feat / fix / chore / refactor / docs / test）
-   - 判斷正確的 scope（影響的模組或功能名稱）
-   - 第一行：`<type>(<scope>): <簡短描述>`
+   - 判斷正確的 type（feat / fix / chore / refactor / docs / test）—— **英文**
+   - 判斷正確的 scope（影響的模組或功能名稱）—— **英文**
+   - 第一行：`<type>(<scope>): <繁體中文簡短描述>`
    - 空一行
-   - 條列每個主要變更的說明（繁體中文）
+   - 條列每個主要變更的說明（**全部繁體中文**）
 4. 執行 `npm run type-check` 確認無 TypeScript 錯誤，如果失敗則停止並回報
 5. 執行 `git add .`
 6. 執行 `git commit -m "<自動產生的 commit message>"`

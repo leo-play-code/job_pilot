@@ -21,8 +21,10 @@
       "Bash(node -e \"const p=require\\('./node_modules/next/package.json'\\); console.log\\('next:', p.version\\)\")",
       "Bash(node -e \"const p=require\\('./node_modules/react/package.json'\\); console.log\\('react:', p.version\\)\")",
       "Bash(node -e \"const p=require\\('./node_modules/puppeteer/package.json'\\); console.log\\('puppeteer:', p.version\\)\")",
-      "Bash(npm test *)"
+      "Bash(npm test *)",
+      "Bash(node -e \"const p = require\\('./package.json'\\); console.log\\(JSON.stringify\\(p.scripts, null, 2\\)\\)\")",
+      "Bash(npm uninstall *)",
+      "Read(//c/Users/User/.claude/projects/c--Users-User-Desktop-github-AI-startup-job-pilot/tool-results/**)"
     ]
   }
-  
 }

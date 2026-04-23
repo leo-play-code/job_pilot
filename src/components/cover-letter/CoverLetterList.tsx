@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations, useLocale } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 
 interface CoverLetterItem {
@@ -14,8 +15,11 @@ interface CoverLetterListProps {
 }
 
 export function CoverLetterList({ coverLetters }: CoverLetterListProps) {
+  const t = useTranslations('dashboard')
+  const locale = useLocale()
+
   if (coverLetters.length === 0) {
-    return <p className="text-muted-foreground text-sm">尚無自薦信，立即生成。</p>
+    return <p className="text-muted-foreground text-sm">{t('noCoverLetters')}</p>
   }
 
   return (
@@ -29,7 +33,7 @@ export function CoverLetterList({ coverLetters }: CoverLetterListProps) {
             <div>
               <p className="font-medium">{cl.jobTitle}</p>
               <p className="text-xs text-muted-foreground">
-                {new Date(cl.createdAt).toLocaleDateString('zh-TW')}
+                {new Date(cl.createdAt).toLocaleDateString(locale === 'zh' ? 'zh-TW' : 'en-US')}
               </p>
             </div>
             <span className="text-xs text-muted-foreground">{cl.wordCount}</span>

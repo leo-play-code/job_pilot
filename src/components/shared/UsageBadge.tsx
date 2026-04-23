@@ -1,8 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 
 export function UsageBadge() {
+  const t = useTranslations('dashboard')
   const [usage, setUsage] = useState<{ used: number; limit: number } | null>(null)
 
   useEffect(() => {
@@ -18,7 +20,7 @@ export function UsageBadge() {
 
   return (
     <span className="text-sm text-muted-foreground">
-      今日剩餘 {remaining}/{usage.limit} 次
+      {t('usageRemaining', { remaining, limit: usage.limit })}
     </span>
   )
 }

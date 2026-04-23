@@ -37,12 +37,17 @@ Rules:
 ## Conventional Commits Format
 
 ```
-<type>(<scope>): <short description>
+<type>(<scope>): <繁體中文簡短描述>
 
-[optional body]
+[選填：繁體中文說明，條列主要變更]
 
-[optional footer]
+[選填：footer]
 ```
+
+規則：
+- **type 和 scope 用英文**（見下方列表）
+- **描述、body 全部用繁體中文**
+- Windows 環境需確保 git 已設定 UTF-8 編碼（見下方「編碼設定」）
 
 Types:
 - `feat`: new feature
@@ -56,10 +61,22 @@ Types:
 
 Examples:
 ```
-feat(auth): add Google OAuth login
-fix(dashboard): handle undefined session.user.role on load
-chore: setup Prisma and PostgreSQL connection
-test(api/users): add unit tests for GET /api/users
+feat(auth): 新增 Google OAuth 登入功能
+fix(dashboard): 修正載入時 session.user.role 為 undefined 的錯誤
+chore: 設定 Prisma 與 PostgreSQL 連線
+test(api/users): 為 GET /api/users 新增單元測試
+refactor(jobs): 將職缺列表邏輯拆分為獨立 hook
+```
+
+---
+
+## 編碼設定（Windows 防亂碼）
+
+首次使用前執行一次：
+```bash
+git config --global core.quotepath false
+git config --global i18n.commitEncoding utf-8
+git config --global i18n.logOutputEncoding utf-8
 ```
 
 ---

@@ -1,10 +1,11 @@
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
+import { getLocale } from 'next-intl/server'
 import { DropZone } from '@/components/resume/DropZone'
 
 export default async function ResumeUploadPage() {
-  const session = await auth()
-  if (!session) redirect('/zh/login')
+  const [session, locale] = await Promise.all([auth(), getLocale()])
+  if (!session) redirect(`/${locale}/login`)
 
   return (
     <div className="container mx-auto px-4 py-10 max-w-xl">

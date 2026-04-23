@@ -1,5 +1,6 @@
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
+import { getLocale } from 'next-intl/server'
 import { prisma } from '@/lib/prisma'
 import { ResumeBuilderForm } from '@/components/resume/ResumeBuilderForm'
 import type { ResumeContent, TemplateId, Language } from '@/types/resume'
@@ -9,8 +10,8 @@ interface ResumeNewPageProps {
 }
 
 export default async function ResumeNewPage({ searchParams }: ResumeNewPageProps) {
-  const session = await auth()
-  if (!session) redirect('/zh/login')
+  const [session, locale] = await Promise.all([auth(), getLocale()])
+  if (!session) redirect(`/${locale}/login`)
 
   const { edit } = await searchParams
   let initialData = null

@@ -1,5 +1,6 @@
 import { auth } from '@/auth'
 import { redirect, notFound } from 'next/navigation'
+import { getLocale } from 'next-intl/server'
 import { prisma } from '@/lib/prisma'
 import { CoverLetterDisplay } from '@/components/cover-letter/CoverLetterDisplay'
 import { Link } from '@/i18n/navigation'
@@ -10,8 +11,8 @@ interface CoverLetterDetailPageProps {
 }
 
 export default async function CoverLetterDetailPage({ params }: CoverLetterDetailPageProps) {
-  const session = await auth()
-  if (!session) redirect('/zh/login')
+  const [session, locale] = await Promise.all([auth(), getLocale()])
+  if (!session) redirect(`/${locale}/login`)
 
   const { id } = await params
   const coverLetter = await prisma.coverLetter.findFirst({

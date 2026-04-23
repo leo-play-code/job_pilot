@@ -20,8 +20,13 @@
     "resumes": "Resumes",
     "coverLetters": "Cover Letters",
     "newResume": "Build Resume",
+    "newResumeDesc": "AI-powered professional resume",
     "uploadResume": "Upload PDF",
+    "uploadResumeDesc": "Parse your existing PDF resume",
     "newCoverLetter": "Generate Cover Letter",
+    "newCoverLetterDesc": "AI-generated cover letter",
+    "noResumes": "No resumes yet. Create your first one.",
+    "noCoverLetters": "No cover letters yet. Generate one now.",
     "usageRemaining": "{remaining}/{limit} uses remaining today"
   },
   "resume": {

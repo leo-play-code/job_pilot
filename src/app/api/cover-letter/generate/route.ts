@@ -44,7 +44,13 @@ export async function POST(request: Request) {
     }
   }
 
-  const content = await generateCoverLetter({ resumeContent, jobTitle, jobDesc, wordCount, language })
+  let content
+  try {
+    content = await generateCoverLetter({ resumeContent, jobTitle, jobDesc, wordCount, language })
+  } catch (err) {
+    console.error('[cover-letter/generate] AI error:', err)
+    return NextResponse.json({ error: 'ai_unavailable' }, { status: 503 })
+  }
 
   const coverLetter = await prisma.coverLetter.create({
     data: {
