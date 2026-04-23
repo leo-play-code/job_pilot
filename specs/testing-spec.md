@@ -24,6 +24,7 @@
 
 - [ ] [Regression] Prisma CLI env 載入 — 確認 `npm run db:push / db:migrate / db:studio` 在只有 `.env.local` 的情況下不再出現 `DIRECT_URL not found`
 - [ ] [Regression] Header 使用者頭像 — Google 登入後 Header 應顯示 Google 大頭貼；Email 註冊登入後應顯示預設 UserCircle icon；未登入不顯示頭像
+- [ ] [Regression] Next.js 15 async params — Google OAuth callback 後不應出現 `params should be awaited` runtime error；`/[locale]` layout、`/api/cover-letter/[id]` GET/DELETE 皆需正常運作
 
 - [ ] **[refactor/openai] Unit — `src/lib/ai.ts` enhanceResume()**
   Mock OpenAI client，呼叫 `enhanceResume('raw text', 'zh')`，驗證：

@@ -7,10 +7,11 @@ import { Header } from '@/components/shared/Header'
 
 interface LocaleLayoutProps {
   children: React.ReactNode
-  params: { locale: string }
+  params: Promise<{ locale: string }>
 }
 
-export default async function LocaleLayout({ children, params: { locale } }: LocaleLayoutProps) {
+export default async function LocaleLayout({ children, params }: LocaleLayoutProps) {
+  const { locale } = await params
   if (!routing.locales.includes(locale as 'zh' | 'en')) notFound()
 
   const messages = await getMessages()
