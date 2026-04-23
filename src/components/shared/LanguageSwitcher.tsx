@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter, usePathname } from 'next/navigation'
+import { useRouter, usePathname } from '@/i18n/navigation'
 import { useLocale } from 'next-intl'
 
 export function LanguageSwitcher() {
@@ -8,24 +8,28 @@ export function LanguageSwitcher() {
   const router = useRouter()
   const pathname = usePathname()
 
-  function switchLocale(next: string) {
-    const segments = pathname.split('/')
-    segments[1] = next
-    router.push(segments.join('/'))
+  function switchLocale(next: 'zh' | 'en') {
+    router.replace(pathname, { locale: next })
   }
 
   return (
-    <div className="flex gap-2 text-sm">
+    <div className="flex gap-2 text-sm" role="navigation" aria-label="Language switcher">
       <button
         onClick={() => switchLocale('zh')}
-        className={locale === 'zh' ? 'font-bold' : 'text-muted-foreground'}
+        aria-current={locale === 'zh' ? 'true' : undefined}
+        className={`focus-visible:ring-2 focus-visible:ring-primary outline-none rounded ${
+          locale === 'zh' ? 'font-bold' : 'text-muted-foreground hover:text-foreground'
+        }`}
       >
         中文
       </button>
-      <span className="text-muted-foreground">/</span>
+      <span className="text-muted-foreground" aria-hidden="true">/</span>
       <button
         onClick={() => switchLocale('en')}
-        className={locale === 'en' ? 'font-bold' : 'text-muted-foreground'}
+        aria-current={locale === 'en' ? 'true' : undefined}
+        className={`focus-visible:ring-2 focus-visible:ring-primary outline-none rounded ${
+          locale === 'en' ? 'font-bold' : 'text-muted-foreground hover:text-foreground'
+        }`}
       >
         EN
       </button>

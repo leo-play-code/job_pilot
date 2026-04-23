@@ -37,6 +37,30 @@ Cover Letter Result → CoverLetterDisplay, CopyButton, DownloadTxtButton
 | `LoadingOverlay` | AI 生成中的 spinner + 說明文字 |
 | `StepIndicator` | 多步驟表單的進度條 |
 
+## i18n 規範（所有新頁面 / 元件必須遵守）
+
+### 架構
+- 路由格式：`/[locale]/...`，locale 為 `zh`（預設）或 `en`
+- 語言切換：Header 右上角 `LanguageSwitcher`，使用 `router.replace(pathname, { locale })` 即時切換，不刷頁
+- 翻譯檔：`src/messages/zh.json` 與 `src/messages/en.json`，key 必須完全對應
+
+### 開發規範
+| 元件類型 | 使用方式 |
+|---|---|
+| Server Component（page.tsx） | `getTranslations('namespace')` from `next-intl/server` |
+| Client Component（'use client'） | `useTranslations('namespace')` from `next-intl` |
+| 動態文字（含變數） | `t('key', { variable: value })` |
+| 連結 | 使用 `Link` from `@/i18n/navigation`（自動帶 locale） |
+| Router / Pathname | 使用 `useRouter` / `usePathname` from `@/i18n/navigation` |
+
+### 每次新增功能的 i18n checklist
+- [ ] `zh.json` 新增所有 UI 文字（key / value）
+- [ ] `en.json` 新增對應的英文翻譯（key 必須與 zh.json 完全一致）
+- [ ] 沒有任何 hardcoded 中文或英文字串（全部走 `t('key')`）
+- [ ] 語言切換後頁面正確顯示對應語言
+
+---
+
 ## 模板清單（MVP）
 
 | templateId | 名稱 | 特色 |

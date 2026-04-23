@@ -26,6 +26,7 @@
 - [ ] [Regression] Header 使用者頭像 — Google 登入後 Header 應顯示 Google 大頭貼；Email 註冊登入後應顯示預設 UserCircle icon；未登入不顯示頭像
 - [ ] [Regression] Next.js 15 async params — Google OAuth callback 後不應出現 `params should be awaited` runtime error；`/[locale]` layout、`/api/cover-letter/[id]` GET/DELETE 皆需正常運作
 - [ ] [Regression] Landing page session 感知 — 已登入用戶回到主頁應只看到「立即體驗」→ Dashboard；未登入才顯示「立即開始」和「登入」
+- [ ] [Regression] LanguageSwitcher — 點 EN 後整頁切換為英文、點 中文 後切回中文；不需刷頁，URL 的 locale segment 同步更新
 
 - [ ] **[refactor/openai] Unit — `src/lib/ai.ts` enhanceResume()**
   Mock OpenAI client，呼叫 `enhanceResume('raw text', 'zh')`，驗證：
