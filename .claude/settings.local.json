@@ -5,7 +5,18 @@
       "Bash(git commit *)",
       "Bash(git push *)",
       "Bash(git add . && git commit *)",
-      "Bash(git add . && git commit * && git push)"
+      "Bash(git add . && git commit * && git push)",
+      "Bash(npm --version)",
+      "Bash(git -C /c/Users/User/Desktop/github/AI_startup/job_pilot log --oneline -5)",
+      "Bash(npx create-next-app@14 . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --use-npm)",
+      "Bash(npx create-next-app@latest . --typescript --tailwind --app --src-dir --import-alias \"@/*\" --no-git --yes)",
+      "Bash(npm install *)",
+      "Bash(npx shadcn@latest init --yes --base-color neutral)",
+      "Bash(npx shadcn@latest init --yes)",
+      "Bash(npx shadcn@latest add button input card dialog table form toast label textarea select badge separator --yes)",
+      "Bash(npx shadcn@latest add button input card dialog table form sonner label textarea select badge separator --yes)",
+      "Bash(npx prisma *)",
+      "Bash(npm run *)"
     ]
   }
 }
