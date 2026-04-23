@@ -1,9 +1,12 @@
-import { useTranslations } from 'next-intl'
+import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { FileText, Upload, Zap } from 'lucide-react'
+import { auth } from '@/auth'
 
-export default function LandingPage() {
-  const t = useTranslations('landing')
+export default async function LandingPage() {
+  const t = await getTranslations('landing')
+  const session = await auth()
+  const isLoggedIn = !!session
 
   return (
     <>
@@ -17,18 +20,29 @@ export default function LandingPage() {
             {t('subtitle')}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link
-              href="/register"
-              className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity focus-visible:ring-2 focus-visible:ring-primary outline-none"
-            >
-              {t('cta')}
-            </Link>
-            <Link
-              href="/login"
-              className="border px-8 py-3 rounded-lg font-medium hover:bg-muted transition-colors focus-visible:ring-2 focus-visible:ring-primary outline-none"
-            >
-              登入
-            </Link>
+            {isLoggedIn ? (
+              <Link
+                href="/dashboard"
+                className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity focus-visible:ring-2 focus-visible:ring-primary outline-none"
+              >
+                立即體驗
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/register"
+                  className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity focus-visible:ring-2 focus-visible:ring-primary outline-none"
+                >
+                  {t('cta')}
+                </Link>
+                <Link
+                  href="/login"
+                  className="border px-8 py-3 rounded-lg font-medium hover:bg-muted transition-colors focus-visible:ring-2 focus-visible:ring-primary outline-none"
+                >
+                  登入
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </section>
@@ -50,7 +64,7 @@ export default function LandingPage() {
                 <Zap className="h-6 w-6 text-primary" aria-hidden="true" />
               </div>
               <h3 className="font-semibold">AI 智能優化</h3>
-              <p className="text-sm text-muted-foreground">Claude AI 自動強化履歷措辭，生成針對職缺的自薦信</p>
+              <p className="text-sm text-muted-foreground">AI 自動強化履歷措辭，生成針對職缺的自薦信</p>
             </div>
             <div className="flex flex-col items-center text-center gap-4">
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
