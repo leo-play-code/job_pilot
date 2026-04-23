@@ -22,6 +22,8 @@
 
 ### Pending
 
+- [ ] [Regression] Prisma CLI env 載入 — 確認 `npm run db:push / db:migrate / db:studio` 在只有 `.env.local` 的情況下不再出現 `DIRECT_URL not found`
+
 - [ ] **[refactor/openai] Unit — `src/lib/ai.ts` enhanceResume()**
   Mock OpenAI client，呼叫 `enhanceResume('raw text', 'zh')`，驗證：
   - 呼叫 `chat.completions.create` 一次
