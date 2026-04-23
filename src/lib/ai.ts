@@ -1,9 +1,9 @@
-import Anthropic from '@anthropic-ai/sdk'
+import OpenAI from 'openai'
 import type { ResumeContent } from '@/types/resume'
 import { WORD_COUNT_MAP } from '@/types/resume'
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-const MODEL = 'claude-sonnet-4-6'
+const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+const MODEL = 'gpt-4o-mini'
 
 const RESUME_SYSTEM_PROMPT = `You are a professional resume writer. When given raw resume text or a partial resume, you output a structured JSON object matching the ResumeContent schema exactly. Output only valid JSON with no markdown fences.
 
@@ -25,17 +25,12 @@ export async function enhanceResume(
     ? 'Write all text fields in Traditional Chinese (繁體中文).'
     : 'Write all text fields in English.'
 
-  const response = await client.messages.create({
+  const response = await client.chat.completions.create({
     model: MODEL,
     max_tokens: 4096,
-    system: [
-      {
-        type: 'text',
-        text: RESUME_SYSTEM_PROMPT,
-        cache_control: { type: 'ephemeral' },
-      },
-    ],
+    response_format: { type: 'json_object' },
     messages: [
+      { role: 'system', content: RESUME_SYSTEM_PROMPT },
       {
         role: 'user',
         content: `${langInstruction}\n\nEnhance and structure the following resume content:\n\n${rawInput}`,
@@ -43,7 +38,7 @@ export async function enhanceResume(
     ],
   })
 
-  const text = response.content[0].type === 'text' ? response.content[0].text : ''
+  const text = response.choices[0].message.content ?? '{}'
   return JSON.parse(text) as ResumeContent
 }
 
@@ -66,17 +61,11 @@ export async function generateCoverLetter(params: {
     ? resumeContent
     : JSON.stringify(resumeContent, null, 2)
 
-  const response = await client.messages.create({
+  const response = await client.chat.completions.create({
     model: MODEL,
     max_tokens: 2048,
-    system: [
-      {
-        type: 'text',
-        text: COVER_LETTER_SYSTEM_PROMPT,
-        cache_control: { type: 'ephemeral' },
-      },
-    ],
     messages: [
+      { role: 'system', content: COVER_LETTER_SYSTEM_PROMPT },
       {
         role: 'user',
         content: `${langInstruction}\n\nJob Title: ${jobTitle}\nJob Description: ${jobDesc}\n\nApplicant Resume:\n${resumeText}\n\nWrite a cover letter for this position.`,
@@ -84,7 +73,7 @@ export async function generateCoverLetter(params: {
     ],
   })
 
-  return response.content[0].type === 'text' ? response.content[0].text : ''
+  return response.choices[0].message.content ?? ''
 }
 
 export { client, MODEL }

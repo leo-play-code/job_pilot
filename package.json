@@ -16,7 +16,6 @@
     "db:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.36.0",
     "@auth/prisma-adapter": "^2.7.0",
     "@hookform/resolvers": "^3.9.0",
     "@prisma/client": "^5.22.0",
@@ -35,6 +34,7 @@
     "next": "^15.3.0",
     "next-auth": "beta",
     "next-intl": "^3.21.0",
+    "openai": "^6.34.0",
     "pdf-parse": "^1.1.1",
     "puppeteer": "^24.15.0",
     "react": "^19",
