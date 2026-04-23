@@ -4,6 +4,8 @@ import { useSession, signOut } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { useLocale } from 'next-intl'
+import Image from 'next/image'
+import { UserCircle } from 'lucide-react'
 import { LanguageSwitcher } from './LanguageSwitcher'
 
 export function Header() {
@@ -27,12 +29,29 @@ export function Header() {
               >
                 Dashboard
               </Link>
-              <button
-                onClick={() => signOut({ callbackUrl: `/${locale}/login` })}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {t('logout')}
-              </button>
+
+              <div className="flex items-center gap-2">
+                {session.user.image ? (
+                  <Image
+                    src={session.user.image}
+                    alt={session.user.name ?? 'User avatar'}
+                    width={32}
+                    height={32}
+                    className="rounded-full object-cover"
+                  />
+                ) : (
+                  <UserCircle
+                    className="h-8 w-8 text-muted-foreground"
+                    aria-label="User icon"
+                  />
+                )}
+                <button
+                  onClick={() => signOut({ callbackUrl: `/${locale}/login` })}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors focus-visible:ring-2 focus-visible:ring-primary outline-none rounded"
+                >
+                  {t('logout')}
+                </button>
+              </div>
             </>
           ) : (
             <Link

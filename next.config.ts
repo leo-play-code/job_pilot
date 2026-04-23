@@ -5,6 +5,14 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ['puppeteer', 'pdf-parse'],
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com', // Google profile photos
+      },
+    ],
+  },
 }
 
 export default withNextIntl(nextConfig)
