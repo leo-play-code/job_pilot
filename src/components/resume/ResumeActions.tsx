@@ -7,14 +7,16 @@ import { Download, Pencil, Trash2 } from 'lucide-react'
 
 interface ResumeActionsProps {
   resumeId: string
+  rawPdfUrl?: string | null
 }
 
-export function ResumeActions({ resumeId }: ResumeActionsProps) {
+export function ResumeActions({ resumeId, rawPdfUrl }: ResumeActionsProps) {
   const tc = useTranslations('common')
   const tr = useTranslations('resume')
   const router = useRouter()
   const [confirming, setConfirming] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [rawLoading, setRawLoading] = useState(false)
 
   async function handleDelete() {
     setLoading(true)
@@ -24,6 +26,21 @@ export function ResumeActions({ resumeId }: ResumeActionsProps) {
     } finally {
       setLoading(false)
       setConfirming(false)
+    }
+  }
+
+  async function handleDownloadOriginal() {
+    if (rawLoading) return
+    setRawLoading(true)
+    try {
+      const res = await fetch(`/api/resume/${resumeId}/raw-pdf`)
+      if (!res.ok) return
+      const json = await res.json() as { data: { url: string } }
+      if (json.data?.url) window.open(json.data.url, '_blank')
+    } catch {
+      // silently fail — show disabled state already handled
+    } finally {
+      setRawLoading(false)
     }
   }
 
@@ -45,6 +62,17 @@ export function ResumeActions({ resumeId }: ResumeActionsProps) {
         <Download className="h-4 w-4" />
         {tr('download')}
       </a>
+
+      {rawPdfUrl && rawPdfUrl !== '' && (
+        <button
+          onClick={handleDownloadOriginal}
+          disabled={rawLoading}
+          className="flex items-center gap-1.5 px-4 py-2 border rounded-md text-sm hover:bg-muted hover:scale-105 active:scale-95 transition-all focus-visible:ring-2 focus-visible:ring-primary outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Download className="h-4 w-4" />
+          {tr('rawImport.downloadOriginal')}
+        </button>
+      )}
 
       {confirming ? (
         <div className="flex items-center gap-2">

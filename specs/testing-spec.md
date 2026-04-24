@@ -15,12 +15,19 @@
 | 檔案 | 測試項目 |
 |---|---|
 | `src/test/usage.test.ts` | `checkDailyLimit`、`recordUsage`、limit reset 邏輯 |
+| `src/test/clear-all.test.ts` | `DELETE /api/resume`、`DELETE /api/cover-letter` 清除全部 |
+| `src/test/raw-import.test.ts` | `POST /api/resume/import-raw`、`GET /api/resume/:id/raw-pdf`、cover letter rawText context |
 
 ---
 
 ## Task Status
 
 ### Pending
+
+- [ ] **[raw-import] E2E — 完整匯入流程（pending，不實作）**
+  登入 → /resume/upload → 切 "直接匯入" tab → 上傳 PDF → 填標題 → 儲存
+  → dashboard 出現「原始」badge → 進詳細頁看到「下載原始 PDF」按鈕
+  → 點擊成功下載
 
 - [ ] [resume-preview] Integration — `GET /api/resume/:id/preview-html`
   已登入 user，DB 有 1 筆 Resume（built-in modern 模板），呼叫 endpoint，驗證：
@@ -166,3 +173,9 @@
 
 - [x] `src/test/usage.test.ts` — checkDailyLimit / recordUsage / daily reset
 - [x] `src/lib/ai.ts` 替換為 OpenAI gpt-4o-mini（type-check + existing tests pass）
+- [x] **[raw-import] Integration — `POST /api/resume/import-raw`** ✅ 2026-04-24
+  上傳合法 PDF → 驗證：回傳 200 `{ data: { resumeId, title } }`；prisma.resume.create 被呼叫一次；content.rawText 非空字串；rawPdfUrl 欄位存在（string，可為空字串）；未呼叫 prisma.usageLog.create
+- [x] **[raw-import] Integration — `GET /api/resume/:id/raw-pdf`** ✅ 2026-04-24
+  Resume 有 rawPdfUrl → 回傳 200 `{ data: { url } }`；rawPdfUrl 為空字串 → 404；rawPdfUrl 為 null → 404；非擁有者 → 404
+- [x] **[raw-import] Unit — cover letter generation 用 rawText 作 context** ✅ 2026-04-24
+  Mock prisma.resume.findFirst 回傳含 content.rawText 的 resume；驗證送給 generateCoverLetter 的 resumeContent 為 rawText 字串全文，而非結構化物件

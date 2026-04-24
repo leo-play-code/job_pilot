@@ -64,7 +64,16 @@
       "maxSize": "Max 5MB, PDF only"
     },
     "download": "Download PDF",
-    "edit": "Edit"
+    "edit": "Edit",
+    "rawImport": {
+      "tabLabel": "Import As-Is",
+      "aiTabLabel": "AI-Optimized Import",
+      "titleLabel": "Resume Title",
+      "saveButton": "Save",
+      "successToast": "Resume imported",
+      "rawBadge": "Raw",
+      "downloadOriginal": "Download Original PDF"
+    }
   },
   "coverLetter": {
     "title": "Generate Cover Letter",

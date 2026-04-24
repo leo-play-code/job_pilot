@@ -118,6 +118,7 @@ model Resume {
   content        Json
   templateId     String
   language       String    @default("zh")
+  rawPdfUrl      String?
   pdfUrl         String?
   pdfGeneratedAt DateTime?
   layoutOverride Json?

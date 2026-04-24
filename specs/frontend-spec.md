@@ -268,11 +268,81 @@ dashboard.deleteSelectedCoverLettersTitle = "刪除所選自薦信？" / "Delete
 - `status='draft'` 的模板顯示「草稿」badge（半透明），不出現在用戶端
 
 ---
+---
+
+## 原始履歷匯入（Raw Import）
+
+### 頁面修改：`/[locale]/resume/upload`
+
+現有上傳頁新增雙選項 tab：
+
+| Tab | 說明 |
+|---|---|
+| AI 解析優化（現有）| pdf-parse + AI 潤飾 → Builder 4 步驟 |
+| 直接匯入（保留原文）| 僅 pdf-parse → 不優化 → 直接存 |
+
+**直接匯入 UI 流程：**
+1. DropZone 上傳 PDF（max 5MB）
+2. 顯示 `RawImportForm`：標題輸入（預填檔名）+ 語言選擇
+3. 點「儲存」→ 呼叫 `POST /api/resume/import-raw`
+4. 成功 → redirect `/[locale]/dashboard`（toast: 「履歷已匯入」）
+
+### 新增元件
+
+```
+RawImportForm at src/components/resume/RawImportForm.tsx
+  Shows: 上傳進度、標題 input、語言 radio（zh/en）、儲存按鈕
+  API calls: POST /api/resume/import-raw
+  States: idle / uploading / success / error
+```
+
+### 修改元件
+
+```
+Resume Preview page at /resume/[id]（ResumeEditorClient + page.tsx）
+  Add: 若 resume.rawPdfUrl 存在，ResumeActions 顯示「下載原始 PDF」按鈕
+       點擊 → 呼叫 GET /api/resume/:id/raw-pdf → 開啟 S3 URL 下載
+  Add: 若 content.rawText 存在但 experience.length === 0，
+       preview 區域顯示 RawTextView（格式化顯示 rawText，非 iframe 模板渲染）
+
+Dashboard ResumeList（src/components/dashboard/ResumeList.tsx 或同位置）
+  Add: 若 resume.rawPdfUrl 存在，卡片顯示「原始」灰色 badge
+
+RawTextView at src/components/resume/RawTextView.tsx（新元件）
+  Shows: rawText 以 pre 或 whitespace-pre-wrap 顯示，模擬文件質感
+  Actions: 無（純顯示）
+```
+
+### i18n 新增 key
+```
+resume.rawImport.tabLabel       = "直接匯入（保留原文）" / "Import As-Is"
+resume.rawImport.titleLabel     = "履歷標題" / "Resume Title"
+resume.rawImport.saveButton     = "儲存" / "Save"
+resume.rawImport.successToast   = "履歷已匯入" / "Resume imported"
+resume.rawImport.rawBadge       = "原始" / "Raw"
+resume.rawImport.downloadOriginal = "下載原始 PDF" / "Download Original PDF"
+```
+
+---
+
 ## Task Status
 
 ### Pending
 
+
 ### Done
+- [x] **[raw-import] Frontend: 修改 `/resume/upload` 加入雙選項 tab（AI 解析 / 直接匯入）** ✅ 2026-04-24
+  `src/app/[locale]/resume/upload/page.tsx` + `src/components/resume/UploadTabsClient.tsx` — 雙 tab UI（AI 解析優化 / 直接匯入），預設 AI tab，切換後顯示對應表單
+- [x] **[raw-import] Frontend: `RawImportForm` 元件** ✅ 2026-04-24
+  `src/components/resume/RawImportForm.tsx` — DropZone（PDF max 5MB）+ 標題 input（預填檔名）+ 語言 radio（zh/en）+ 儲存按鈕；States: idle / uploading（spinner）/ error；成功後 redirect /dashboard
+- [x] **[raw-import] Frontend: `RawTextView` 元件** ✅ 2026-04-24
+  `src/components/resume/RawTextView.tsx` — rawText 以 `<pre>` whitespace-pre-wrap 純顯示，A4 質感白色 div；ResumeEditorClient 在 rawText 存在且 experience 為空時自動切換顯示
+- [x] **[raw-import] Frontend: Resume Preview page 加「下載原始 PDF」按鈕** ✅ 2026-04-24
+  `src/components/resume/ResumeActions.tsx` — 新增 `rawPdfUrl` prop；非空時顯示下載按鈕；呼叫 GET /api/resume/:id/raw-pdf 取 presigned URL 後 window.open；`src/app/[locale]/resume/[id]/page.tsx` 傳遞 `resume.rawPdfUrl`
+- [x] **[raw-import] Frontend: Dashboard 卡片加「原始」badge** ✅ 2026-04-24
+  `src/components/resume/ResumeList.tsx` — ResumeItem interface 加 rawPdfUrl；rawPdfUrl 非空時顯示灰色「原始」badge；dashboard page 的 Prisma select 加入 rawPdfUrl 欄位
+- [x] **[raw-import] i18n: zh.json / en.json 新增 raw import 相關 key** ✅ 2026-04-24
+  `resume.rawImport.*` 7 個 key 完整新增於 zh.json / en.json
 - [x] **[resume-preview] Frontend: `ResumeIframePreview` component** ✅ 2026-04-24
   `src/components/resume/ResumeIframePreview.tsx` — `<iframe srcdoc>` 以 CSS transform scale 縮放至容器寬；ResizeObserver 計算 scale；onLoad opacity transition；skeleton loading state；shadow-xl paper 質感
 - [x] **[resume-preview] Frontend: 修改 `ResumeEditorClient`** ✅ 2026-04-24

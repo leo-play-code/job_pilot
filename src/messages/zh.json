@@ -65,7 +65,16 @@
       "maxSize": "最大 5MB，僅支援 PDF"
     },
     "download": "下載 PDF",
-    "edit": "編輯"
+    "edit": "編輯",
+    "rawImport": {
+      "tabLabel": "直接匯入（保留原文）",
+      "aiTabLabel": "AI 解析優化",
+      "titleLabel": "履歷標題",
+      "saveButton": "儲存",
+      "successToast": "履歷已匯入",
+      "rawBadge": "原始",
+      "downloadOriginal": "下載原始 PDF"
+    }
   },
   "coverLetter": {
     "title": "生成自薦信",

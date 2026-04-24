@@ -11,6 +11,7 @@ interface ResumeItem {
   title: string
   templateId: string
   createdAt: string
+  rawPdfUrl?: string | null
 }
 
 interface ResumeListProps {
@@ -19,6 +20,7 @@ interface ResumeListProps {
 
 export function ResumeList({ resumes: initialResumes }: ResumeListProps) {
   const t = useTranslations('dashboard')
+  const tr = useTranslations('resume.rawImport')
   const locale = useLocale()
   const [resumes, setResumes] = useState(initialResumes)
   const [editMode, setEditMode] = useState(false)
@@ -154,7 +156,14 @@ export function ResumeList({ resumes: initialResumes }: ResumeListProps) {
                       {new Date(r.createdAt).toLocaleDateString(locale === 'zh' ? 'zh-TW' : 'en-US')}
                     </p>
                   </div>
-                  <span className="text-xs text-muted-foreground capitalize shrink-0 ml-2">{r.templateId}</span>
+                  <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                    {r.rawPdfUrl && r.rawPdfUrl !== '' && (
+                      <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">
+                        {tr('rawBadge')}
+                      </span>
+                    )}
+                    <span className="text-xs text-muted-foreground capitalize">{r.templateId}</span>
+                  </div>
                 </div>
               ) : (
                 <Link
@@ -167,7 +176,14 @@ export function ResumeList({ resumes: initialResumes }: ResumeListProps) {
                       {new Date(r.createdAt).toLocaleDateString(locale === 'zh' ? 'zh-TW' : 'en-US')}
                     </p>
                   </div>
-                  <span className="text-xs text-muted-foreground capitalize shrink-0 ml-2">{r.templateId}</span>
+                  <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                    {r.rawPdfUrl && r.rawPdfUrl !== '' && (
+                      <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">
+                        {tr('rawBadge')}
+                      </span>
+                    )}
+                    <span className="text-xs text-muted-foreground capitalize">{r.templateId}</span>
+                  </div>
                 </Link>
               )}
             </li>

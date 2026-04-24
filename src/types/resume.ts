@@ -32,6 +32,8 @@ export interface ResumeContent {
   education: Education[]
   skills: string[]
   achievements?: string[]
+  rawText?: string
+  extra?: { [sectionName: string]: string[] }
 }
 
 export type TemplateId = string

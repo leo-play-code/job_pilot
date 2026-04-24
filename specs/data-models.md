@@ -15,7 +15,9 @@
 User          id, name, email, emailVerified, image, plan, stripeCustomerId?, createdAt, updatedAt
 Account       id, userId, provider, providerAccountId, tokens...  (NextAuth)
 Session       id, sessionToken, userId, expires                   (NextAuth)
-Resume        id, userId, title, content(Json), templateId, language, createdAt, updatedAt
+Resume        id, userId, title, content(Json), templateId, language,
+              rawPdfUrl(String?),  ← NEW: S3 URL of original uploaded PDF
+              pdfUrl?, pdfGeneratedAt?, layoutOverride(Json?), createdAt, updatedAt
 CoverLetter   id, userId, resumeId?, jobTitle, jobDesc, content, wordCount, language, createdAt, updatedAt
 UsageLog      id, userId, action, date(String "YYYY-MM-DD"), createdAt
 ```
@@ -30,6 +32,9 @@ interface ResumeContent {
   education:  { school, degree, field?, startDate, endDate?, gpa? }[]
   skills: string[]
   achievements?: string[]
+  // Raw Import 擴充欄位：
+  rawText?: string                           // 完整原文備份（PDF 提取，無 AI 處理）
+  extra?: { [sectionName: string]: string[] } // 超出欄位的結構化資訊（e.g. Certifications, Projects）
 }
 ```
 
@@ -104,3 +109,5 @@ Admin 停用 → status='inactive'
 ### Done
 
 - [x] [template-import] DB: Template 新增 referenceImageUrl、aiAnalysis、status 欄位；migration ✅ 2026-04-24
+- [x] [raw-import] DB: Resume 新增 `rawPdfUrl String?` 欄位；migration `add_raw_pdf_url_to_resume` ✅ 2026-04-24
+- [x] [raw-import] TypeScript: 更新 `src/types/resume.ts` 的 `ResumeContent` interface，加入 `rawText?: string` 和 `extra?: { [sectionName: string]: string[] }` ✅ 2026-04-24

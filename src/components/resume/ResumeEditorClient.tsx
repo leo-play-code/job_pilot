@@ -21,6 +21,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { GripVertical, LayoutGrid, Check, X, Pencil, Eye } from 'lucide-react'
 import { ResumeRenderer, DEFAULT_SECTION_ORDER } from './ResumeRenderer'
 import { ResumeIframePreview } from './ResumeIframePreview'
+import { RawTextView } from './RawTextView'
 import type { ResumeContent, LayoutOverride } from '@/types/resume'
 
 // ─── Section label map ────────────────────────────────────────────────────────
@@ -230,7 +231,11 @@ export function ResumeEditorClient({
       {/* ── Resume area: preview or edit ── */}
       {viewMode === 'preview' ? (
         <div className="flex-1 min-w-0">
-          <ResumeIframePreview html={previewHtml} />
+          {content.rawText && content.experience.length === 0 ? (
+            <RawTextView text={content.rawText} />
+          ) : (
+            <ResumeIframePreview html={previewHtml} />
+          )}
         </div>
       ) : (
         <>

@@ -15,7 +15,7 @@ export default async function DashboardPage() {
     prisma.resume.findMany({
       where: { userId: session.user.id },
       orderBy: { createdAt: 'desc' },
-      select: { id: true, title: true, templateId: true, createdAt: true },
+      select: { id: true, title: true, templateId: true, createdAt: true, rawPdfUrl: true },
     }),
     prisma.coverLetter.findMany({
       where: { userId: session.user.id },

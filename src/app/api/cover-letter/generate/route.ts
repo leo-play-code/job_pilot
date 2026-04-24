@@ -40,7 +40,9 @@ export async function POST(request: Request) {
       where: { id: resumeId, userId: session.user.id },
     })
     if (resume) {
-      resumeContent = resume.content as unknown as ResumeContent
+      const content = resume.content as unknown as ResumeContent
+      // If rawText is available (imported PDF), use it as the full resume context
+      resumeContent = content.rawText ? content.rawText : content
     }
   }
 

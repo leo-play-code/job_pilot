@@ -35,6 +35,8 @@
 | DELETE | /api/admin/templates/:id | admin | 刪除模板 |
 | POST | /api/admin/templates/:id/thumbnail | admin | 重新產生 S3 縮圖 |
 | POST | /api/admin/templates/import | admin | **上傳 PNG/PDF → AI 分析 → 建立 draft 模板** |
+| POST | /api/resume/import-raw | required | 上傳 PDF → 不做 AI → 存 S3 + rawText → 建立 Resume |
+| GET | /api/resume/:id/raw-pdf | required | 取得原始 PDF S3 下載連結 |
 
 ## 關鍵 Request / Response
 
@@ -115,6 +117,9 @@ PATCH /api/admin/templates/:id
 
 | Task | 說明 | 完成日期 |
 |---|---|---|
+| [x] [raw-import] Backend: `POST /api/resume/import-raw` | 上傳 PDF → pdf-parse 提取 rawText → S3 上傳（fallback 空字串）→ 建立 Resume，不寫 UsageLog | 2026-04-24 |
+| [x] [raw-import] Backend: `GET /api/resume/:id/raw-pdf` | 驗證擁有者 → rawPdfUrl 為空回 404 → 回傳 S3 URL | 2026-04-24 |
+| [x] [raw-import] Backend: 修改 `POST /api/cover-letter/generate` | content.rawText 存在時以 rawText 作為 resume context，否則使用結構化 content | 2026-04-24 |
 | [x] [resume-preview] Backend: `GET /api/resume/:id/preview-html` ✅ | 驗證擁有者 → 取 template definition → buildResumeHtml → 回傳 html string | 2026-04-24 |
 | [x] Task 1 | `src/lib/template-vision.ts` — Claude Vision API 分析模板圖片 | 2026-04-24 |
 | [x] Task 2 | `pdfFirstPageToPng()` — PDF 首頁轉 PNG（Puppeteer）| 2026-04-24 |

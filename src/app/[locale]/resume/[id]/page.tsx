@@ -48,7 +48,7 @@ export default async function ResumeDetailPage({ params }: ResumeDetailPageProps
           <h1 className="text-xl font-bold">{resume.title}</h1>
           <p className="text-sm text-muted-foreground capitalize">{resume.templateId} 模板</p>
         </div>
-        <ResumeActions resumeId={id} />
+        <ResumeActions resumeId={id} rawPdfUrl={resume.rawPdfUrl} />
       </div>
 
       <ResumeEditorClient
