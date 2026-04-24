@@ -186,6 +186,45 @@ dashboard.deleteSelectedCoverLettersTitle = "刪除所選自薦信？" / "Delete
 
 ---
 
+## Resume 全版面 HTML/CSS 預覽
+
+### 需求
+- 目前 `ResumeRenderer` 用 hardcoded Tailwind 近似版型，DB 自定模板 CSS 從不套用
+- 改為 `<iframe srcdoc>` 注入真實 `buildResumeHtml()` 輸出，與 PDF 完全一致
+
+### 頁面行為（`/resume/[id]`）
+
+**預覽模式（Preview mode，預設）**
+- 顯示 `ResumeIframePreview`：iframe 以 A4 尺寸（794×1123px）縮放至容器寬
+- iframe 載入中顯示骨架 loading
+- 浮動按鈕只有「編輯版面」
+
+**編輯模式（Edit mode）**
+- 點「編輯版面」進入（現有行為保留）
+- 左側仍用 `ResumeRenderer`（輕量 React state 驅動即時更新）
+- 右側 edit panel 不變
+- 儲存後：fetch `/api/resume/:id/preview-html` → 更新 iframe HTML → 自動回到預覽模式
+
+### 新增元件
+
+| 元件 | 位置 | 說明 |
+|---|---|---|
+| `ResumeIframePreview` | `src/components/resume/ResumeIframePreview.tsx` | `<iframe srcdoc>` 容器，CSS scale 縮放，loading state |
+
+### 修改元件
+
+| 元件 | 變更 |
+|---|---|
+| `ResumeEditorClient` | 加 `initialHtml: string` prop；加 `viewMode`（preview/edit）state；儲存後 fetch 新 HTML 並切回 preview |
+| `ResumeDetailPage` (page.tsx) | Server-side 生成 `initialHtml`（fetch template def + buildResumeHtml），pass 給 ResumeEditorClient |
+
+### Responsive 縮放規則
+- iframe 固定 794px 寬（A4），外層 `div` 設 `overflow: hidden`
+- `transform: scale(containerWidth / 794)` via `ResizeObserver`
+- 外層高度 = `1123 * scale`（避免空白 overflow）
+
+---
+
 ## Admin 模板匯入精靈（Template Import Wizard）
 
 ### 頁面路由
@@ -232,12 +271,14 @@ dashboard.deleteSelectedCoverLettersTitle = "刪除所選自薦信？" / "Delete
 ## Task Status
 
 ### Pending
-- [ ] [template-import] DB: Template 新增 `referenceImageUrl String?`、`aiAnalysis Json?`、`status String @default("active")` 欄位；執行 migration
-- [ ] [template-import] Backend: `src/lib/template-vision.ts` — Claude Vision API 分析圖片，回傳 `{ layout, primaryColor, css, sectionOrder, confidence }`
-- [ ] [template-import] Backend: PDF 首頁轉 PNG 工具（Puppeteer 截第一頁）
-- [ ] [template-import] Backend: `POST /api/admin/templates/import` — 接收圖片 → Vision 分析 → 上傳原圖 S3 → 建 draft Template
-- [ ] [template-import] Backend: `PATCH /api/admin/templates/:id` 支援 `status` 欄位（'active' 時同步 `isActive=true`）
+
 ### Done
+- [x] **[resume-preview] Frontend: `ResumeIframePreview` component** ✅ 2026-04-24
+  `src/components/resume/ResumeIframePreview.tsx` — `<iframe srcdoc>` 以 CSS transform scale 縮放至容器寬；ResizeObserver 計算 scale；onLoad opacity transition；skeleton loading state；shadow-xl paper 質感
+- [x] **[resume-preview] Frontend: 修改 `ResumeEditorClient`** ✅ 2026-04-24
+  加 `initialHtml` prop、`previewHtml` state、`viewMode`（preview/edit）state；儲存後 fetch `/api/resume/:id/preview-html` 更新 iframe 並自動切回 preview；浮動 action bar 依 viewMode 顯示不同按鈕（預覽/儲存/取消/編輯版面）
+- [x] **[resume-preview] Frontend: 修改 `ResumeDetailPage` (page.tsx)** ✅ 2026-04-24
+  server-side 解析 template definition（built-in → DB → fallback modern）；呼叫 `buildResumeHtml()` 生成 `initialHtml`；傳給 `ResumeEditorClient`
 - [x] **[template-preview] 替換 TemplateSelector 灰色佔位為版型 SVG 縮圖** ✅ 2026-04-24
   `src/components/resume/TemplateSelector.tsx` 中各模板以 inline SVG 縮圖取代灰色佔位；
   選中狀態 SVG 主色高亮（primary blue）

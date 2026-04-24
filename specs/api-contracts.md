@@ -27,6 +27,7 @@
 | DELETE | /api/cover-letter/:id | required | 刪除自薦信 |
 | DELETE | /api/resume | required | 刪除當前用戶所有履歷 |
 | DELETE | /api/cover-letter | required | 刪除當前用戶所有自薦信 |
+| GET | /api/resume/:id/preview-html | required | 取得履歷完整 HTML（iframe 預覽用）|
 | GET | /api/templates | public | 列出 active 模板（用戶選擇用）|
 | GET | /api/admin/templates | admin | 列出全部模板（含 draft）|
 | POST | /api/admin/templates | admin | 手動建立模板（JSON CSS）|
@@ -91,6 +92,16 @@ POST /api/admin/templates/import
   8. 回傳 templateId + analysis + 建議 htmlDefinition（供 Admin 在前端調整）
   注意：draft 模板不出現在 /api/templates 用戶列表，須 admin 發佈後才生效
 
+GET /api/resume/:id/preview-html
+  Auth: required (user 必須擁有此 resume)
+  Response: { data: { html: string } }
+  Business logic:
+  1. 驗證 session，findFirst { id, userId }（擁有者驗證）
+  2. 取 templateId → BUILTIN_TEMPLATE_DEFINITIONS[templateId] 或 prisma.template.findUnique
+  3. 呼叫 buildResumeHtml(content, definition, language, layoutOverride?.sectionOrder)
+  4. 回傳 { data: { html } }
+  Note: draft/DB 自定模板的 CSS 完整套用，不 fallback
+
 PATCH /api/admin/templates/:id
   body: { name?, description?, category?, sortOrder?, htmlDefinition?, status?, isActive? }
   status='active' 時同步設 isActive=true（向後兼容）
@@ -98,10 +109,13 @@ PATCH /api/admin/templates/:id
 
 ## Task Status
 
+### Pending
+
 ### Done
 
 | Task | 說明 | 完成日期 |
 |---|---|---|
+| [x] [resume-preview] Backend: `GET /api/resume/:id/preview-html` ✅ | 驗證擁有者 → 取 template definition → buildResumeHtml → 回傳 html string | 2026-04-24 |
 | [x] Task 1 | `src/lib/template-vision.ts` — Claude Vision API 分析模板圖片 | 2026-04-24 |
 | [x] Task 2 | `pdfFirstPageToPng()` — PDF 首頁轉 PNG（Puppeteer）| 2026-04-24 |
 | [x] Task 3 | `POST /api/admin/templates/import` — 上傳圖片 → Vision 分析 → 建立 draft 模板 | 2026-04-24 |

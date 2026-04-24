@@ -17,7 +17,8 @@
     ],
     "additionalDirectories": [
       "c:\\Users\\User\\Desktop\\github\\AI_startup\\job_pilot\\src\\app\\[locale]\\admin\\templates",
-      "C:\\Users\\User\\Desktop\\github\\AI_startup\\job_pilot\\src\\app\\[locale]\\admin\\templates"
+      "C:\\Users\\User\\Desktop\\github\\AI_startup\\job_pilot\\src\\app\\[locale]\\admin\\templates",
+      "c:\\Users\\User\\Desktop\\github\\AI_startup\\job_pilot\\src\\app\\api\\resume\\[id]"
     ]
   }
 }

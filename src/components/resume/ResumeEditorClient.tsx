@@ -18,8 +18,9 @@ import {
   arrayMove,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { GripVertical, LayoutGrid, Check, X, Pencil } from 'lucide-react'
+import { GripVertical, LayoutGrid, Check, X, Pencil, Eye } from 'lucide-react'
 import { ResumeRenderer, DEFAULT_SECTION_ORDER } from './ResumeRenderer'
+import { ResumeIframePreview } from './ResumeIframePreview'
 import type { ResumeContent, LayoutOverride } from '@/types/resume'
 
 // ─── Section label map ────────────────────────────────────────────────────────
@@ -126,6 +127,7 @@ interface ResumeEditorClientProps {
   initialContent: ResumeContent
   templateId: string
   initialLayoutOverride: LayoutOverride | null
+  initialHtml: string
 }
 
 export function ResumeEditorClient({
@@ -133,9 +135,11 @@ export function ResumeEditorClient({
   initialContent,
   templateId,
   initialLayoutOverride,
+  initialHtml,
 }: ResumeEditorClientProps) {
   const defaultOrder = initialLayoutOverride?.sectionOrder ?? DEFAULT_SECTION_ORDER
-  const [isEditing, setIsEditing] = useState(false)
+  const [viewMode, setViewMode] = useState<'preview' | 'edit'>('preview')
+  const [previewHtml, setPreviewHtml] = useState<string>(initialHtml)
   const [sectionOrder, setSectionOrder] = useState<string[]>(defaultOrder)
   const [content, setContent] = useState<ResumeContent>(initialContent)
   const [saving, setSaving] = useState(false)
@@ -190,9 +194,16 @@ export function ResumeEditorClient({
           layoutOverride: { sectionOrder },
         }),
       })
+      // 儲存後 fetch 新 HTML 並切回預覽
+      const res = await fetch(`/api/resume/${resumeId}/preview-html`)
+      if (res.ok) {
+        const json = await res.json() as { data: { html: string } }
+        setPreviewHtml(json.data.html)
+      }
       setSaved(true)
       setDirty(false)
       setTimeout(() => setSaved(false), 2000)
+      setViewMode('preview')  // 儲存後自動切回預覽
     } finally {
       setSaving(false)
     }
@@ -202,7 +213,7 @@ export function ResumeEditorClient({
     setSectionOrder(defaultOrder)
     setContent(initialContent)
     setDirty(false)
-    setIsEditing(false)
+    setViewMode('preview')
   }
 
   // Determine which sections have content (for the reorder panel)
@@ -216,82 +227,89 @@ export function ResumeEditorClient({
 
   return (
     <div className="flex gap-6">
-      {/* ── Resume preview ── */}
-      <div className="flex-1 min-w-0 overflow-x-auto">
-        <ResumeRenderer
-          content={content}
-          templateId={templateId}
-          sectionOrder={sectionOrder}
-        />
-      </div>
+      {/* ── Resume area: preview or edit ── */}
+      {viewMode === 'preview' ? (
+        <div className="flex-1 min-w-0">
+          <ResumeIframePreview html={previewHtml} />
+        </div>
+      ) : (
+        <>
+          {/* ── Resume renderer (edit mode) ── */}
+          <div className="flex-1 min-w-0 overflow-x-auto">
+            <ResumeRenderer
+              content={content}
+              templateId={templateId}
+              sectionOrder={sectionOrder}
+            />
+          </div>
 
-      {/* ── Edit panel ── */}
-      {isEditing && (
-        <div className="w-56 shrink-0 space-y-4">
-          {/* Section reorder */}
-          <div className="bg-white border border-gray-200 rounded-xl p-3 shadow-sm">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">區塊順序</p>
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <SortableContext items={sectionOrder} strategy={verticalListSortingStrategy}>
-                <div className="space-y-2">
-                  {sectionOrder.map(id => (
-                    <SortableSectionItem key={id} id={id} isActive={activeSections.has(id)} />
+          {/* ── Edit panel ── */}
+          <div className="w-56 shrink-0 space-y-4">
+            {/* Section reorder */}
+            <div className="bg-white border border-gray-200 rounded-xl p-3 shadow-sm">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">區塊順序</p>
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <SortableContext items={sectionOrder} strategy={verticalListSortingStrategy}>
+                  <div className="space-y-2">
+                    {sectionOrder.map(id => (
+                      <SortableSectionItem key={id} id={id} isActive={activeSections.has(id)} />
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
+            </div>
+
+            {/* Quick text edit panel */}
+            <div className="bg-white border border-gray-200 rounded-xl p-3 shadow-sm space-y-3">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">快速編輯</p>
+
+              <div className="space-y-1.5">
+                <p className="text-xs text-gray-500">姓名</p>
+                <InlineEdit
+                  value={content.personalInfo.name}
+                  onSave={v => updateContent('personalInfo', { ...content.personalInfo, name: v })}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <p className="text-xs text-gray-500">摘要</p>
+                <InlineEdit
+                  value={content.summary ?? ''}
+                  onSave={v => updateContent('summary', v)}
+                  multiline
+                />
+              </div>
+
+              {content.experience.slice(0, 2).map((exp, i) => (
+                <div key={i} className="space-y-1.5 pt-2 border-t border-gray-100">
+                  <p className="text-xs text-gray-500">工作 {i + 1}</p>
+                  <InlineEdit
+                    value={exp.company}
+                    onSave={v => updateExpField(i, 'company', v)}
+                  />
+                  <InlineEdit
+                    value={exp.title}
+                    onSave={v => updateExpField(i, 'title', v)}
+                  />
+                  {exp.bullets.slice(0, 2).map((b, j) => (
+                    <InlineEdit
+                      key={j}
+                      value={b}
+                      onSave={v => updateBullet(i, j, v)}
+                      multiline
+                      className="text-xs"
+                    />
                   ))}
                 </div>
-              </SortableContext>
-            </DndContext>
-          </div>
-
-          {/* Quick text edit panel */}
-          <div className="bg-white border border-gray-200 rounded-xl p-3 shadow-sm space-y-3">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">快速編輯</p>
-
-            <div className="space-y-1.5">
-              <p className="text-xs text-gray-500">姓名</p>
-              <InlineEdit
-                value={content.personalInfo.name}
-                onSave={v => updateContent('personalInfo', { ...content.personalInfo, name: v })}
-              />
+              ))}
             </div>
-
-            <div className="space-y-1.5">
-              <p className="text-xs text-gray-500">摘要</p>
-              <InlineEdit
-                value={content.summary ?? ''}
-                onSave={v => updateContent('summary', v)}
-                multiline
-              />
-            </div>
-
-            {content.experience.slice(0, 2).map((exp, i) => (
-              <div key={i} className="space-y-1.5 pt-2 border-t border-gray-100">
-                <p className="text-xs text-gray-500">工作 {i + 1}</p>
-                <InlineEdit
-                  value={exp.company}
-                  onSave={v => updateExpField(i, 'company', v)}
-                />
-                <InlineEdit
-                  value={exp.title}
-                  onSave={v => updateExpField(i, 'title', v)}
-                />
-                {exp.bullets.slice(0, 2).map((b, j) => (
-                  <InlineEdit
-                    key={j}
-                    value={b}
-                    onSave={v => updateBullet(i, j, v)}
-                    multiline
-                    className="text-xs"
-                  />
-                ))}
-              </div>
-            ))}
           </div>
-        </div>
+        </>
       )}
 
       {/* ── Floating action bar ── */}
       <div className="fixed bottom-6 right-6 flex items-center gap-2 bg-white border border-gray-200 rounded-full shadow-lg px-3 py-2">
-        {isEditing ? (
+        {viewMode === 'edit' ? (
           <>
             {dirty && (
               <span className="text-xs text-amber-600 mr-1">未儲存</span>
@@ -302,6 +320,13 @@ export function ResumeEditorClient({
               </span>
             )}
             <button
+              onClick={() => setViewMode('preview')}
+              className="flex items-center gap-1.5 text-xs px-3 py-1.5 border border-gray-200 rounded-full text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              <Eye className="w-3.5 h-3.5" />
+              預覽
+            </button>
+            <button
               onClick={handleSave}
               disabled={saving || !dirty}
               className="text-xs px-3 py-1.5 bg-primary text-primary-foreground rounded-full font-medium hover:opacity-90 disabled:opacity-40 transition-opacity"
@@ -311,13 +336,14 @@ export function ResumeEditorClient({
             <button
               onClick={handleCancel}
               className="text-xs px-2 py-1.5 text-gray-500 hover:text-gray-700 transition-colors"
+              aria-label="取消編輯"
             >
               <X className="w-4 h-4" />
             </button>
           </>
         ) : (
           <button
-            onClick={() => setIsEditing(true)}
+            onClick={() => setViewMode('edit')}
             className="flex items-center gap-1.5 text-xs px-3 py-1.5 border border-gray-200 rounded-full text-gray-700 hover:bg-gray-50 transition-colors"
           >
             <LayoutGrid className="w-3.5 h-3.5" />

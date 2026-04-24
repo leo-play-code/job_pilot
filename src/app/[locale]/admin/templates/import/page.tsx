@@ -20,7 +20,6 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { GripVertical, Upload, Loader2, ChevronRight, ChevronLeft } from 'lucide-react'
 import { useRouter } from '@/i18n/navigation'
-import { ResumeRenderer } from '@/components/resume/ResumeRenderer'
 import type { ResumeContent } from '@/types/resume'
 
 // ─── Sample content (client-safe hardcoded version) ──────────────────────────
@@ -72,6 +71,71 @@ const WIZARD_SAMPLE_CONTENT: ResumeContent = {
   ],
   skills: ['TypeScript', 'React', 'Node.js', 'PostgreSQL', 'AWS', 'Docker'],
   achievements: ['Best Engineer Award 2023', 'Speaker at React Conf 2022'],
+}
+
+// ─── Client-side HTML builder (mirrors pdf.ts buildResumeHtml) ───────────────
+
+function buildPreviewHtml(
+  content: ResumeContent,
+  definition: { css: string; layout: 'single' | 'split'; sectionOrder?: string[] },
+): string {
+  const { personalInfo: p, summary, experience, education, skills, achievements } = content
+  const { css, layout } = definition
+  const isSplit = layout === 'split'
+  const order = definition.sectionOrder ?? ['summary', 'experience', 'education', 'skills', 'achievements']
+  const L = { present: 'Present', skills: 'Skills', exp: 'Experience', edu: 'Education', summary: 'Summary', achieve: 'Achievements' }
+
+  const sections: Record<string, string> = {
+    summary: summary ? `<h2>${L.summary}</h2><p style="font-size:13px;margin:4px 0">${summary}</p>` : '',
+    experience: experience.length ? `<h2>${L.exp}</h2>${experience.map(e => `
+      <div style="margin-bottom:10px">
+        <div class="job-title">${e.title}</div>
+        <div class="company">${e.company} · ${e.startDate} – ${e.current ? L.present : (e.endDate ?? '')}</div>
+        <ul>${e.bullets.map(b => `<li>${b}</li>`).join('')}</ul>
+      </div>`).join('')}` : '',
+    education: education.length ? `<h2>${L.edu}</h2>${education.map(e => `
+      <div style="margin-bottom:8px">
+        <div class="job-title">${e.school}</div>
+        <div class="company">${e.degree}${e.field ? `, ${e.field}` : ''} · ${e.startDate} – ${e.endDate ?? ''}</div>
+      </div>`).join('')}` : '',
+    skills: skills.length ? `<h2>${L.skills}</h2><div class="skills">${skills.map(s => `<span class="skill">${s}</span>`).join('')}</div>` : '',
+    achievements: achievements?.length ? `<h2>${L.achieve}</h2><ul>${achievements.map(a => `<li>${a}</li>`).join('')}</ul>` : '',
+  }
+
+  if (isSplit) {
+    const sidebarHtml = `
+      <div class="sidebar">
+        <h1>${p.name}</h1>
+        <div class="contact">${p.email}${p.phone ? `<br>${p.phone}` : ''}${p.location ? `<br>${p.location}` : ''}${p.linkedin ? `<br>${p.linkedin}` : ''}</div>
+        <h2>${L.skills}</h2>${skills.map(s => `<div class="skill">• ${s}</div>`).join('')}
+        ${achievements?.length ? `<h2>${L.achieve}</h2>${achievements.map(a => `<div class="skill">• ${a}</div>`).join('')}` : ''}
+        <h2>${L.edu}</h2>${education.map(e => `<div style="margin-bottom:8px"><div style="font-weight:bold;font-size:12px">${e.school}</div><div style="font-size:11px;opacity:.8">${e.degree}</div></div>`).join('')}
+      </div>`
+    const mainSections = order.filter(s => !['skills', 'education', 'achievements'].includes(s))
+    return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>${css}</style></head><body>${sidebarHtml}<div class="main">${mainSections.map(s => sections[s] ?? '').join('')}</div></body></html>`
+  }
+
+  const header = `<div style="margin-bottom:16px"><h1>${p.name}</h1><div class="contact">${[p.email, p.phone, p.location, p.linkedin, p.website].filter(Boolean).join(' | ')}</div></div>`
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>${css}</style></head><body><div class="main">${header}${order.map(s => sections[s] ?? '').join('')}</div></body></html>`
+}
+
+// ─── iframe preview component ─────────────────────────────────────────────────
+
+function CssPreviewFrame({ css, layout, content, sectionOrder }: {
+  css: string
+  layout: 'single' | 'split'
+  content: ResumeContent
+  sectionOrder: string[]
+}) {
+  const html = buildPreviewHtml(content, { css, layout, sectionOrder })
+  return (
+    <iframe
+      srcDoc={html}
+      sandbox="allow-same-origin"
+      style={{ width: '794px', height: '600px', border: 'none', transformOrigin: 'top left', transform: 'scale(0.42)' }}
+      title="模板預覽"
+    />
+  )
 }
 
 // ─── Section labels ───────────────────────────────────────────────────────────
@@ -300,12 +364,12 @@ export default function TemplateImportPage() {
 
   const handleColorChange = useCallback(
     (newColor: string) => {
+      // Only replace the current primary color, preserving other hex values (text, borders, etc.)
+      const updated = currentCss.replaceAll(currentColor, newColor)
       setCurrentColor(newColor)
-      // Replace all hex colors in the CSS with the new primary color
-      const updated = currentCss.replace(/#[0-9a-fA-F]{6}/g, newColor)
       setCurrentCss(updated)
     },
-    [currentCss],
+    [currentCss, currentColor],
   )
 
   function handleDragEnd(event: DragEndEvent) {
@@ -467,15 +531,15 @@ export default function TemplateImportPage() {
               {/* Right: live preview + adjustment panel */}
               <div className="space-y-4">
                 {/* Live resume preview */}
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 overflow-auto">
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 overflow-hidden">
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
                     即時預覽
                   </p>
-                  <div className="origin-top-left" style={{ transform: 'scale(0.4)', width: '250%', height: '420px' }}>
-                    <style>{currentCss}</style>
-                    <ResumeRenderer
+                  <div style={{ height: '252px', overflow: 'hidden' }}>
+                    <CssPreviewFrame
+                      css={currentCss}
+                      layout={currentLayout}
                       content={WIZARD_SAMPLE_CONTENT}
-                      templateId={currentLayout === 'split' ? 'professional' : 'modern'}
                       sectionOrder={sectionOrder}
                     />
                   </div>

@@ -22,13 +22,30 @@
 
 ### Pending
 
-- [ ] [Regression] 詳細頁刪除履歷 — `/resume/[id]` 頁點「刪除」→ 確認 → 呼叫 DELETE API → 導向 `/dashboard`；取消後留在頁面
+- [ ] [resume-preview] Integration — `GET /api/resume/:id/preview-html`
+  已登入 user，DB 有 1 筆 Resume（built-in modern 模板），呼叫 endpoint，驗證：
+  - 回傳 200 `{ data: { html: string } }`
+  - html 包含 resume 的 personalInfo.name
+  - html 包含 `<style>` 標籤（CSS 已注入）
+  - 對非擁有者回傳 403
+  - 對 DB 自定模板（custom templateId）正確套用該模板的 CSS
+
+- [ ] [resume-preview] E2E — Resume 全版面預覽
+  登入 → Dashboard → 點開履歷 → 預設看到 iframe 預覽（不是空白或 Tailwind 元件）→
+  iframe 高度 ≈ 1123 * scale；點「編輯版面」進入 edit → 修改文字 → 儲存 → 自動切回預覽 → 名字更新顯示
+
+- [ ] [Regression] AI 模板生成 500 — 確認 `POST /api/admin/templates/generate` 在 GPT-4o 回傳接近 4096 token 的回應時不再因 JSON truncation 拋出 SyntaxError；兩批次並行呼叫皆成功並合併結果
+- [ ] [Regression] AI 模板生成「no valid templates」— 確認 `generateTemplateCSS` 不再因 CSS 中的雙引號 font-family 破壞 JSON 格式而全數失敗；改用 raw text 輸出後，至少 8/10 個模板 css 字串長度 > 80 chars
+
+- [ ] 詳細頁刪除履歷 — `/resume/[id]` 頁點「刪除」→ 確認 → 呼叫 DELETE API → 導向 `/dashboard`；取消後留在頁面
 - [ ] [Regression] 詳細頁刪除自薦信 — `/cover-letter/[id]` 頁點「刪除」→ 確認 → 呼叫 DELETE API → 導向 `/dashboard`；取消後留在頁面
 - [ ] [Regression] Dashboard 刪除履歷 — 點垃圾桶 → 確認 → 呼叫 `DELETE /api/resume/:id` → 項目從列表消失，不重載頁面；取消不刪除；API 失敗顯示錯誤文字
 - [ ] [Regression] Dashboard 刪除自薦信 — 同上，呼叫 `DELETE /api/cover-letter/:id`
 - [ ] [Regression] Dashboard 卡片緊湊 — ResumeList / CoverLetterList 的每個 item 高度明顯小於原 `p-4` 版本；兩欄仍對稱
 - [ ] [Regression] 自薦信字數區分 — 選 SHORT(150)/MEDIUM(300)/LONG(500) 生成的自薦信長度應明顯不同，不再出現 300 與 500 字結果幾乎相同的情況；驗證 `MAX_TOKENS_MAP` 各值（450/900/1500）正確傳入 OpenAI API 的 `max_tokens`
 - [ ] [Regression] Admin 新增模板導向 — 在 `/zh/admin/templates` 點「新增模板」不再 404，應正確導向 `/zh/admin/templates/new`；確認使用 `@/i18n/navigation` 的 Link/useRouter 而非 `next/link`
+- [ ] [Regression] 模板匯入精靈即時預覽 — Step 2 預覽應使用 `<iframe srcdoc>` 注入 AI 生成 CSS，不得使用 `ResumeRenderer`（Tailwind template）；上傳相同圖片後左右欄的配色和版型應明顯相似
+- [ ] [Regression] 模板匯入精靈主色 picker — 拖動 color picker 後 `<iframe>` 預覽中的 sidebar/header 顏色應即時更新；只有原 primaryColor 被替換，其他 hex（文字色、邊框色）不受影響
 
 - [ ] **[template-import] Unit — `src/lib/template-vision.ts` analyzeTemplateImage()**
   Mock Anthropic client，傳入 PNG Buffer，驗證：
