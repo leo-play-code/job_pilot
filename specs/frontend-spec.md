@@ -129,3 +129,67 @@ dashboard.deleteSelectedCoverLettersTitle = "刪除所選自薦信？" / "Delete
 | `modern` | Modern | 單欄、簡潔留白、適合科技業 |
 | `professional` | Professional | 雙欄、傳統正式、適合金融/法律 |
 | `creative` | Creative | 左側色塊、有個性、適合設計/行銷 |
+
+## 模板選擇器預覽圖規範（TemplateSelector）
+
+### 需求
+- 現有卡片預覽區 `w-full h-24 bg-muted rounded` 為純灰色佔位，無法區分版型
+- 改為各模板專屬的 SVG 排版縮圖，讓用戶一眼看出版型差異
+
+### 三個模板的 SVG 結構
+
+**Modern（單欄）**
+```
+┌────────────────────────────────────┐
+│  ███████████████  (name bar)       │
+│  ─────────────── (divider)         │
+│  ████  (section heading)           │
+│  ██████████████ (text line)        │
+│  █████████      (text line short)  │
+│  ████  (section heading)           │
+│  ████████████████████ (text line)  │
+│  ███████████          (text line)  │
+└────────────────────────────────────┘
+```
+
+**Professional（雙欄）**
+```
+┌──────────────────────────────────────┐
+│ ████████████████████ (name - full)   │
+│ ┌──────────┬────────────────────────┐│
+│ │ ███ tags │ ████ (experience head) ││
+│ │ ██       │ ████████████ (text)    ││
+│ │ ██       │ ████████ (text)        ││
+│ │ ███ (edu)│ ████ (another section) ││
+│ │ ████████ │ ██████████████ (text)  ││
+│ └──────────┴────────────────────────┘│
+└──────────────────────────────────────┘
+```
+
+**Creative（左側色塊）**
+```
+┌──────────────────────────────────────┐
+│ ███(dark│████████████████████████    │
+│ sidebar)│ (name + section lines)     │
+│         │ ██████████████ (line)      │
+│         │ ████████ (line)            │
+│         │ ████ (head)                │
+│         │ ████████████████ (line)    │
+└──────────────────────────────────────┘
+```
+
+### 實作方式
+- 各模板預覽以 **inline SVG** 實作，嵌入 `TemplateSelector.tsx`
+- SVG viewBox 統一為 `0 0 160 100`，顏色用 `currentColor` / 固定灰階，不依賴主題
+- 已選中狀態：SVG 主色（heading bar、sidebar）從灰色變為 `hsl(var(--primary) / 0.6)` 以呼應選取框線
+- 每個模板 SVG 抽為獨立的 function component（`ModernPreview` / `ProfessionalPreview` / `CreativePreview`），放在同一個檔案中
+
+---
+## Task Status
+
+### Pending
+
+### Done
+- [x] **[template-preview] 替換 TemplateSelector 灰色佔位為版型 SVG 縮圖** ✅ 2026-04-24
+  `src/components/resume/TemplateSelector.tsx` 中各模板以 inline SVG 縮圖取代灰色佔位；
+  選中狀態 SVG 主色高亮（primary blue）

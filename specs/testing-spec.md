@@ -106,6 +106,10 @@
 - [ ] **[edit-mode] Regression — i18n edit mode**
   切換到 EN 後，「Edit」/「Cancel」/「Select All」/「Delete Selected」/「Clear All」皆為英文
 
+- [ ] **[template-preview] Regression — 三個模板縮圖可識別**
+  TemplateSelector 中：Modern 卡片顯示單欄 SVG；Professional 顯示雙欄 SVG；Creative 顯示左側色塊 SVG；
+  灰色佔位方塊不再出現（`bg-muted h-24` 元素不存在）
+
 ### Done
 
 - [x] `src/test/usage.test.ts` — checkDailyLimit / recordUsage / daily reset
