@@ -57,6 +57,7 @@ export default async function ResumeDetailPage({ params }: ResumeDetailPageProps
         templateId={resume.templateId}
         initialLayoutOverride={layoutOverride}
         initialHtml={initialHtml}
+        rawPdfUrl={resume.rawPdfUrl}
       />
     </div>
   )

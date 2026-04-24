@@ -16,7 +16,8 @@
       "Bash(git diff *)",
       "Bash(node -e \"const {createId} = require\\('@paralleldrive/cuid2'\\); console.log\\(createId\\(\\)\\)\")",
       "Bash(node -e \"const cuid = require\\('cuid'\\); console.log\\(cuid\\(\\)\\)\")",
-      "Bash(node -e \"console.log\\(require\\('crypto'\\).randomUUID\\(\\)\\)\")"
+      "Bash(node -e \"console.log\\(require\\('crypto'\\).randomUUID\\(\\)\\)\")",
+      "PowerShell(Stop-Process -Force)"
     ],
     "additionalDirectories": [
       "c:\\Users\\User\\Desktop\\github\\AI_startup\\job_pilot\\src\\app\\[locale]\\admin\\templates",

@@ -24,6 +24,10 @@
 
 ### Pending
 
+- [ ] [Regression] 原始 PDF 履歷排版保留 — 確認 raw import 上傳 PDF 後，詳細頁顯示的是嵌入 PDF iframe（`RawPdfView`）而非純文字 `RawTextView`；`rawPdfUrl` 非空時 `ResumeEditorClient` 必須優先渲染 `RawPdfView`
+
+- [ ] [Regression] Prisma client rawPdfUrl 欄位缺失 — 確認 `prisma.resume.findMany()` 的 `select` 包含 `rawPdfUrl: true` 時不拋出 `PrismaClientValidationError`；新增欄位後必須執行 `npx prisma generate` 才能讓 client types 同步
+
 - [ ] **[raw-import] E2E — 完整匯入流程（pending，不實作）**
   登入 → /resume/upload → 切 "直接匯入" tab → 上傳 PDF → 填標題 → 儲存
   → dashboard 出現「原始」badge → 進詳細頁看到「下載原始 PDF」按鈕

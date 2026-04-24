@@ -22,6 +22,7 @@ import { GripVertical, LayoutGrid, Check, X, Pencil, Eye } from 'lucide-react'
 import { ResumeRenderer, DEFAULT_SECTION_ORDER } from './ResumeRenderer'
 import { ResumeIframePreview } from './ResumeIframePreview'
 import { RawTextView } from './RawTextView'
+import { RawPdfView } from './RawPdfView'
 import type { ResumeContent, LayoutOverride } from '@/types/resume'
 
 // ─── Section label map ────────────────────────────────────────────────────────
@@ -129,6 +130,7 @@ interface ResumeEditorClientProps {
   templateId: string
   initialLayoutOverride: LayoutOverride | null
   initialHtml: string
+  rawPdfUrl?: string | null
 }
 
 export function ResumeEditorClient({
@@ -137,6 +139,7 @@ export function ResumeEditorClient({
   templateId,
   initialLayoutOverride,
   initialHtml,
+  rawPdfUrl,
 }: ResumeEditorClientProps) {
   const defaultOrder = initialLayoutOverride?.sectionOrder ?? DEFAULT_SECTION_ORDER
   const [viewMode, setViewMode] = useState<'preview' | 'edit'>('preview')
@@ -231,7 +234,9 @@ export function ResumeEditorClient({
       {/* ── Resume area: preview or edit ── */}
       {viewMode === 'preview' ? (
         <div className="flex-1 min-w-0">
-          {content.rawText && content.experience.length === 0 ? (
+          {rawPdfUrl ? (
+            <RawPdfView pdfUrl={rawPdfUrl} />
+          ) : content.rawText && content.experience.length === 0 ? (
             <RawTextView text={content.rawText} />
           ) : (
             <ResumeIframePreview html={previewHtml} />
