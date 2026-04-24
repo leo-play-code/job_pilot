@@ -3,7 +3,10 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET() {
   const templates = await prisma.template.findMany({
-    where: { isActive: true },
+    where: {
+      // status='active' is the canonical filter; ensures draft/inactive templates are hidden
+      status: 'active',
+    },
     select: {
       id: true,
       name: true,
@@ -11,6 +14,7 @@ export async function GET() {
       category: true,
       thumbnailUrl: true,
       sortOrder: true,
+      status: true,
     },
     orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
   })

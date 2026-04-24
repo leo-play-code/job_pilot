@@ -185,11 +185,69 @@ dashboard.deleteSelectedCoverLettersTitle = "刪除所選自薦信？" / "Delete
 - 每個模板 SVG 抽為獨立的 function component（`ModernPreview` / `ProfessionalPreview` / `CreativePreview`），放在同一個檔案中
 
 ---
+
+## Admin 模板匯入精靈（Template Import Wizard）
+
+### 頁面路由
+`/[locale]/admin/templates/import`
+
+### 流程（3 步驟）
+
+**Step 1 — 上傳圖片**
+- DropZone：接受 PNG / JPG / PDF（max 5MB PNG, max 10MB PDF）
+- 選擇後顯示圖片預覽（`<img>`）
+- 點「開始分析」→ LoadingOverlay（「AI 正在分析版型設計…」）
+- 呼叫 `POST /api/admin/templates/import`（multipart）
+
+**Step 2 — 分析結果 + 互動調整**
+
+版面：**左欄原始設計圖** | **右欄即時 ResumeRenderer 預覽**（sample data + AI 生成 CSS）
+
+調整面板（右側下方）：
+- 版型切換：single / split（Radio）
+- 主色：color picker（改 CSS 的 hex，即時更新預覽）
+- 區塊順序：dnd-kit 拖曳（重用 `SortableSectionItem`）
+- CSS 進階編輯：可展開 textarea，顯示 AI 生成 CSS，手動微調後即時 apply
+
+**Step 3 — 命名 & 發佈**
+- 模板名稱（input, required）
+- 描述（input, required）
+- 分類（select: tech / finance / creative / other）
+- 點「發佈」→ `PATCH /api/admin/templates/:id?` with `{ status: 'active' }` → 背景觸發縮圖生成 → 導向 `/admin/templates`
+
+### 新增元件
+
+| 元件 | 位置 | 說明 |
+|---|---|---|
+| `TemplateImportWizard` | `src/components/admin/TemplateImportWizard.tsx` | 3-step 精靈容器 |
+| `TemplateUploadStep` | `src/components/admin/TemplateUploadStep.tsx` | DropZone + 分析觸發 |
+| `TemplateConfigStep` | `src/components/admin/TemplateConfigStep.tsx` | 左圖右預覽 + 調整面板 |
+| `TemplatePublishStep` | `src/components/admin/TemplatePublishStep.tsx` | 命名 + 分類 + 發佈 |
+
+### Admin 模板列表更新
+- `/admin/templates` 新增「📥 匯入模板」按鈕，連結 `/admin/templates/import`
+- `status='draft'` 的模板顯示「草稿」badge（半透明），不出現在用戶端
+
+---
 ## Task Status
 
 ### Pending
-
+- [ ] [template-import] DB: Template 新增 `referenceImageUrl String?`、`aiAnalysis Json?`、`status String @default("active")` 欄位；執行 migration
+- [ ] [template-import] Backend: `src/lib/template-vision.ts` — Claude Vision API 分析圖片，回傳 `{ layout, primaryColor, css, sectionOrder, confidence }`
+- [ ] [template-import] Backend: PDF 首頁轉 PNG 工具（Puppeteer 截第一頁）
+- [ ] [template-import] Backend: `POST /api/admin/templates/import` — 接收圖片 → Vision 分析 → 上傳原圖 S3 → 建 draft Template
+- [ ] [template-import] Backend: `PATCH /api/admin/templates/:id` 支援 `status` 欄位（'active' 時同步 `isActive=true`）
 ### Done
 - [x] **[template-preview] 替換 TemplateSelector 灰色佔位為版型 SVG 縮圖** ✅ 2026-04-24
   `src/components/resume/TemplateSelector.tsx` 中各模板以 inline SVG 縮圖取代灰色佔位；
   選中狀態 SVG 主色高亮（primary blue）
+- [x] **[template-import] Frontend: `/admin/templates/import` 頁面（3-step wizard）** ✅ 2026-04-24
+  `src/app/[locale]/admin/templates/import/page.tsx` — 3 步驟精靈，全部整合在單一檔案
+- [x] **[template-import] Frontend: `TemplateUploadStep` — DropZone (PNG/JPG/PDF) + 送 import API + loading** ✅ 2026-04-24
+  Step 1：拖曳/點擊 DropZone、圖片預覽、loading 狀態（約 15-30 秒提示）、錯誤處理
+- [x] **[template-import] Frontend: `TemplateConfigStep` — 左原圖右 ResumeRenderer 預覽，dnd-kit 排序，color picker，CSS textarea** ✅ 2026-04-24
+  Step 2：左欄原圖、右欄 ResumeRenderer 即時預覽（scale 0.4）、color picker（即時替換 CSS hex）、layout radio、dnd-kit 拖曳排序、可摺疊 CSS textarea
+- [x] **[template-import] Frontend: `TemplatePublishStep` — 命名/分類，PATCH status='active'，觸發縮圖** ✅ 2026-04-24
+  Step 3：名稱/描述/分類 input、PATCH API with htmlDefinition、fire-and-forget 縮圖、導向 /admin/templates
+- [x] **[template-import] Frontend: `/admin/templates` 列表加「匯入模板」按鈕 + 草稿 badge** ✅ 2026-04-24
+  `src/app/[locale]/admin/templates/page.tsx`：加 Upload icon「匯入模板」按鈕（Link → /admin/templates/import）；Template 介面加 `status` 欄位；draft → 橙色 badge、inactive → 灰色 overlay

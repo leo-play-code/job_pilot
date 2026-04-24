@@ -28,6 +28,41 @@
 - [ ] [Regression] Dashboard 刪除自薦信 — 同上，呼叫 `DELETE /api/cover-letter/:id`
 - [ ] [Regression] Dashboard 卡片緊湊 — ResumeList / CoverLetterList 的每個 item 高度明顯小於原 `p-4` 版本；兩欄仍對稱
 - [ ] [Regression] 自薦信字數區分 — 選 SHORT(150)/MEDIUM(300)/LONG(500) 生成的自薦信長度應明顯不同，不再出現 300 與 500 字結果幾乎相同的情況；驗證 `MAX_TOKENS_MAP` 各值（450/900/1500）正確傳入 OpenAI API 的 `max_tokens`
+- [ ] [Regression] Admin 新增模板導向 — 在 `/zh/admin/templates` 點「新增模板」不再 404，應正確導向 `/zh/admin/templates/new`；確認使用 `@/i18n/navigation` 的 Link/useRouter 而非 `next/link`
+
+- [ ] **[template-import] Unit — `src/lib/template-vision.ts` analyzeTemplateImage()**
+  Mock Anthropic client，傳入 PNG Buffer，驗證：
+  - 呼叫 `messages.create` 一次，model 包含 vision 能力
+  - content 中有 `image` type block（base64 encoded）
+  - 正確 parse JSON 回傳 `{ layout, primaryColor, css, sectionOrder }`
+  - Vision API 失敗時 throw `TemplateVisionError`
+
+- [ ] **[template-import] Unit — PDF 轉 PNG 工具**
+  傳入合法 PDF Buffer，驗證：
+  - 回傳 Buffer（PNG 格式）
+  - 尺寸為 794×1123（A4 比例）
+
+- [ ] **[template-import] Integration — POST /api/admin/templates/import（PNG 上傳）**
+  Mock `analyzeTemplateImage`，以 multipart 上傳 PNG，驗證：
+  - 非 admin 回傳 403
+  - 合法 PNG → 200，回傳 `{ templateId, analysis, htmlDefinition }`
+  - DB 新增 Template 記錄，status='draft', isActive=false
+  - S3 上傳被呼叫（mock `uploadToS3`）
+
+- [ ] **[template-import] Integration — POST /api/admin/templates/import（PDF 上傳）**
+  Mock PDF 轉 PNG + `analyzeTemplateImage`，驗證：
+  - PDF 正確觸發 Puppeteer 截圖流程
+  - 最終回傳與 PNG 流程相同結果
+
+- [ ] **[template-import] Integration — PATCH /api/admin/templates/:id（status 發佈）**
+  draft Template 存在，PATCH `{ status: 'active' }`，驗證：
+  - DB 中 status='active', isActive=true
+  - 回傳 200 `{ data: updatedTemplate }`
+
+- [ ] **[template-import] E2E — 完整匯入流程**
+  Admin 登入 → `/admin/templates/import` → 上傳 PNG → 等待分析 → 看到左圖右預覽 →
+  拖曳調整區塊順序 → 填寫名稱/分類 → 點「發佈」→ 導向 `/admin/templates` →
+  新模板出現在列表（非草稿）→ 用戶建立履歷時可在 TemplateSelector 看到新模板
 - [ ] [Regression] Prisma CLI env 載入 — 確認 `npm run db:push / db:migrate / db:studio` 在只有 `.env.local` 的情況下不再出現 `DIRECT_URL not found`
 - [ ] [Regression] Header 使用者頭像 — Google 登入後 Header 應顯示 Google 大頭貼；Email 註冊登入後應顯示預設 UserCircle icon；未登入不顯示頭像
 - [ ] [Regression] Next.js 15 async params — Google OAuth callback 後不應出現 `params should be awaited` runtime error；`/[locale]` layout、`/api/cover-letter/[id]` GET/DELETE 皆需正常運作

@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
-import { PlusCircle, RefreshCw, Trash2, ToggleLeft, ToggleRight } from 'lucide-react'
+import { PlusCircle, RefreshCw, Trash2, ToggleLeft, ToggleRight, Upload } from 'lucide-react'
 
 interface Template {
   id: string
@@ -12,6 +12,7 @@ interface Template {
   category: string
   thumbnailUrl: string | null
   isActive: boolean
+  status: string
   sortOrder: number
   createdAt: string
 }
@@ -73,13 +74,22 @@ export default function AdminTemplatesPage() {
             <h1 className="text-2xl font-bold text-gray-900">模板管理</h1>
             <p className="text-gray-500 text-sm mt-1">共 {templates.length} 個模板</p>
           </div>
-          <Link
-            href="/admin/templates/new"
-            className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
-          >
-            <PlusCircle className="w-4 h-4" />
-            新增模板
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/admin/templates/import"
+              className="flex items-center gap-2 border border-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+            >
+              <Upload className="w-4 h-4" />
+              匯入模板
+            </Link>
+            <Link
+              href="/admin/templates/new"
+              className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
+            >
+              <PlusCircle className="w-4 h-4" />
+              新增模板
+            </Link>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -97,7 +107,14 @@ export default function AdminTemplatesPage() {
                 ) : (
                   <span className="text-gray-400 text-sm">無縮圖</span>
                 )}
-                {!t.isActive && (
+                {t.status === 'draft' && (
+                  <div className="absolute inset-0 bg-orange-500/20 flex items-start justify-end p-2">
+                    <span className="bg-orange-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+                      草稿
+                    </span>
+                  </div>
+                )}
+                {(t.status === 'inactive' || (!t.status && !t.isActive)) && (
                   <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
                     <span className="text-gray-500 font-medium text-sm">已停用</span>
                   </div>

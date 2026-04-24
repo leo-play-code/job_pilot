@@ -91,19 +91,23 @@ model VerificationToken {
 }
 
 model Template {
-  id              String   @id @default(cuid())
-  name            String
-  description     String
-  category        String   @default("other")
-  thumbnailUrl    String?
-  referencePdfUrl String?
-  htmlDefinition  Json
-  isActive        Boolean  @default(true)
-  sortOrder       Int      @default(0)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                String   @id @default(cuid())
+  name              String
+  description       String
+  category          String   @default("other")
+  thumbnailUrl      String?
+  referencePdfUrl   String?
+  referenceImageUrl String?
+  htmlDefinition    Json
+  aiAnalysis        Json?
+  status            String   @default("active")
+  isActive          Boolean  @default(true)
+  sortOrder         Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   @@index([isActive, sortOrder])
+  @@index([status])
   @@map("templates")
 }
 

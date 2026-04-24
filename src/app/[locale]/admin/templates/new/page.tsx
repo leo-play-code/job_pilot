@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/i18n/navigation'
 
 const DEFAULT_CSS = `body{font-family:'Helvetica Neue',sans-serif;color:#222;margin:0}
 h1{font-size:26px;margin:0}

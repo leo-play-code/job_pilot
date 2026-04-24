@@ -15,6 +15,7 @@ const patchTemplateSchema = z.object({
   category: z.enum(['tech', 'finance', 'creative', 'other']).optional(),
   sortOrder: z.number().int().optional(),
   isActive: z.boolean().optional(),
+  status: z.enum(['draft', 'active', 'inactive']).optional(),
   htmlDefinition: z.object({
     css: z.string().min(1),
     layout: z.enum(['single', 'split']),
@@ -35,11 +36,19 @@ export async function PATCH(request: Request, { params }: Params) {
     return NextResponse.json({ error: 'Invalid input' }, { status: 422 })
   }
 
-  const { htmlDefinition, ...rest } = parsed.data
+  const { htmlDefinition, status, ...rest } = parsed.data
+
+  // Sync isActive with status for backward compatibility
+  let derivedIsActive: boolean | undefined
+  if (status === 'active') derivedIsActive = true
+  else if (status === 'inactive') derivedIsActive = false
+
   const updated = await prisma.template.update({
     where: { id },
     data: {
       ...rest,
+      ...(status !== undefined && { status }),
+      ...(derivedIsActive !== undefined && { isActive: derivedIsActive }),
       ...(htmlDefinition !== undefined && { htmlDefinition: htmlDefinition as object }),
     },
   })

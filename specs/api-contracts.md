@@ -27,6 +27,13 @@
 | DELETE | /api/cover-letter/:id | required | 刪除自薦信 |
 | DELETE | /api/resume | required | 刪除當前用戶所有履歷 |
 | DELETE | /api/cover-letter | required | 刪除當前用戶所有自薦信 |
+| GET | /api/templates | public | 列出 active 模板（用戶選擇用）|
+| GET | /api/admin/templates | admin | 列出全部模板（含 draft）|
+| POST | /api/admin/templates | admin | 手動建立模板（JSON CSS）|
+| PATCH | /api/admin/templates/:id | admin | 更新模板（含 status 發佈）|
+| DELETE | /api/admin/templates/:id | admin | 刪除模板 |
+| POST | /api/admin/templates/:id/thumbnail | admin | 重新產生 S3 縮圖 |
+| POST | /api/admin/templates/import | admin | **上傳 PNG/PDF → AI 分析 → 建立 draft 模板** |
 
 ## 關鍵 Request / Response
 
@@ -65,4 +72,39 @@ DELETE /api/cover-letter
   - 驗證 session
   - deleteMany CoverLetter where userId = current user
   - 回傳刪除筆數
+
+POST /api/admin/templates/import
+  Auth: admin only (session.user.email === ADMIN_EMAIL)
+  body: multipart/form-data
+    - file: PNG (max 5MB) | PDF (max 10MB)
+  200: { data: { templateId: string, analysis: TemplateAiAnalysis, htmlDefinition: TemplateDefinition } }
+  422: { error: 'invalid_file_type' }
+  503: { error: 'vision_api_unavailable' }
+  Business logic:
+  1. 驗證 admin 身份
+  2. 驗證 file type（image/png, image/jpeg, application/pdf）
+  3. PDF → 截取第一頁為 PNG（Puppeteer screenshot）
+  4. 將圖片 base64 → 送 Claude Vision API 分析
+  5. 解析回傳的 JSON（layout, colors, css, sectionOrder）
+  6. 上傳原始圖到 S3 (templates/references/{id}.png)
+  7. 建立 Template 記錄 status='draft', aiAnalysis 存分析結果
+  8. 回傳 templateId + analysis + 建議 htmlDefinition（供 Admin 在前端調整）
+  注意：draft 模板不出現在 /api/templates 用戶列表，須 admin 發佈後才生效
+
+PATCH /api/admin/templates/:id
+  body: { name?, description?, category?, sortOrder?, htmlDefinition?, status?, isActive? }
+  status='active' 時同步設 isActive=true（向後兼容）
 ```
+
+## Task Status
+
+### Done
+
+| Task | 說明 | 完成日期 |
+|---|---|---|
+| [x] Task 1 | `src/lib/template-vision.ts` — Claude Vision API 分析模板圖片 | 2026-04-24 |
+| [x] Task 2 | `pdfFirstPageToPng()` — PDF 首頁轉 PNG（Puppeteer）| 2026-04-24 |
+| [x] Task 3 | `POST /api/admin/templates/import` — 上傳圖片 → Vision 分析 → 建立 draft 模板 | 2026-04-24 |
+| [x] Task 4 | `PATCH /api/admin/templates/[id]` — 加入 status 欄位，status↔isActive 同步 | 2026-04-24 |
+| [x] Task 5 | `GET /api/admin/templates` — response 已含 status（findMany 不限 select） | 2026-04-24 |
+| [x] Task 6 | `GET /api/templates` — 改為 `status: 'active'` 篩選，排除 draft 模板 | 2026-04-24 |
