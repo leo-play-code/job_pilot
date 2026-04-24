@@ -25,6 +25,8 @@
 | GET | /api/cover-letter | required | 列出用戶所有自薦信 |
 | GET | /api/cover-letter/:id | required | 取得單筆自薦信 |
 | DELETE | /api/cover-letter/:id | required | 刪除自薦信 |
+| DELETE | /api/resume | required | 刪除當前用戶所有履歷 |
+| DELETE | /api/cover-letter | required | 刪除當前用戶所有自薦信 |
 
 ## 關鍵 Request / Response
 
@@ -45,4 +47,22 @@ POST /api/cover-letter/generate
 
 GET /api/usage/today
   200:  { data: { used: number, limit: 10 } }
+
+DELETE /api/resume
+  Auth: required
+  body: (none)
+  200:  { data: { deletedCount: number } }
+  Business logic:
+  - 驗證 session
+  - deleteMany Resume where userId = current user
+  - 回傳刪除筆數
+
+DELETE /api/cover-letter
+  Auth: required
+  body: (none)
+  200:  { data: { deletedCount: number } }
+  Business logic:
+  - 驗證 session
+  - deleteMany CoverLetter where userId = current user
+  - 回傳刪除筆數
 ```

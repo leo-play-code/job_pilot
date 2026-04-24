@@ -62,6 +62,50 @@
   - 回傳 200 `{ data: { coverLetterId, content } }`
   - 429 when daily limit exceeded
 
+- [x] **[clear-all] Integration — DELETE /api/resume（清除所有履歷）** ✅ 2026-04-24
+  已登入 user，DB 有 2 筆 Resume，呼叫 `DELETE /api/resume`，驗證：
+  - 回傳 200 `{ data: { deletedCount: 2 } }`
+  - DB 中該 user 的 Resume 歸零（其他 user 不受影響）
+  - 未登入回傳 401
+
+- [x] **[clear-all] Integration — DELETE /api/cover-letter（清除所有自薦信）** ✅ 2026-04-24
+  已登入 user，DB 有 3 筆 CoverLetter，呼叫 `DELETE /api/cover-letter`，驗證：
+  - 回傳 200 `{ data: { deletedCount: 3 } }`
+  - DB 中該 user 的 CoverLetter 歸零（其他 user 不受影響）
+  - 未登入回傳 401
+
+- [x] **[edit-mode] Regression — 進入 / 退出 Edit Mode** ✅ 2026-04-24
+  列表有資料 → Pencil icon 顯示 → 點擊 → 進入 edit mode（checkbox 出現、action bar 出現）→
+  點「取消」→ 退出 edit mode（checkbox 消失、action bar 消失、selection 清空）
+
+- [ ] **[edit-mode] Regression — 勾選 / 取消勾選**
+  edit mode 中：點擊 item checkbox → checked；再點 → unchecked；
+  「刪除所選」按鈕在 n=0 時 disabled，n≥1 時 enabled，顯示正確數量
+
+- [ ] **[edit-mode] Regression — 全選**
+  點「全選」→ 所有 item checked；再點「全選」→ 全部 unchecked
+
+- [ ] **[edit-mode] Regression — 刪除所選履歷**
+  勾選 2 筆 → 點「刪除所選」→ ClearAllDialog 出現 → 確認 →
+  並行呼叫 `DELETE /api/resume/:id` ×2 → 2 筆從列表消失，未選中項目保留；
+  取消 → dialog 關閉，列表不變
+
+- [ ] **[edit-mode] Regression — 刪除所選自薦信**
+  同上，呼叫 `DELETE /api/cover-letter/:id`
+
+- [ ] **[edit-mode] Regression — 清除全部（在 edit mode 中）**
+  edit mode 中點「清除全部」→ ClearAllDialog → 確認 → 呼叫 `DELETE /api/resume` →
+  列表清空，自動退出 edit mode
+
+- [ ] **[edit-mode] Regression — 刪除所選後若列表清空自動退出 edit mode**
+  全選後刪除 → 列表變空 → 自動退出 edit mode，不顯示 action bar
+
+- [ ] **[edit-mode] Regression — Pencil icon 僅在有資料時顯示**
+  空列表時 Pencil icon 不渲染（edit mode 無意義）
+
+- [ ] **[edit-mode] Regression — i18n edit mode**
+  切換到 EN 後，「Edit」/「Cancel」/「Select All」/「Delete Selected」/「Clear All」皆為英文
+
 ### Done
 
 - [x] `src/test/usage.test.ts` — checkDailyLimit / recordUsage / daily reset

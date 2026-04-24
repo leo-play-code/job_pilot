@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Link } from '@/i18n/navigation'
-import { Trash2 } from 'lucide-react'
+import { SquarePen, Trash2 } from 'lucide-react'
+import { ClearAllDialog } from '@/components/dashboard/ClearAllDialog'
 
 interface CoverLetterItem {
   id: string
@@ -18,25 +19,76 @@ interface CoverLetterListProps {
 
 export function CoverLetterList({ coverLetters: initialItems }: CoverLetterListProps) {
   const t = useTranslations('dashboard')
-  const tc = useTranslations('common')
   const locale = useLocale()
   const [items, setItems] = useState(initialItems)
-  const [confirmId, setConfirmId] = useState<string | null>(null)
-  const [loadingId, setLoadingId] = useState<string | null>(null)
+  const [editMode, setEditMode] = useState(false)
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [error, setError] = useState<string | null>(null)
+  const [deleteSelectedOpen, setDeleteSelectedOpen] = useState(false)
+  const [clearAllOpen, setClearAllOpen] = useState(false)
+  const [isPending, setIsPending] = useState(false)
 
-  async function handleDelete(id: string) {
-    setLoadingId(id)
+  const allSelected = items.length > 0 && selectedIds.size === items.length
+
+  function exitEditMode() {
+    setEditMode(false)
+    setSelectedIds(new Set())
+    setError(null)
+  }
+
+  function toggleItem(id: string) {
+    setSelectedIds(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  function toggleSelectAll() {
+    if (allSelected) {
+      setSelectedIds(new Set())
+    } else {
+      setSelectedIds(new Set(items.map(cl => cl.id)))
+    }
+  }
+
+  async function handleDeleteSelected() {
+    setIsPending(true)
     setError(null)
     try {
-      const res = await fetch(`/api/cover-letter/${id}`, { method: 'DELETE' })
-      if (!res.ok) throw new Error()
-      setItems(prev => prev.filter(cl => cl.id !== id))
-    } catch {
-      setError(t('deleteError'))
+      const ids = Array.from(selectedIds)
+      const results = await Promise.allSettled(
+        ids.map(id => fetch(`/api/cover-letter/${id}`, { method: 'DELETE' }))
+      )
+      const successIds = new Set(
+        ids.filter((_, i) => results[i].status === 'fulfilled' && (results[i] as PromiseFulfilledResult<Response>).value.ok)
+      )
+      const failed = ids.length - successIds.size
+      setItems(prev => prev.filter(cl => !successIds.has(cl.id)))
+      setSelectedIds(new Set())
+      setDeleteSelectedOpen(false)
+      if (failed > 0) setError(t('deleteError'))
+      else exitEditMode()
     } finally {
-      setConfirmId(null)
-      setLoadingId(null)
+      setIsPending(false)
+    }
+  }
+
+  async function handleClearAll() {
+    setIsPending(true)
+    setError(null)
+    try {
+      const res = await fetch('/api/cover-letter', { method: 'DELETE' })
+      if (!res.ok) throw new Error()
+      setItems([])
+      setClearAllOpen(false)
+      exitEditMode()
+    } catch {
+      setError(t('clearAllError'))
+      setClearAllOpen(false)
+    } finally {
+      setIsPending(false)
     }
   }
 
@@ -46,51 +98,132 @@ export function CoverLetterList({ coverLetters: initialItems }: CoverLetterListP
 
   return (
     <>
-      {error && <p className="text-xs text-destructive mb-2">{error}</p>}
-      <ul className="space-y-1.5">
-        {items.map((cl) => (
-          <li key={cl.id} className="flex items-center gap-1.5 group">
-            <Link
-              href={`/cover-letter/${cl.id}`}
-              className="flex-1 flex items-center justify-between px-3 py-2 border rounded-lg hover:bg-muted hover:-translate-y-0.5 hover:shadow-sm active:translate-y-0 transition-all min-w-0"
-            >
-              <div className="min-w-0">
-                <p className="text-sm font-medium truncate">{cl.jobTitle}</p>
-                <p className="text-xs text-muted-foreground">
-                  {new Date(cl.createdAt).toLocaleDateString(locale === 'zh' ? 'zh-TW' : 'en-US')}
-                </p>
-              </div>
-              <span className="text-xs text-muted-foreground shrink-0 ml-2">{cl.wordCount}</span>
-            </Link>
+      {/* Edit mode toggle row */}
+      <div className="flex items-center justify-end mb-3 min-h-[28px]">
+        {editMode ? (
+          <button
+            onClick={exitEditMode}
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {t('exitEditMode')}
+          </button>
+        ) : (
+          <button
+            onClick={() => setEditMode(true)}
+            className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            aria-label={t('editMode')}
+          >
+            <SquarePen size={14} />
+          </button>
+        )}
+      </div>
 
-            {confirmId === cl.id ? (
-              <div className="flex items-center gap-2 shrink-0">
+      {error && <p className="text-xs text-destructive mb-2">{error}</p>}
+
+      <ul className="space-y-1.5">
+        {items.map((cl) => {
+          const checked = selectedIds.has(cl.id)
+          return (
+            <li key={cl.id} className="flex items-center gap-2">
+              {/* Checkbox (edit mode only) */}
+              {editMode && (
                 <button
-                  onClick={() => handleDelete(cl.id)}
-                  disabled={loadingId === cl.id}
-                  className="text-xs font-medium bg-destructive text-white px-2.5 py-1 rounded-md disabled:opacity-50 transition-all hover:bg-red-600 hover:scale-105 hover:shadow-md active:scale-95"
+                  onClick={() => toggleItem(cl.id)}
+                  className={`shrink-0 w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${
+                    checked
+                      ? 'bg-primary border-primary'
+                      : 'border-muted-foreground/40 hover:border-primary/60'
+                  }`}
+                  aria-label={checked ? 'deselect' : 'select'}
                 >
-                  {tc('delete')}
+                  {checked && <span className="w-2 h-2 rounded-full bg-white" />}
                 </button>
-                <button
-                  onClick={() => setConfirmId(null)}
-                  className="text-xs font-medium bg-secondary text-secondary-foreground px-2.5 py-1 rounded-md transition-all hover:bg-slate-200 hover:text-slate-800 hover:scale-105 hover:shadow-md active:scale-95"
+              )}
+
+              {/* Item card */}
+              {editMode ? (
+                <div
+                  onClick={() => toggleItem(cl.id)}
+                  className={`flex-1 flex items-center justify-between px-3 py-2 border rounded-lg cursor-pointer transition-colors min-w-0 ${
+                    checked ? 'bg-primary/5 border-primary/30' : 'hover:bg-muted'
+                  }`}
                 >
-                  {tc('cancel')}
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => setConfirmId(cl.id)}
-                className="shrink-0 p-1.5 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
-                aria-label={tc('delete')}
-              >
-                <Trash2 size={14} />
-              </button>
-            )}
-          </li>
-        ))}
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium truncate">{cl.jobTitle}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(cl.createdAt).toLocaleDateString(locale === 'zh' ? 'zh-TW' : 'en-US')}
+                    </p>
+                  </div>
+                  <span className="text-xs text-muted-foreground shrink-0 ml-2">{cl.wordCount}</span>
+                </div>
+              ) : (
+                <Link
+                  href={`/cover-letter/${cl.id}`}
+                  className="flex-1 flex items-center justify-between px-3 py-2 border rounded-lg hover:bg-muted hover:-translate-y-0.5 hover:shadow-sm active:translate-y-0 transition-all min-w-0"
+                >
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium truncate">{cl.jobTitle}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(cl.createdAt).toLocaleDateString(locale === 'zh' ? 'zh-TW' : 'en-US')}
+                    </p>
+                  </div>
+                  <span className="text-xs text-muted-foreground shrink-0 ml-2">{cl.wordCount}</span>
+                </Link>
+              )}
+            </li>
+          )
+        })}
       </ul>
+
+      {/* Action bar (edit mode only) */}
+      {editMode && (
+        <div className="mt-3 pt-3 border-t flex items-center gap-2 flex-wrap">
+          {/* Select all */}
+          <button
+            onClick={toggleSelectAll}
+            className={`shrink-0 w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${
+              allSelected
+                ? 'bg-primary border-primary'
+                : 'border-muted-foreground/40 hover:border-primary/60'
+            }`}
+            aria-label={t('selectAll')}
+          >
+            {allSelected && <span className="w-2 h-2 rounded-full bg-white" />}
+          </button>
+          <span className="text-xs text-muted-foreground flex-1">
+            {selectedIds.size > 0 ? t('selectedCount', { n: selectedIds.size }) : t('selectAll')}
+          </span>
+          <button
+            onClick={() => setDeleteSelectedOpen(true)}
+            disabled={selectedIds.size === 0}
+            className="text-xs px-2.5 py-1 rounded-md border hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {t('deleteSelected')}
+          </button>
+          <button
+            onClick={() => setClearAllOpen(true)}
+            className="text-xs px-2.5 py-1 rounded-md bg-destructive text-white hover:bg-red-600 transition-colors flex items-center gap-1"
+          >
+            <Trash2 size={11} />
+            {t('clearAll')}
+          </button>
+        </div>
+      )}
+
+      <ClearAllDialog
+        open={deleteSelectedOpen}
+        onClose={() => setDeleteSelectedOpen(false)}
+        onConfirm={handleDeleteSelected}
+        isPending={isPending}
+        titleKey="deleteSelectedCoverLettersTitle"
+      />
+      <ClearAllDialog
+        open={clearAllOpen}
+        onClose={() => setClearAllOpen(false)}
+        onConfirm={handleClearAll}
+        isPending={isPending}
+        titleKey="clearAllCoverLettersTitle"
+      />
     </>
   )
 }

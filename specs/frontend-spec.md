@@ -63,13 +63,62 @@ Cover Letter Result → CoverLetterDisplay, CopyButton, DownloadTxtButton
 
 ## Dashboard 文件列表規範
 
-### ResumeList / CoverLetterList 設計原則
+### ResumeList / CoverLetterList 設計原則（Edit Mode UX）
 - 緊湊列表：`px-3 py-2 space-y-1.5`（非大卡片）
 - 兩欄對稱：Dashboard 保持 `lg:grid-cols-2`，左履歷右自薦信
-- 刪除互動：垃圾桶 icon（Trash2）hover 顯示，點擊後在 item 行內展開「刪除 / 取消」確認
 - 樂觀更新：刪除成功後從 local state 移除，不重載頁面
 - 錯誤處理：API 失敗顯示 `dashboard.deleteError` 文字於列表頂部
-- i18n：刪除/取消按鈕文字來自 `common.delete` / `common.cancel`
+- i18n：所有按鈕文字走 `t('key')`，無 hardcoded 字串
+
+### Edit Mode 互動規範
+**正常模式（Normal mode）**
+- 每個 item 為可點擊的連結卡片，點擊導向詳細頁
+- Section 標題列右側有 **Pencil（SquarePen）icon 按鈕**，hover 顯示
+- 無個別 hover 垃圾桶（移除舊設計）
+
+**進入 Edit Mode**
+- 點擊 Pencil icon → 該 section 進入 edit mode（另一 section 不受影響）
+- Section 標題右側出現：`[取消]`（exit edit mode）
+- 每個 item 左側出現 **checkbox**（圓形，checked 時藍色填滿）
+- item 連結卡片變為不可點擊（cursor-default，取消 Link 跳轉行為）
+- 底部 action bar 出現（固定於 list 下方）：
+  - `[全選]` checkbox + 已選數量文字（`已選 {n} 項`）
+  - `[刪除所選]` 按鈕（灰色，n=0 時 disabled）
+  - `[清除全部]` 按鈕（紅色）
+
+**刪除所選（Delete Selected）**
+- 條件：至少選 1 項才可點擊
+- 點擊 → ClearAllDialog（`deleteSelectedTitle`）
+- 確認後：並行呼叫 `DELETE /api/resume/:id`（或 cover-letter）for each selected id
+- 成功：從 local state 移除，清空 selection，若列表清空則退出 edit mode
+
+**清除全部（Clear All）**
+- 點擊 → ClearAllDialog（`clearAllResumesTitle` / `clearAllCoverLettersTitle`）
+- 確認後：呼叫 `DELETE /api/resume`（或 `DELETE /api/cover-letter`）
+- 成功：清空 local state，退出 edit mode
+
+**退出 Edit Mode**
+- 點「取消」按鈕 → 清空 selection，回到 Normal mode
+
+### ClearAllDialog 元件（已實作，沿用）
+```
+ClearAllDialog (client component) at src/components/dashboard/ClearAllDialog.tsx
+  Props: open, onClose, onConfirm, isPending, titleKey
+  自訂 overlay（fixed inset-0）
+  loading 狀態：確認按鈕顯示 spinner + 禁用
+  新增支援的 titleKey: 'deleteSelectedResumesTitle' | 'deleteSelectedCoverLettersTitle'
+```
+
+### i18n 新增 key
+```
+dashboard.editMode         = "編輯" / "Edit"
+dashboard.exitEditMode     = "取消" / "Cancel"
+dashboard.selectAll        = "全選" / "Select All"
+dashboard.selectedCount    = "已選 {n} 項" / "{n} selected"
+dashboard.deleteSelected   = "刪除所選" / "Delete Selected"
+dashboard.deleteSelectedResumesTitle    = "刪除所選履歷？" / "Delete Selected Resumes?"
+dashboard.deleteSelectedCoverLettersTitle = "刪除所選自薦信？" / "Delete Selected Cover Letters?"
+```
 
 ---
 
