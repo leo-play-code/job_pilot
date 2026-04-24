@@ -8,8 +8,11 @@ interface Params { params: Promise<{ id: string }> }
 const patchResumeSchema = z.object({
   title: z.string().min(1).max(200).optional(),
   content: z.record(z.unknown()).optional(),
-  templateId: z.enum(['modern', 'professional', 'creative']).optional(),
+  templateId: z.string().min(1).optional(),
   language: z.enum(['zh', 'en']).optional(),
+  layoutOverride: z.object({
+    sectionOrder: z.array(z.string()),
+  }).optional(),
 })
 
 export async function GET(_req: Request, { params }: Params) {
@@ -41,12 +44,17 @@ export async function PATCH(request: Request, { params }: Params) {
   })
   if (!resume) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-  const { content, ...rest } = parsed.data
+  const { content, layoutOverride, ...rest } = parsed.data
+  const hasContentChange = content !== undefined || layoutOverride !== undefined
+
   const updated = await prisma.resume.update({
     where: { id },
     data: {
       ...rest,
       ...(content !== undefined && { content: content as object }),
+      ...(layoutOverride !== undefined && { layoutOverride: layoutOverride as object }),
+      // Clear cached PDF whenever content or layout changes
+      ...(hasContentChange && { pdfUrl: null, pdfGeneratedAt: null }),
     },
   })
 

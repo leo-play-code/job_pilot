@@ -7,7 +7,7 @@ import { checkDailyLimit, recordUsage } from '@/lib/usage'
 
 const generateResumeSchema = z.object({
   content: z.union([z.string().min(1), z.record(z.unknown())]),
-  templateId: z.enum(['modern', 'professional', 'creative']),
+  templateId: z.string().min(1),
   language: z.enum(['zh', 'en']),
 })
 

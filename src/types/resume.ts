@@ -34,9 +34,29 @@ export interface ResumeContent {
   achievements?: string[]
 }
 
-export type TemplateId = 'modern' | 'professional' | 'creative'
+export type TemplateId = string
 export type Language = 'zh' | 'en'
 export type WordCountOption = 'SHORT' | 'MEDIUM' | 'LONG'
+
+export interface TemplateDefinition {
+  css: string
+  layout: 'single' | 'split'
+  sectionOrder?: string[]
+}
+
+export interface LayoutOverride {
+  sectionOrder: string[]
+}
+
+export interface TemplateRecord {
+  id: string
+  name: string
+  description: string
+  category: string
+  thumbnailUrl: string | null
+  htmlDefinition: TemplateDefinition
+  sortOrder: number
+}
 
 export const WORD_COUNT_MAP: Record<WordCountOption, number> = {
   SHORT: 150,

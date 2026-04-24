@@ -2,9 +2,9 @@ import { auth } from '@/auth'
 import { redirect, notFound } from 'next/navigation'
 import { getLocale } from 'next-intl/server'
 import { prisma } from '@/lib/prisma'
-import { ResumeRenderer } from '@/components/resume/ResumeRenderer'
+import { ResumeEditorClient } from '@/components/resume/ResumeEditorClient'
 import { ResumeActions } from '@/components/resume/ResumeActions'
-import type { ResumeContent, TemplateId } from '@/types/resume'
+import type { ResumeContent, LayoutOverride } from '@/types/resume'
 
 interface ResumeDetailPageProps {
   params: Promise<{ id: string }>
@@ -21,9 +21,10 @@ export default async function ResumeDetailPage({ params }: ResumeDetailPageProps
   if (!resume) notFound()
 
   const content = resume.content as unknown as ResumeContent
+  const layoutOverride = resume.layoutOverride as LayoutOverride | null
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-5xl">
+    <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-xl font-bold">{resume.title}</h1>
@@ -32,9 +33,12 @@ export default async function ResumeDetailPage({ params }: ResumeDetailPageProps
         <ResumeActions resumeId={id} />
       </div>
 
-      <div className="overflow-x-auto">
-        <ResumeRenderer content={content} templateId={resume.templateId as TemplateId} />
-      </div>
+      <ResumeEditorClient
+        resumeId={id}
+        initialContent={content}
+        templateId={resume.templateId}
+        initialLayoutOverride={layoutOverride}
+      />
     </div>
   )
 }

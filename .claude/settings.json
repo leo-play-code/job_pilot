@@ -4,7 +4,19 @@
       "Bash(git config *)",
       "Bash(cat next.config.ts)",
       "Bash(cat next.config.js)",
-      "Bash(cat next.config.mjs)"
+      "Bash(cat next.config.mjs)",
+      "Bash(npx dotenv *)",
+      "Bash(set DOTENV_CONFIG_PATH=.env.local)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:1x1nm5RHIdhIW8bi@db.gftiptwdnqlwkarzyhqd.supabase.co:5432/postgres\" DIRECT_URL=\"postgresql://postgres:1x1nm5RHIdhIW8bi@db.gftiptwdnqlwkarzyhqd.supabase.co:5432/postgres\" npx prisma migrate dev --name \"add_template_and_resume_pdf_fields\" --skip-seed)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:1x1nm5RHIdhIW8bi@db.gftiptwdnqlwkarzyhqd.supabase.co:5432/postgres\" DIRECT_URL=\"postgresql://postgres:1x1nm5RHIdhIW8bi@db.gftiptwdnqlwkarzyhqd.supabase.co:5432/postgres\" npx prisma db push)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:1x1nm5RHIdhIW8bi@db.gftiptwdnqlwkarzyhqd.supabase.co:5432/postgres\" DIRECT_URL=\"postgresql://postgres:1x1nm5RHIdhIW8bi@db.gftiptwdnqlwkarzyhqd.supabase.co:5432/postgres\" npx prisma generate)",
+      "Bash(taskkill /F /IM node.exe)",
+      "PowerShell(Stop-Process -Name \"node\" -Force -ErrorAction SilentlyContinue)",
+      "Bash(npx tsc *)",
+      "Bash(git diff *)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\User\\Desktop\\github\\AI_startup\\job_pilot\\src\\app\\[locale]\\admin\\templates"
     ]
   }
 }
