@@ -17,7 +17,7 @@
 ## 每頁主要元件
 
 ```
-Dashboard           → ResumeList, CoverLetterList, UsageBadge, QuickActions
+Dashboard           → ResumeList (compact + delete), CoverLetterList (compact + delete), UsageBadge, QuickActions
 Resume Builder      → StepIndicator, PersonalInfoForm, ExperienceForm,
                       EducationSkillsForm, TemplateSelectorStep
 Resume Upload       → DropZone, ParseLoadingState (→ Builder with initialData)
@@ -58,6 +58,18 @@ Cover Letter Result → CoverLetterDisplay, CopyButton, DownloadTxtButton
 - [ ] `en.json` 新增對應的英文翻譯（key 必須與 zh.json 完全一致）
 - [ ] 沒有任何 hardcoded 中文或英文字串（全部走 `t('key')`）
 - [ ] 語言切換後頁面正確顯示對應語言
+
+---
+
+## Dashboard 文件列表規範
+
+### ResumeList / CoverLetterList 設計原則
+- 緊湊列表：`px-3 py-2 space-y-1.5`（非大卡片）
+- 兩欄對稱：Dashboard 保持 `lg:grid-cols-2`，左履歷右自薦信
+- 刪除互動：垃圾桶 icon（Trash2）hover 顯示，點擊後在 item 行內展開「刪除 / 取消」確認
+- 樂觀更新：刪除成功後從 local state 移除，不重載頁面
+- 錯誤處理：API 失敗顯示 `dashboard.deleteError` 文字於列表頂部
+- i18n：刪除/取消按鈕文字來自 `common.delete` / `common.cancel`
 
 ---
 

@@ -83,7 +83,7 @@ For each error type, look for:
 
 ## Step 4: Produce the Fix Task
 
-Output in this exact format:
+Output in this exact format, then **immediately proceed to Step 5**:
 
 ---
 
@@ -115,7 +115,26 @@ Example:
 
 ---
 
-## Step 5: After Fix — Regression Check
+## Step 5: Execute the Fix — DO NOT STOP AT THE REPORT
+
+After producing the Fix Task report, you MUST actually fix the code yourself. Do not just report and wait.
+
+**Execution rules:**
+- If the bug is FRONTEND → read `.claude/skills/frontend-dev/SKILL.md` and fix the file(s) listed in the Fix Task
+- If the bug is BACKEND → read `.claude/skills/backend-dev/SKILL.md` and fix the file(s) listed
+- If the bug is DATABASE → read `.claude/skills/database-dev/SKILL.md` and fix the migration/schema
+- If multiple layers → fix DB first, then Backend, then Frontend — in sequence
+
+After applying the fix:
+1. Run `npm run type-check` and fix any TypeScript errors introduced
+2. Run the relevant tests
+3. Confirm the fix resolves the original symptom
+
+**You are NOT done until the code is actually changed.** The Fix Task report is a planning step, not the final output.
+
+---
+
+## Step 6: After Fix — Regression Check
 
 After the fix is applied, remind the relevant session to:
 - Run the existing unit tests for the changed file

@@ -27,7 +27,8 @@
     "newCoverLetterDesc": "AI-generated cover letter",
     "noResumes": "No resumes yet. Create your first one.",
     "noCoverLetters": "No cover letters yet. Generate one now.",
-    "usageRemaining": "{remaining}/{limit} uses remaining today"
+    "usageRemaining": "{remaining}/{limit} uses remaining today",
+    "deleteError": "Delete failed, please try again"
   },
   "resume": {
     "builder": {

@@ -23,8 +23,10 @@ export function WordCountSelector({ value, onChange }: WordCountSelectorProps) {
           key={o.id}
           onClick={() => onChange(o.id)}
           className={cn(
-            'border-2 rounded-lg p-3 text-center transition-colors',
-            value === o.id ? 'border-primary' : 'border-muted hover:border-muted-foreground',
+            'border-2 rounded-lg p-3 text-center transition-all',
+            value === o.id
+              ? 'border-primary scale-[1.03] shadow-sm'
+              : 'border-muted hover:border-primary/50 hover:scale-[1.05] hover:shadow-sm active:scale-95',
           )}
         >
           <p className="font-medium text-sm">{o.label}</p>

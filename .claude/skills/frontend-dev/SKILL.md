@@ -97,7 +97,74 @@ Required on every component:
 </button>
 ```
 
-### 4. Performance
+### 4. Auth-Aware UI — CRITICAL RULES
+
+**Never show auth UI that contradicts the current session state.** Violating this is a UX regression.
+
+#### Rule table
+
+| Condition | Show | Hide |
+|---|---|---|
+| `status === 'loading'` | Skeleton / spinner | ALL auth-dependent buttons |
+| `status === 'authenticated'` | Dashboard link, Avatar, Logout | Login, Register, Sign Up CTA |
+| `status === 'unauthenticated'` | Login, Register, Sign Up CTA | Dashboard link, Avatar, Logout |
+
+#### Correct pattern (Next.js + NextAuth)
+
+```tsx
+'use client'
+import { useSession } from 'next-auth/react'
+
+export function Header() {
+  const { data: session, status } = useSession()
+
+  // ⚠️ NEVER render auth buttons during loading — causes flash
+  if (status === 'loading') return <HeaderSkeleton />
+
+  return (
+    <nav>
+      {session ? (
+        <>
+          <Link href="/dashboard">Dashboard</Link>
+          <UserAvatar user={session.user} />
+          <LogoutButton />
+        </>
+      ) : (
+        <>
+          <Link href="/login">Login</Link>
+          <Link href="/register">Register</Link>
+        </>
+      )}
+    </nav>
+  )
+}
+```
+
+#### Landing page CTA pattern
+
+```tsx
+export function HeroCTA() {
+  const { data: session, status } = useSession()
+
+  if (status === 'loading') return <CTASkeleton />
+
+  return session ? (
+    <Link href="/dashboard">Go to Dashboard →</Link>
+  ) : (
+    <Link href="/register">Get Started Free →</Link>
+  )
+}
+```
+
+**Checklist for any component with auth-dependent UI:**
+- [ ] Uses `status` (not just `session`) to guard loading state
+- [ ] Login/Register hidden when `status === 'authenticated'`
+- [ ] Dashboard/Profile hidden when `status === 'unauthenticated'`
+- [ ] Shows skeleton (not wrong buttons) during `status === 'loading'`
+
+---
+
+### 5. Performance (原 §4)
 
 - Images: always use `next/image` with explicit `width` and `height`; add `loading="lazy"` for below-fold
 - Fonts: use `next/font` — never `<link>` to Google Fonts directly
@@ -257,6 +324,7 @@ Before finishing any frontend task, verify:
 - [ ] No `any` TypeScript types
 - [ ] Props have TypeScript interfaces
 - [ ] No hardcoded colors outside of Tailwind config
+- [ ] **Auth-aware UI**: Login/Register hidden when authenticated; Dashboard/Avatar hidden when not authenticated; skeleton shown during `status === 'loading'` (no button flash)
 
 ---
 

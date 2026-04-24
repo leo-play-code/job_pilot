@@ -69,7 +69,7 @@ export function EducationSkillsForm({
                   type="button"
                   onClick={() => onEducationChange(education.filter((_, idx) => idx !== i))}
                   aria-label={`刪除學歷 ${i + 1}`}
-                  className="text-muted-foreground hover:text-destructive transition-colors focus-visible:ring-2 focus-visible:ring-destructive outline-none rounded"
+                  className="text-muted-foreground hover:text-destructive hover:scale-110 active:scale-90 transition-all focus-visible:ring-2 focus-visible:ring-destructive outline-none rounded"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
@@ -99,7 +99,7 @@ export function EducationSkillsForm({
           <button
             type="button"
             onClick={() => onEducationChange([...education, emptyEdu()])}
-            className="w-full flex items-center justify-center gap-2 border-2 border-dashed rounded-lg py-3 text-sm text-muted-foreground hover:border-primary hover:text-primary transition-colors focus-visible:ring-2 focus-visible:ring-primary outline-none"
+            className="w-full flex items-center justify-center gap-2 border-2 border-dashed rounded-lg py-3 text-sm text-muted-foreground hover:border-primary hover:text-primary hover:scale-[1.01] active:scale-[0.99] transition-all focus-visible:ring-2 focus-visible:ring-primary outline-none"
           >
             <Plus className="h-4 w-4" /> 新增學歷
           </button>
@@ -120,7 +120,7 @@ export function EducationSkillsForm({
                 type="button"
                 onClick={() => onSkillsChange(skills.filter((s) => s !== skill))}
                 aria-label={`移除 ${skill}`}
-                className="hover:opacity-70 focus-visible:ring-2 focus-visible:ring-primary outline-none rounded-full"
+                className="hover:opacity-70 hover:scale-125 active:scale-90 transition-all focus-visible:ring-2 focus-visible:ring-primary outline-none rounded-full"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -139,7 +139,7 @@ export function EducationSkillsForm({
           <button
             type="button"
             onClick={addSkill}
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary outline-none"
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm hover:opacity-90 hover:scale-105 active:scale-95 transition-all focus-visible:ring-2 focus-visible:ring-primary outline-none"
           >
             新增
           </button>

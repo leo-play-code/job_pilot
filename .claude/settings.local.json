@@ -24,7 +24,9 @@
       "Bash(npm test *)",
       "Bash(node -e \"const p = require\\('./package.json'\\); console.log\\(JSON.stringify\\(p.scripts, null, 2\\)\\)\")",
       "Bash(npm uninstall *)",
-      "Read(//c/Users/User/.claude/projects/c--Users-User-Desktop-github-AI-startup-job-pilot/tool-results/**)"
+      "Read(//c/Users/User/.claude/projects/c--Users-User-Desktop-github-AI-startup-job-pilot/tool-results/**)",
+      "Edit(/.claude/skills/debug-triage/**)",
+      "Edit(/.claude/skills/frontend-dev/**)"
     ]
   }
 }

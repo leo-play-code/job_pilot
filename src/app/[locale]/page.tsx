@@ -23,7 +23,7 @@ export default async function LandingPage() {
             {isLoggedIn ? (
               <Link
                 href="/dashboard"
-                className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity focus-visible:ring-2 focus-visible:ring-primary outline-none"
+                className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:opacity-90 hover:scale-105 active:scale-95 transition-all focus-visible:ring-2 focus-visible:ring-primary outline-none"
               >
                 立即體驗
               </Link>
@@ -31,13 +31,13 @@ export default async function LandingPage() {
               <>
                 <Link
                   href="/register"
-                  className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity focus-visible:ring-2 focus-visible:ring-primary outline-none"
+                  className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:opacity-90 hover:scale-105 active:scale-95 transition-all focus-visible:ring-2 focus-visible:ring-primary outline-none"
                 >
                   {t('cta')}
                 </Link>
                 <Link
                   href="/login"
-                  className="border px-8 py-3 rounded-lg font-medium hover:bg-muted transition-colors focus-visible:ring-2 focus-visible:ring-primary outline-none"
+                  className="border px-8 py-3 rounded-lg font-medium hover:bg-muted hover:scale-105 active:scale-95 transition-all focus-visible:ring-2 focus-visible:ring-primary outline-none"
                 >
                   登入
                 </Link>

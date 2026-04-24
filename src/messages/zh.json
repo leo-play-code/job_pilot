@@ -27,7 +27,8 @@
     "newCoverLetterDesc": "AI 生成自薦信",
     "noResumes": "尚無履歷，立即建立第一份。",
     "noCoverLetters": "尚無自薦信，立即生成。",
-    "usageRemaining": "今日剩餘 {remaining}/{limit} 次"
+    "usageRemaining": "今日剩餘 {remaining}/{limit} 次",
+    "deleteError": "刪除失敗，請稍後再試"
   },
   "resume": {
     "builder": {

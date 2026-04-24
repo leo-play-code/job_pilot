@@ -31,10 +31,10 @@ export function TemplateSelectorStep({
               key={lang}
               type="button"
               onClick={() => onLanguageChange(lang)}
-              className={`border-2 rounded-lg py-2.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-primary outline-none ${
+              className={`border-2 rounded-lg py-2.5 text-sm font-medium transition-all focus-visible:ring-2 focus-visible:ring-primary outline-none ${
                 language === lang
-                  ? 'border-primary bg-primary/5 text-primary'
-                  : 'border-muted hover:border-muted-foreground'
+                  ? 'border-primary bg-primary/5 text-primary scale-[1.03] shadow-sm'
+                  : 'border-muted hover:border-primary/50 hover:scale-105 active:scale-95'
               }`}
             >
               {lang === 'zh' ? '中文' : 'English'}

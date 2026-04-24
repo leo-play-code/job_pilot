@@ -17,10 +17,10 @@ export function LanguageToggle({ value, onChange }: LanguageToggleProps) {
           type="button"
           onClick={() => onChange(lang)}
           className={cn(
-            'px-5 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-primary outline-none',
+            'px-5 py-2 text-sm font-medium transition-all focus-visible:ring-2 focus-visible:ring-primary outline-none',
             value === lang
               ? 'bg-primary text-primary-foreground'
-              : 'hover:bg-muted'
+              : 'hover:bg-muted hover:scale-105 active:scale-95'
           )}
         >
           {lang === 'zh' ? '中文' : 'English'}

@@ -22,6 +22,12 @@
 
 ### Pending
 
+- [ ] [Regression] 詳細頁刪除履歷 — `/resume/[id]` 頁點「刪除」→ 確認 → 呼叫 DELETE API → 導向 `/dashboard`；取消後留在頁面
+- [ ] [Regression] 詳細頁刪除自薦信 — `/cover-letter/[id]` 頁點「刪除」→ 確認 → 呼叫 DELETE API → 導向 `/dashboard`；取消後留在頁面
+- [ ] [Regression] Dashboard 刪除履歷 — 點垃圾桶 → 確認 → 呼叫 `DELETE /api/resume/:id` → 項目從列表消失，不重載頁面；取消不刪除；API 失敗顯示錯誤文字
+- [ ] [Regression] Dashboard 刪除自薦信 — 同上，呼叫 `DELETE /api/cover-letter/:id`
+- [ ] [Regression] Dashboard 卡片緊湊 — ResumeList / CoverLetterList 的每個 item 高度明顯小於原 `p-4` 版本；兩欄仍對稱
+- [ ] [Regression] 自薦信字數區分 — 選 SHORT(150)/MEDIUM(300)/LONG(500) 生成的自薦信長度應明顯不同，不再出現 300 與 500 字結果幾乎相同的情況；驗證 `MAX_TOKENS_MAP` 各值（450/900/1500）正確傳入 OpenAI API 的 `max_tokens`
 - [ ] [Regression] Prisma CLI env 載入 — 確認 `npm run db:push / db:migrate / db:studio` 在只有 `.env.local` 的情況下不再出現 `DIRECT_URL not found`
 - [ ] [Regression] Header 使用者頭像 — Google 登入後 Header 應顯示 Google 大頭貼；Email 註冊登入後應顯示預設 UserCircle icon；未登入不顯示頭像
 - [ ] [Regression] Next.js 15 async params — Google OAuth callback 後不應出現 `params should be awaited` runtime error；`/[locale]` layout、`/api/cover-letter/[id]` GET/DELETE 皆需正常運作

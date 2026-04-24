@@ -63,7 +63,7 @@ export function ExperienceForm({ data, onChange }: ExperienceFormProps) {
               type="button"
               onClick={() => onChange(data.filter((_, idx) => idx !== i))}
               aria-label={`刪除工作經歷 ${i + 1}`}
-              className="text-muted-foreground hover:text-destructive transition-colors focus-visible:ring-2 focus-visible:ring-destructive outline-none rounded"
+              className="text-muted-foreground hover:text-destructive hover:scale-110 active:scale-90 transition-all focus-visible:ring-2 focus-visible:ring-destructive outline-none rounded"
             >
               <Trash2 className="h-4 w-4" />
             </button>
@@ -146,7 +146,7 @@ export function ExperienceForm({ data, onChange }: ExperienceFormProps) {
             <button
               type="button"
               onClick={() => addBullet(i)}
-              className="flex items-center gap-1 text-xs text-primary hover:underline mt-1 focus-visible:ring-2 focus-visible:ring-primary outline-none rounded"
+              className="flex items-center gap-1 text-xs text-primary hover:underline hover:scale-105 active:scale-95 mt-1 transition-all focus-visible:ring-2 focus-visible:ring-primary outline-none rounded"
             >
               <Plus className="h-3 w-3" /> 新增一條
             </button>
@@ -157,7 +157,7 @@ export function ExperienceForm({ data, onChange }: ExperienceFormProps) {
       <button
         type="button"
         onClick={() => onChange([...data, emptyExp()])}
-        className="w-full flex items-center justify-center gap-2 border-2 border-dashed rounded-lg py-3 text-sm text-muted-foreground hover:border-primary hover:text-primary transition-colors focus-visible:ring-2 focus-visible:ring-primary outline-none"
+        className="w-full flex items-center justify-center gap-2 border-2 border-dashed rounded-lg py-3 text-sm text-muted-foreground hover:border-primary hover:text-primary hover:scale-[1.01] active:scale-[0.99] transition-all focus-visible:ring-2 focus-visible:ring-primary outline-none"
       >
         <Plus className="h-4 w-4" /> 新增工作經歷
       </button>

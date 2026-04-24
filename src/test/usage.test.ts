@@ -15,14 +15,14 @@ import { prisma } from '@/lib/prisma'
 describe('usage lib', () => {
   beforeEach(() => vi.clearAllMocks())
 
-  it('getTodayUsage returns used count and limit 3', async () => {
+  it('getTodayUsage returns used count and limit 10', async () => {
     vi.mocked(prisma.usageLog.count).mockResolvedValue(2)
     const result = await getTodayUsage('user-1')
-    expect(result).toEqual({ used: 2, limit: 3 })
+    expect(result).toEqual({ used: 2, limit: 10 })
   })
 
   it('checkDailyLimit throws when at limit', async () => {
-    vi.mocked(prisma.usageLog.count).mockResolvedValue(3)
+    vi.mocked(prisma.usageLog.count).mockResolvedValue(10)
     await expect(checkDailyLimit('user-1')).rejects.toThrow('daily_limit_reached')
   })
 

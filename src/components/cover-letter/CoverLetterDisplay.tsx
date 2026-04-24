@@ -33,7 +33,7 @@ export function CoverLetterDisplay({ content, jobTitle }: CoverLetterDisplayProp
         <button
           type="button"
           onClick={handleCopy}
-          className="flex items-center gap-1.5 px-3 py-2 border rounded-md text-sm hover:bg-muted transition-colors focus-visible:ring-2 focus-visible:ring-primary outline-none"
+          className="flex items-center gap-1.5 px-3 py-2 border rounded-md text-sm hover:bg-muted hover:scale-105 active:scale-95 transition-all focus-visible:ring-2 focus-visible:ring-primary outline-none"
           aria-label="複製自薦信"
         >
           {copied ? (
@@ -51,7 +51,7 @@ export function CoverLetterDisplay({ content, jobTitle }: CoverLetterDisplayProp
         <button
           type="button"
           onClick={handleDownload}
-          className="flex items-center gap-1.5 px-3 py-2 bg-primary text-primary-foreground rounded-md text-sm hover:opacity-90 transition-opacity focus-visible:ring-2 focus-visible:ring-primary outline-none"
+          className="flex items-center gap-1.5 px-3 py-2 bg-primary text-primary-foreground rounded-md text-sm hover:opacity-90 hover:scale-105 active:scale-95 transition-all focus-visible:ring-2 focus-visible:ring-primary outline-none"
           aria-label="下載 .txt 檔"
         >
           <Download className="h-4 w-4" />

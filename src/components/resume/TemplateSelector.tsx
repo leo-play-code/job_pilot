@@ -16,8 +16,10 @@ export function TemplateSelector({ value, onChange }: TemplateSelectorProps) {
           key={t.id}
           onClick={() => onChange(t.id)}
           className={cn(
-            'border-2 rounded-lg p-4 text-left transition-colors',
-            value === t.id ? 'border-primary' : 'border-muted hover:border-muted-foreground',
+            'border-2 rounded-lg p-4 text-left transition-all',
+            value === t.id
+              ? 'border-primary scale-[1.02] shadow-sm'
+              : 'border-muted hover:border-primary/50 hover:scale-[1.03] hover:shadow-sm active:scale-95',
           )}
         >
           <div className="w-full h-24 bg-muted rounded mb-3" />

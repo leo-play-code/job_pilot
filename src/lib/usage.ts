@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import type { UsageAction } from '@prisma/client'
 
-const FREE_DAILY_LIMIT = 3
+const FREE_DAILY_LIMIT = 10
 
 function todayString(): string {
   return new Date().toISOString().split('T')[0]

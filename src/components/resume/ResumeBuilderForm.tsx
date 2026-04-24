@@ -158,7 +158,7 @@ export function ResumeBuilderForm({ initialData }: ResumeBuilderFormProps) {
             type="button"
             onClick={() => setStep((s) => s - 1)}
             disabled={step === 0}
-            className="px-5 py-2 border rounded-md text-sm hover:bg-muted transition-colors disabled:opacity-30 focus-visible:ring-2 focus-visible:ring-primary outline-none"
+            className="px-5 py-2 border rounded-md text-sm hover:bg-muted hover:scale-105 active:scale-95 transition-all disabled:opacity-30 focus-visible:ring-2 focus-visible:ring-primary outline-none"
           >
             上一步
           </button>
@@ -168,7 +168,7 @@ export function ResumeBuilderForm({ initialData }: ResumeBuilderFormProps) {
               type="button"
               onClick={() => setStep((s) => s + 1)}
               disabled={!canProceed()}
-              className="px-5 py-2 bg-primary text-primary-foreground rounded-md text-sm hover:opacity-90 transition-opacity disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-primary outline-none"
+              className="px-5 py-2 bg-primary text-primary-foreground rounded-md text-sm hover:opacity-90 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-primary outline-none"
             >
               下一步
             </button>
@@ -177,7 +177,7 @@ export function ResumeBuilderForm({ initialData }: ResumeBuilderFormProps) {
               type="button"
               onClick={handleGenerate}
               disabled={isGenerating}
-              className="px-5 py-2 bg-primary text-primary-foreground rounded-md text-sm hover:opacity-90 transition-opacity disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-primary outline-none"
+              className="px-5 py-2 bg-primary text-primary-foreground rounded-md text-sm hover:opacity-90 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-primary outline-none"
             >
               {initialData?.resumeId ? '儲存更新' : 'AI 生成履歷'}
             </button>

@@ -16,7 +16,7 @@ export function Header() {
   return (
     <header className="border-b bg-background">
       <div className="container mx-auto px-4 h-14 flex items-center justify-between">
-        <Link href="/" className="font-bold text-lg tracking-tight">
+        <Link href="/" className="font-bold text-lg tracking-tight hover:opacity-80 transition-opacity">
           JobPilot
         </Link>
         <nav className="flex items-center gap-4">
@@ -25,7 +25,7 @@ export function Header() {
             <>
               <Link
                 href="/dashboard"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="text-sm text-muted-foreground hover:text-foreground hover:scale-105 active:scale-95 transition-all inline-block"
               >
                 Dashboard
               </Link>
@@ -47,7 +47,7 @@ export function Header() {
                 )}
                 <button
                   onClick={() => signOut({ callbackUrl: `/${locale}/login` })}
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors focus-visible:ring-2 focus-visible:ring-primary outline-none rounded"
+                  className="text-sm text-muted-foreground hover:text-foreground hover:scale-105 active:scale-95 transition-all focus-visible:ring-2 focus-visible:ring-primary outline-none rounded"
                 >
                   {t('logout')}
                 </button>
@@ -56,7 +56,7 @@ export function Header() {
           ) : (
             <Link
               href="/login"
-              className="text-sm bg-primary text-primary-foreground px-3 py-1.5 rounded-md hover:opacity-90 transition-opacity"
+              className="text-sm bg-primary text-primary-foreground px-3 py-1.5 rounded-md hover:opacity-90 hover:scale-105 active:scale-95 transition-all"
             >
               {t('login')}
             </Link>

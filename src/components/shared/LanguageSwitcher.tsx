@@ -17,8 +17,8 @@ export function LanguageSwitcher() {
       <button
         onClick={() => switchLocale('zh')}
         aria-current={locale === 'zh' ? 'true' : undefined}
-        className={`focus-visible:ring-2 focus-visible:ring-primary outline-none rounded ${
-          locale === 'zh' ? 'font-bold' : 'text-muted-foreground hover:text-foreground'
+        className={`focus-visible:ring-2 focus-visible:ring-primary outline-none rounded transition-all ${
+          locale === 'zh' ? 'font-bold' : 'text-muted-foreground hover:text-foreground hover:scale-110 active:scale-90'
         }`}
       >
         中文

@@ -11,7 +11,7 @@ export function QuickActions() {
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
       <Link
         href="/resume/new"
-        className="flex items-center gap-3 p-4 border rounded-lg hover:bg-muted transition-colors"
+        className="flex items-center gap-3 p-4 border rounded-lg hover:bg-muted hover:scale-105 hover:shadow-md active:scale-95 transition-all"
       >
         <FileText className="h-5 w-5 text-primary shrink-0" />
         <div>
@@ -21,7 +21,7 @@ export function QuickActions() {
       </Link>
       <Link
         href="/resume/upload"
-        className="flex items-center gap-3 p-4 border rounded-lg hover:bg-muted transition-colors"
+        className="flex items-center gap-3 p-4 border rounded-lg hover:bg-muted hover:scale-105 hover:shadow-md active:scale-95 transition-all"
       >
         <Upload className="h-5 w-5 text-primary shrink-0" />
         <div>
@@ -31,7 +31,7 @@ export function QuickActions() {
       </Link>
       <Link
         href="/cover-letter/new"
-        className="flex items-center gap-3 p-4 border rounded-lg hover:bg-muted transition-colors"
+        className="flex items-center gap-3 p-4 border rounded-lg hover:bg-muted hover:scale-105 hover:shadow-md active:scale-95 transition-all"
       >
         <Mail className="h-5 w-5 text-primary shrink-0" />
         <div>

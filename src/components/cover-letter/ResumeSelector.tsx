@@ -59,8 +59,10 @@ export function ResumeSelector({ value, onChange }: ResumeSelectorProps) {
           type="button"
           onClick={() => onChange(r.id)}
           className={cn(
-            'w-full flex items-center gap-3 p-4 border-2 rounded-lg text-left transition-colors focus-visible:ring-2 focus-visible:ring-primary outline-none',
-            value === r.id ? 'border-primary bg-primary/5' : 'border-muted hover:border-muted-foreground'
+            'w-full flex items-center gap-3 p-4 border-2 rounded-lg text-left transition-all focus-visible:ring-2 focus-visible:ring-primary outline-none',
+            value === r.id
+              ? 'border-primary bg-primary/5 scale-[1.01] shadow-sm'
+              : 'border-muted hover:border-primary/50 hover:scale-[1.01] hover:shadow-sm active:scale-[0.99]'
           )}
         >
           <FileText className="h-5 w-5 text-muted-foreground shrink-0" />

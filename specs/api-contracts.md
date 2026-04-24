@@ -44,5 +44,5 @@ POST /api/cover-letter/generate
   200:  { data: { coverLetterId: string, content: string } }
 
 GET /api/usage/today
-  200:  { data: { used: number, limit: 3 } }
+  200:  { data: { used: number, limit: 10 } }
 ```
