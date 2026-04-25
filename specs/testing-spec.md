@@ -50,6 +50,7 @@
 - [x] **[pagination] Integration — `GET /api/templates?page=1&limit=6`** ✅ 2026-04-25 — DB 有 8 筆 active 模板；status=active 篩選驗證；backward compat 驗證
 - [x] **[pagination] Regression — Dashboard ResumeList 換頁** ✅ 2026-04-25 — 9 resumes；初始 6 筆；Next page → 3 筆；page 2 顯示 Resume 7
 - [x] **[pagination] Regression — ResumeList Edit Mode 隱藏 Pagination** ✅ 2026-04-25 — Edit Mode → Pagination 消失、全部 9 個 checkbox 顯示
+- [ ] **[pagination] Regression — AdminTemplatesPage 換頁** — render 頁面 with 9 個 mock templates；初始只渲染 6 個；Next page → 顯示第 7-9 個；切換 statusFilter → page 重置為 1
 - [ ] [Regression] UserAvatarDropdown 點擊不出現黑色 focus ring — trigger 按鈕 className 必須只有 `outline-none`，不含 `focus-visible:ring-2`；點擊後不顯示任何外框
 - [ ] [Regression] UserAvatarDropdown 同頁導航不觸發 spinner — 點選當前所在頁面的選單項目時，`navigate()` 應跳過 `setNavigatingTo`（目標 pathname === 當前 pathname），spinner 不出現
 - [ ] [Regression] UserAvatarDropdown Safety timeout 兜底 — `navigatingTo` 非 null 時，3000ms 後自動 `setNavigatingTo(null)`，避免 spinner 永久卡住

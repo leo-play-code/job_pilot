@@ -1,9 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Link } from '@/i18n/navigation'
 import { BlurImage } from '@/components/shared/BlurImage'
 import { PlusCircle, RefreshCw, Trash2, ToggleLeft, ToggleRight, Upload, Sparkles, CheckCircle } from 'lucide-react'
+import { Pagination } from '@/components/shared/Pagination'
+
+const PAGE_SIZE = 6
 
 interface Template {
   id: string
@@ -26,6 +29,7 @@ export default function AdminTemplatesPage() {
   const [generating, setGenerating] = useState(false)
   const [generateMsg, setGenerateMsg] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
+  const [page, setPage] = useState(1)
 
   async function fetchTemplates() {
     setLoading(true)
@@ -91,13 +95,24 @@ export default function AdminTemplatesPage() {
     }
   }
 
-  const filteredTemplates = templates.filter((t) => {
+  const filteredTemplates = useMemo(() => templates.filter((t) => {
     if (statusFilter === 'all') return true
     if (statusFilter === 'draft') return t.status === 'draft'
     if (statusFilter === 'active') return t.status === 'active' || (t.isActive && t.status !== 'draft' && t.status !== 'inactive')
     if (statusFilter === 'inactive') return t.status === 'inactive' || (!t.isActive && t.status !== 'draft')
     return true
-  })
+  }), [templates, statusFilter])
+
+  const totalPages = Math.ceil(filteredTemplates.length / PAGE_SIZE)
+  const pagedTemplates = useMemo(
+    () => filteredTemplates.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [filteredTemplates, page],
+  )
+
+  function handleFilterChange(f: StatusFilter) {
+    setStatusFilter(f)
+    setPage(1)
+  }
 
   if (loading) {
     return (
@@ -159,7 +174,7 @@ export default function AdminTemplatesPage() {
             return (
               <button
                 key={f}
-                onClick={() => setStatusFilter(f)}
+                onClick={() => handleFilterChange(f)}
                 className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${statusFilter === f ? 'border-violet-600 text-violet-700' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
               >
                 {labels[f]}
@@ -170,7 +185,7 @@ export default function AdminTemplatesPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredTemplates.map((t) => (
+          {pagedTemplates.map((t) => (
             <div key={t.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
               <div className="h-40 bg-gray-100 flex items-center justify-center relative">
                 {t.thumbnailUrl ? (
@@ -249,6 +264,8 @@ export default function AdminTemplatesPage() {
             </div>
           ))}
         </div>
+
+        <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
 
         {filteredTemplates.length === 0 && (
           <div className="text-center py-20 text-gray-400">
