@@ -40,9 +40,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
+        // First sign-in: populate token from user object
         token.id = user.id
         token.plan = (user as { plan?: string }).plan ?? 'FREE'
         token.isAdmin = user.email === process.env.ADMIN_EMAIL
+      } else if (token.id) {
+        // Every subsequent JWT refresh: re-read plan from DB so it never goes stale
+        // This covers plan upgrades, cancellations, and admin changes
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { plan: true },
+        })
+        if (dbUser) {
+          token.plan = dbUser.plan
+        }
       }
       return token
     },

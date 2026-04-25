@@ -50,16 +50,49 @@ export async function POST(request: Request) {
               data: { paddleCustomerId: data.customerId },
             })
           }
+        } else if (customData?.userId && data.subscriptionId) {
+          // Subscription payment — update plan directly from transaction customData
+          // (more reliable than subscription.created which may lack customData.userId)
+          const userId = customData.userId
+          const subscriptionId = data.subscriptionId as string
+          const customerId = data.customerId as string | undefined
+          const priceId = data.items?.[0]?.price?.id as string | undefined
+          const periodEnd = data.billingPeriod?.endsAt
+            ? new Date(data.billingPeriod.endsAt)
+            : null
+
+          await prisma.user.update({
+            where: { id: userId },
+            data: {
+              plan: 'PRO',
+              ...(customerId && { paddleCustomerId: customerId }),
+              paddleSubscriptionId: subscriptionId,
+              paddlePriceId: priceId,
+              paddleCurrentPeriodEnd: periodEnd,
+            },
+          })
+          console.log(`[paddle-webhook] upgraded user=${userId} to PRO via txn=${transactionId}`)
         }
         break
       }
 
       case 'subscription.created': {
         const customData = data.customData as Record<string, string> | null
-        const userId = customData?.userId
+        let userId = customData?.userId
+        const customerId = data.customerId as string
+
+        // Fallback: find user by paddleCustomerId when customData.userId is absent
+        // (Paddle does not automatically inherit transaction customData into subscriptions)
+        if (!userId && customerId) {
+          const existing = await prisma.user.findFirst({
+            where: { paddleCustomerId: customerId },
+            select: { id: true },
+          })
+          userId = existing?.id
+        }
+
         if (!userId) break
 
-        const customerId = data.customerId as string
         const subscriptionId = data.id as string
         const priceId = data.items?.[0]?.price?.id as string | undefined
         const periodEnd = data.currentBillingPeriod?.endsAt

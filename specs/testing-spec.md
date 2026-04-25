@@ -82,6 +82,16 @@
 - [ ] [Regression] CreditsBadge 跨頁導航後即時更新 — 初始顯示 0 點數，模擬 pathname 改變後，badge 應重新 fetch 並顯示 120；API 回 401/500 時 badge 應保持隱藏（不顯示 0）
 - [ ] [Regression] 點數購買後 CreditsBadge 即時更新 — 購買後 `checkout.completed` 事件觸發，`verify-transaction` 成功時直接以回傳的 `credits` 更新 React Query cache；verify 失敗時輪詢 `/api/credits/balance` 每 2 秒直到 `newCredits > snapshot`；badge 顯示數字不再需要手動刷新頁面
 - [ ] [Regression] 點數購買期間 beforeunload 阻擋 — `paddle.Checkout.open` 後 `beforeunload` listener 掛上，關閉視窗會出現離開確認；`checkout.closed`（取消）移除阻擋；`checkout.completed` 後阻擋持續到 credits 確認更新才解除
+- [ ] [Regression] PRO 訂閱購買使用 overlay 而非整頁跳轉 — `handleCheckout` 呼叫 `paddle.Checkout.open({ transactionId })`，`window.location.href` 不再被呼叫；完成後輪詢 `GET /api/user/subscription` 直到 `plan=PRO`；不得出現 `?_ptxn=` 根路徑跳轉
+- [ ] [Regression] subscription.created webhook 無 customData 仍升級 PRO — mock Paddle webhook `subscription.created` 事件，`customData` 為 null、`customerId = 'ctm_existing'`；DB 有 user 的 `paddleCustomerId = 'ctm_existing'`；驗 `prisma.user.update` 被呼叫且 `data.plan = 'PRO'`
+- [ ] [Regression] transaction.completed 訂閱付款更新 plan — mock `transaction.completed` 事件，`customData = { userId: 'u1' }`、`subscriptionId = 'sub_123'`；驗 `prisma.user.update` 被呼叫且 `data.plan = 'PRO'` 且 `paddleSubscriptionId = 'sub_123'`
+- [ ] [Regression] verify-subscription 不依賴 webhook 直接升級 PRO — mock `paddle.transactions.get` 回傳 completed 且含 `subscriptionId`；mock `paddle.subscriptions.get` 回傳 billing period；驗 `prisma.user.update` 被呼叫且 `plan = 'PRO'`；回傳 200 `{ data: { plan: 'PRO', hasActiveSubscription: true } }`
+- [ ] [Regression] verify-subscription 安全性 — 未登入 → 401；`customData.userId` ≠ 當前 user → 403；`transaction.status !== 'completed'` → 400；`subscriptionId` 為空 → 400
+- [ ] [Regression] PRO 購買後 plan 即時更新（不依賴 webhook）— `checkout.completed` 後呼叫 `verify-subscription`；mock Paddle API 回傳含 subscriptionId 的 completed transaction；驗 `setSubscription` 以 `plan='PRO'` 更新；pricing 頁顯示「目前方案」而非「升級」按鈕
+- [ ] [Regression] PRO 升級後 session 即時刷新 — `verify-subscription` 成功後呼叫 `updateSession()`；JWT callback 的 `trigger === 'update'` 分支從 DB 重讀 `plan`；UserAvatarDropdown 立即顯示 Pro badge（amber）而非 FREE；不需要重新登入或刷新頁面
+- [ ] [Regression] UserAvatarDropdown plan badge 來自 session — session.user.plan = 'PRO' 時 dropdown 顯示 amber badge「Pro」；plan = 'FREE' 時顯示 muted 灰色 'FREE' 並顯示「升級 Pro」選項
+- [ ] [Regression] UserAvatarDropdown 顯示 live plan（不依賴 stale JWT）— mock `GET /api/user/subscription` 回傳 `plan='PRO'`；即使 `session.user.plan='FREE'`，dropdown 應顯示 amber Pro badge 且不顯示「升級 Pro」選項
+- [ ] [Regression] JWT 自動同步 DB plan — 模擬 user 已登入（JWT plan='FREE'），DB 更新 plan='PRO'，接著觸發 JWT 刷新（`update()` 或 session refetch）；驗 JWT callback 的 `else if (token.id)` 分支從 DB 讀取 plan='PRO'；session.user.plan 變成 'PRO'
 - [ ] [Regression] LanguageSwitcher 不允許重複點擊當前語言 — 已在中文頁面時，「中文」按鈕應為 disabled 且 cursor-default；已在英文頁面時，「EN」按鈕應為 disabled；點擊 disabled 按鈕不觸發任何導航
 
 - [ ] [Regression] Pricing 頁已登入用戶點「繼續免費使用」不應跳轉登入 — 已登入 Free 用戶進入 /pricing，Free Card CTA 應顯示「目前方案」disabled 按鈕，點擊不跳轉至 /login；subscription 資料載入前應顯示 skeleton 而非 login link

@@ -42,7 +42,7 @@ export async function POST() {
 
     const transaction = await paddle.transactions.create(transactionData)
 
-    return NextResponse.json({ data: { checkoutUrl: transaction.checkout?.url ?? null } })
+    return NextResponse.json({ data: { transactionId: transaction.id, checkoutUrl: transaction.checkout?.url ?? null } })
   } catch (error) {
     console.error('[paddle-create-checkout-session] error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

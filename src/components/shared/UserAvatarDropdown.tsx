@@ -6,6 +6,7 @@ import { BlurImage } from '@/components/shared/BlurImage'
 import { useRouter, usePathname } from '@/i18n/navigation'
 import { useTranslations } from 'next-intl'
 import { useState, useEffect } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import {
   UserCircle, Settings, CreditCard, Coins, LayoutTemplate,
   Users, LogOut, ChevronDown, Sparkles, Loader2,
@@ -24,7 +25,20 @@ export function UserAvatarDropdown({ session, locale }: Props) {
   const { user } = session
 
   const pathname = usePathname()
-  const isPro = user.plan === 'PRO'
+
+  // Read plan from live API so the badge is never stale (DB is source of truth)
+  const { data: liveSubscription } = useQuery({
+    queryKey: ['user', 'subscription'],
+    queryFn: async () => {
+      const r = await fetch('/api/user/subscription')
+      if (!r.ok) return null
+      const json = await r.json() as { data?: { plan: string; hasActiveSubscription: boolean } }
+      return json.data ?? null
+    },
+    staleTime: 60_000,
+  })
+
+  const isPro = liveSubscription?.plan === 'PRO' || user.plan === 'PRO'
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [navigatingTo, setNavigatingTo] = useState<string | null>(null)
 

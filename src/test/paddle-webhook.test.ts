@@ -14,6 +14,10 @@ vi.mock('@/lib/prisma', () => ({
   prisma: {
     user: {
       update: vi.fn(),
+      findFirst: vi.fn().mockResolvedValue(null),
+    },
+    creditTransaction: {
+      findFirst: vi.fn().mockResolvedValue(null),
     },
     $transaction: vi.fn(),
   },

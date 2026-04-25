@@ -42,9 +42,12 @@
 | POST | /api/admin/templates/import | admin | **上傳 PNG/PDF → AI 分析 → 建立 draft 模板** |
 | POST | /api/resume/import-raw | required | 上傳 PDF → 不做 AI → 存 S3 + rawText → 建立 Resume |
 | GET | /api/resume/:id/raw-pdf | required | 取得原始 PDF S3 下載連結 |
-| POST | /api/stripe/create-checkout-session | required | 建立 Stripe Checkout Session → 回傳 checkoutUrl |
-| POST | /api/stripe/create-portal-session | required | 建立 Stripe Customer Portal Session → 回傳 portalUrl |
-| POST | /api/stripe/webhook | public (Stripe signature) | 接收 Stripe webhook 事件，更新 user plan |
+| POST | /api/paddle/create-checkout-session | required | 建立 Paddle transaction → 回傳 transactionId + checkoutUrl |
+| POST | /api/paddle/create-portal-session | required | 建立 Paddle Customer Portal Session → 回傳 portalUrl |
+| POST | /api/paddle/buy-credits | required | 建立點數包 Paddle transaction → 回傳 transactionId |
+| POST | /api/paddle/verify-transaction | required | 驗證點數包交易並加點（idempotent）|
+| POST | /api/paddle/verify-subscription | required | 驗證訂閱交易並升級 plan（不依賴 webhook，適用 localhost 開發）|
+| POST | /api/paddle/webhook | public (Paddle signature) | 接收 Paddle webhook 事件，更新 user plan / credits |
 | GET | /api/user/subscription | required | 取得當前訂閱狀態（plan, currentPeriodEnd）|
 
 ## 關鍵 Request / Response
@@ -118,7 +121,27 @@ PATCH /api/admin/templates/:id
   status='active' 時同步設 isActive=true（向後兼容）
 ```
 
-## Stripe Endpoints 詳細規格
+## Paddle Endpoints 詳細規格
+
+```
+POST /api/paddle/verify-subscription
+  Auth: required
+  Body: { transactionId: string }
+  200: { data: { plan: 'PRO', currentPeriodEnd: string|null, hasActiveSubscription: true } }
+  400: { error: 'Transaction not completed yet' | 'Subscription not linked yet, retry shortly' | ... }
+  403: { error: 'Forbidden' } (transaction userId ≠ current user)
+  Business logic:
+  1. 驗證 session
+  2. paddle.transactions.get(transactionId) 驗證狀態為 completed
+  3. 確認 customData.userId === session.user.id（安全性）
+  4. 若 transaction.subscriptionId 為空 → 400（Paddle 尚未建立，retry）
+  5. paddle.subscriptions.get(subscriptionId) 取得 billing period
+  6. prisma.user.update: plan=PRO, paddleSubscriptionId, paddlePriceId, paddleCurrentPeriodEnd
+  7. 回傳完整訂閱資料
+  注意：前端最多 retry 3 次（間隔 2s），用於 Paddle 建立 subscription 的短暫延遲
+```
+
+## Stripe Endpoints 詳細規格（舊，已遷移至 Paddle）
 
 ```
 POST /api/stripe/create-checkout-session

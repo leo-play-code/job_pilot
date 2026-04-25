@@ -40,7 +40,7 @@ function PlanCardSkeleton() {
 
 export default function PricingPage() {
   const t = useTranslations('pricing')
-  const { data: session, status: authStatus } = useSession()
+  const { data: session, status: authStatus, update: updateSession } = useSession()
 
   const paddle = usePaddle()
   const queryClient = useQueryClient()
@@ -56,9 +56,11 @@ export default function PricingPage() {
 
   // overlay is open → block page navigation
   const [checkoutActive, setCheckoutActive] = useState(false)
-  // payment completed, polling for credits update → still block navigation
+  // payment completed, polling for credits/plan update → still block navigation
   const [confirmingCredits, setConfirmingCredits] = useState(false)
   const creditsSnapshotRef = useRef<number>(0)
+  // track what kind of checkout is open so the completed handler knows how to react
+  const pendingCheckoutTypeRef = useRef<'credits' | 'subscription' | null>(null)
 
   const searchParams = useSearchParams()
   const creditsSuccess = searchParams.get('credits_success') === 'true'
@@ -93,59 +95,117 @@ export default function PricingPage() {
     return () => window.removeEventListener('paddle:checkout:closed', handler)
   }, [])
 
-  // After payment completes: verify server-side then poll until header badge updates
+  // After payment completes: branch on checkout type then poll until state updates
   useEffect(() => {
     const handler = async (e: Event) => {
       const { transactionId } = (e as CustomEvent<{ transactionId: string }>).detail
+      const checkoutType = pendingCheckoutTypeRef.current
+      pendingCheckoutTypeRef.current = null
+
       setCheckoutActive(false)
       setConfirmingCredits(true)
-      const snapshot = creditsSnapshotRef.current
 
       try {
-        // Attempt immediate verification — adds credits or returns current balance
-        let updated = false
-        try {
-          const res = await fetch('/api/paddle/verify-transaction', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ transactionId }),
-          })
-          const json = await res.json() as { data?: { credits?: number } }
-          if (res.ok && typeof json.data?.credits === 'number' && json.data.credits > snapshot) {
-            queryClient.setQueryData([...CREDITS_QUERY_KEY], json.data.credits)
-            updated = true
-          }
-        } catch {
-          // verify-transaction failed — fall through to polling
-        }
+        if (checkoutType === 'subscription') {
+          let upgraded = false
+          let subscriptionData: SubscriptionData | null = null
 
-        // If verify-transaction didn't confirm, poll balance until webhook credits the user
-        if (!updated) {
-          for (let i = 0; i < 15; i++) {
-            await new Promise<void>((r) => setTimeout(r, 2000))
+          // Attempt immediate server-side verification via Paddle API (does not rely on webhook)
+          // Retry up to 3 times in case Paddle hasn't linked subscriptionId to the transaction yet
+          for (let attempt = 0; attempt < 3; attempt++) {
+            if (attempt > 0) await new Promise<void>((r) => setTimeout(r, 2000))
             try {
-              const res = await fetch('/api/credits/balance')
-              if (res.ok) {
-                const json = await res.json() as { data?: { credits?: number } }
-                const newCredits = json.data?.credits ?? 0
-                if (newCredits > snapshot) {
-                  queryClient.setQueryData([...CREDITS_QUERY_KEY], newCredits)
-                  updated = true
-                  break
-                }
+              const res = await fetch('/api/paddle/verify-subscription', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ transactionId }),
+              })
+              const json = await res.json() as { data?: SubscriptionData }
+              if (res.ok && json.data?.plan === 'PRO') {
+                subscriptionData = json.data
+                upgraded = true
+                break
               }
             } catch {
-              // continue polling
+              // continue to next attempt
             }
           }
-        }
 
-        if (updated) {
-          toast.success(t('credits.success'))
+          // Fallback: poll GET /api/user/subscription for up to 30s (covers webhook-only scenarios)
+          if (!upgraded) {
+            for (let i = 0; i < 15; i++) {
+              await new Promise<void>((r) => setTimeout(r, 2000))
+              try {
+                const res = await fetch('/api/user/subscription')
+                if (res.ok) {
+                  const json = await res.json() as { data?: SubscriptionData }
+                  if (json.data?.plan === 'PRO') {
+                    subscriptionData = json.data
+                    upgraded = true
+                    break
+                  }
+                }
+              } catch {
+                // continue polling
+              }
+            }
+          }
+
+          if (upgraded && subscriptionData) {
+            setSubscription(subscriptionData)
+            // Invalidate subscription query so UserAvatarDropdown updates immediately
+            void queryClient.invalidateQueries({ queryKey: ['user', 'subscription'] })
+            // Also refresh NextAuth JWT for session.user.plan consistency
+            await updateSession()
+            toast.success('已成功升級至 PRO！')
+          } else {
+            toast.info('訂閱確認中，請稍後重新整理確認狀態')
+          }
         } else {
-          // Timed out — webhook will credit eventually, nudge the user
-          void queryClient.invalidateQueries({ queryKey: [...CREDITS_QUERY_KEY] })
-          toast.info('點數確認中，請稍後查看餘額')
+          // Credit pack: verify then poll until balance increases
+          const snapshot = creditsSnapshotRef.current
+          let updated = false
+          try {
+            const res = await fetch('/api/paddle/verify-transaction', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ transactionId }),
+            })
+            const json = await res.json() as { data?: { credits?: number } }
+            if (res.ok && typeof json.data?.credits === 'number' && json.data.credits > snapshot) {
+              queryClient.setQueryData([...CREDITS_QUERY_KEY], json.data.credits)
+              updated = true
+            }
+          } catch {
+            // fall through to polling
+          }
+
+          if (!updated) {
+            for (let i = 0; i < 15; i++) {
+              await new Promise<void>((r) => setTimeout(r, 2000))
+              try {
+                const res = await fetch('/api/credits/balance')
+                if (res.ok) {
+                  const json = await res.json() as { data?: { credits?: number } }
+                  const newCredits = json.data?.credits ?? 0
+                  if (newCredits > snapshot) {
+                    queryClient.setQueryData([...CREDITS_QUERY_KEY], newCredits)
+                    updated = true
+                    break
+                  }
+                }
+              } catch {
+                // continue polling
+              }
+            }
+          }
+
+          if (updated) {
+            toast.success(t('credits.success'))
+          } else {
+            void queryClient.invalidateQueries({ queryKey: [...CREDITS_QUERY_KEY] })
+            toast.info('點數確認中，請稍後查看餘額')
+          }
         }
       } finally {
         setConfirmingCredits(false)
@@ -157,15 +217,22 @@ export default function PricingPage() {
   }, [queryClient, t])
 
   const handleCheckout = async () => {
+    if (!paddle) return
     setCheckoutLoading(true)
     setError(null)
     try {
       const res = await fetch('/api/paddle/create-checkout-session', { method: 'POST' })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error ?? 'Failed')
-      window.location.href = json.data.checkoutUrl
+      const txnId = json.data.transactionId as string | null
+      if (!txnId) throw new Error('No transaction ID')
+      pendingCheckoutTypeRef.current = 'subscription'
+      setCheckoutActive(true)
+      paddle.Checkout.open({ transactionId: txnId })
     } catch {
       setError('checkout_failed')
+      setCheckoutActive(false)
+    } finally {
       setCheckoutLoading(false)
     }
   }
@@ -204,6 +271,7 @@ export default function PricingPage() {
       // Snapshot current credits so we can detect when balance increases
       const current = queryClient.getQueryData<number | null>(CREDITS_QUERY_KEY)
       creditsSnapshotRef.current = current ?? 0
+      pendingCheckoutTypeRef.current = 'credits'
       setCheckoutActive(true)
       paddle.Checkout.open({
         transactionId: txnId,
