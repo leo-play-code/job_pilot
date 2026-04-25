@@ -656,6 +656,7 @@ common.pagination.of          = "共 {total} 頁" / "of {total}"
 ## Task Status
 
 ### Pending
+- [x] **[register-google] Frontend: `RegisterForm` 加入 Google OAuth 按鈕** ✅ 2026-04-25 — `src/components/auth/RegisterForm.tsx`；在 email/password 表單上方加入 Google 登入按鈕（與 LoginForm 一致）；加 `useLocale` + `handleGoogle`；加 "或" 分隔線；使用現有 `auth.google` i18n key
 
 - [x] **[pagination] Frontend: `Pagination` 共用元件** ✅ 2026-04-25 — `src/components/shared/Pagination.tsx`；Smart Ellipsis 分頁列；totalPages<=1 return null；目前頁高亮；onPageChange 回呼
 - [x] **[pagination] Frontend: `ResumeList` 加分頁** ✅ 2026-04-25 — `src/components/resume/ResumeList.tsx`；6 per page；Edit Mode 下隱藏 Pagination、顯示全部；換頁重置 page=1
