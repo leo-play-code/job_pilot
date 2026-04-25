@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Link } from '@/i18n/navigation'
-import Image from 'next/image'
+import { BlurImage } from '@/components/shared/BlurImage'
 import { PlusCircle, RefreshCw, Trash2, ToggleLeft, ToggleRight, Upload, Sparkles, CheckCircle } from 'lucide-react'
 
 interface Template {
@@ -174,12 +174,12 @@ export default function AdminTemplatesPage() {
             <div key={t.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
               <div className="h-40 bg-gray-100 flex items-center justify-center relative">
                 {t.thumbnailUrl ? (
-                  <Image
+                  <BlurImage
                     src={t.thumbnailUrl}
                     alt={t.name}
                     fill
+                    sizes="(max-width: 768px) 100vw, 300px"
                     className="object-cover object-top"
-                    unoptimized
                   />
                 ) : (
                   <span className="text-gray-400 text-sm">無縮圖</span>

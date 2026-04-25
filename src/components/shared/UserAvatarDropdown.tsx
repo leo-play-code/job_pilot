@@ -2,7 +2,7 @@
 
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { signOut } from 'next-auth/react'
-import Image from 'next/image'
+import { BlurImage } from '@/components/shared/BlurImage'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { UserCircle, Settings, CreditCard, Coins, LayoutTemplate, Users, LogOut, ChevronDown, Sparkles } from 'lucide-react'
@@ -31,11 +31,13 @@ export function UserAvatarDropdown({ session, locale }: Props) {
         >
           <div className="relative">
             {user.image ? (
-              <Image
+              <BlurImage
                 src={user.image}
                 alt={user.name ?? 'User avatar'}
                 width={32}
                 height={32}
+                priority
+                sizes="40px"
                 className="rounded-full object-cover"
               />
             ) : (
@@ -61,11 +63,12 @@ export function UserAvatarDropdown({ session, locale }: Props) {
           {/* User info header */}
           <div className="px-3 py-2 flex items-center gap-3">
             {user.image ? (
-              <Image
+              <BlurImage
                 src={user.image}
                 alt={user.name ?? 'avatar'}
                 width={36}
                 height={36}
+                sizes="40px"
                 className="rounded-full object-cover flex-shrink-0"
               />
             ) : (

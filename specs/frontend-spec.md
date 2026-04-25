@@ -439,13 +439,168 @@ upgrade.cta                = "立即訂閱 $19.99/月" / "Subscribe for $19.99/m
 header.upgradePro          = "升級 Pro ✨" / "Upgrade to Pro ✨"
 ```
 
+---
+
+## 全站 UX 回饋系統（Button Loading / Toast / Route Progress）
+
+### 問題背景
+按下按鈕後若未即時跳頁，用戶完全沒有視覺回饋（無 spinner、無進度條、無 toast），不知道點擊有沒有被接收。
+
+### 三大交付物
+
+#### 1. 全域路由切換進度條
+使用 `nextjs-toploader` 套件（零設定，自動偵測所有 Next.js 路由切換）：
+```tsx
+// src/components/shared/Providers.tsx
+import NextTopLoader from 'nextjs-toploader'
+// 在 SessionProvider 內部最頂層加入：
+<NextTopLoader color="hsl(var(--primary))" showSpinner={false} />
+```
+套件安裝：`npm install nextjs-toploader`
+
+#### 2. 全域 Toast 通知（Sonner）
+使用 `sonner` 套件取代各頁面自製 inline toast state：
+```tsx
+// src/components/shared/Providers.tsx 加入：
+import { Toaster } from 'sonner'
+<Toaster position="bottom-right" richColors />
+
+// 使用方式（任何 client component 直接 import）：
+import { toast } from 'sonner'
+toast.success('儲存成功')
+toast.error('發生錯誤，請稍後再試')
+```
+套件安裝：`npm install sonner`
+
+#### 3. `LoadingButton` 共用元件
+```tsx
+// src/components/shared/LoadingButton.tsx
+Props: children, isLoading, onClick?, type?, disabled?, className?, variant?
+行為：
+  - isLoading=true 時：顯示 Loader2 spinner（animate-spin）+ 文字，按鈕 disabled
+  - variant: 'primary' | 'secondary' | 'destructive'（對應不同 Tailwind 樣式）
+  - 保留現有 hover:scale-105 active:scale-95 transition-all 風格
+```
+
+### 修改元件清單
+
+```
+Providers.tsx（src/components/shared/Providers.tsx）
+  加入 NextTopLoader + Toaster
+
+ResumeActions.tsx（src/components/resume/ResumeActions.tsx）
+  PDF 下載：<a href="/api/pdf/download/:id"> → 改為 button + fetch blob download
+  加入 isPdfDownloading state：點擊後 button disabled + Loader2 spinner
+  下載失敗：toast.error('PDF 生成失敗，請稍後再試')
+  下載成功：透過 blob URL 觸發 a.click()（瀏覽器自動處理 Content-Disposition: attachment）
+
+settings/page.tsx（src/app/[locale]/settings/page.tsx）
+  移除 const [toast, setToast] = useState 及相關 JSX
+  改用 toast.success() / toast.error() from sonner
+
+admin/dashboard/page.tsx（src/app/[locale]/admin/dashboard/page.tsx）
+  移除 const [toast, setToast] = useState 及相關 JSX
+  改用 toast.success() / toast.error() from sonner
+```
+
+### i18n
+```
+common.downloadPdfError = "PDF 生成失敗，請稍後再試" / "PDF generation failed, please try again"
+```
+
+---
+
+## 前端效能優化 + 漸進式圖片載入（Blur-Up）
+
+### 需求
+用戶進入有圖片的頁面時，不等全部圖片載完才顯示，改為先顯示模糊佔位，圖片載入完成後以 CSS transition 淡化為清晰原圖。
+
+### 新增元件
+
+| 元件 | 位置 | 說明 |
+|---|---|---|
+| `BlurImage` | `src/components/shared/BlurImage.tsx` | 包裝 `next/image`，加入 blur-up 過渡效果 |
+
+### `BlurImage` 規格
+
+```
+Props:
+  src: string
+  alt: string
+  width?: number
+  height?: number
+  fill?: boolean
+  sizes?: string
+  className?: string
+  priority?: boolean
+
+行為：
+  - placeholder="blur"，blurDataURL 使用內建 8×8px 灰色 shimmer base64
+  - 載入中：CSS filter: blur(20px) scale(1.05)（scale 防邊緣白邊）
+  - 載入完成 onLoad：CSS transition 300ms ease → filter: blur(0) scale(1)
+  - 透過 useState(false) → onLoad setState(true) 控制 className 切換
+
+States: loading（blur + scale）/ loaded（clear + normal scale）
+```
+
+### 修改元件
+
+```
+next.config.ts
+  images.remotePatterns 新增：
+    { protocol: 'https', hostname: '*.supabase.co' }
+    { protocol: 'https', hostname: '*.supabase.in' }
+    { protocol: 'https', hostname: '*.s3.amazonaws.com' }（AWS S3 通用）
+    { protocol: 'https', hostname: '*.s3.*.amazonaws.com' }（含 region，如 job-pilot-assets.s3.ap-northeast-1.amazonaws.com）
+  images.formats: ['image/webp', 'image/avif']
+  images.minimumCacheTTL: 604800（7 天）
+
+/admin/templates/page.tsx
+  <Image src={t.thumbnailUrl}> → <BlurImage sizes="(max-width: 768px) 100vw, 300px">
+  無 thumbnailUrl 時仍顯示灰色佔位（現有行為保留）
+
+/admin/templates/import/page.tsx（Step 1 預覽 + Step 2 左欄原圖）
+  <img src={uploadedImageUrl}> → <BlurImage fill>（外層 div 需有 position: relative）
+  <img src={analysisResult.referenceImageUrl}> → <BlurImage fill>
+
+UserAvatarDropdown.tsx
+  <Image src={user.image}> → <BlurImage priority sizes="40px">
+```
+
+### i18n
+無新 i18n key（純 UI 效能優化）。
+
+---
+
 ## Task Status
 
 ### Pending
 
-_(no pending tasks)_
-
 ### Done
+- [x] **[ux-feedback] 安裝套件** ✅ 2026-04-25
+  `npm install nextjs-toploader sonner`
+- [x] **[ux-feedback] `Providers.tsx` 加入 NextTopLoader + Toaster** ✅ 2026-04-25
+  `src/components/shared/Providers.tsx` — NextTopLoader color hsl(221.2 83.2% 53.3%) showSpinner=false；Toaster position=bottom-right richColors；置於 SessionProvider 最頂層
+- [x] **[ux-feedback] `LoadingButton` 元件** ✅ 2026-04-25
+  `src/components/shared/LoadingButton.tsx` — Props: children, isLoading, variant?('primary'|'secondary'|'destructive'), className, disabled；isLoading 時顯示 Loader2 animate-spin + disabled；保留 hover:scale-105 active:scale-95
+- [x] **[ux-feedback] PDF 下載改為 fetch-based** ✅ 2026-04-25
+  `src/components/resume/ResumeActions.tsx` — `<a href>` 改為 button；加 isPdfDownloading state；fetch → blob → a.click()；失敗時 toast.error(tc('downloadPdfError'))；加入 Loader2 spinner
+- [x] **[ux-feedback] settings/page.tsx 換 sonner toast** ✅ 2026-04-25
+  `src/app/[locale]/settings/page.tsx` — 移除 useState<{msg,ok}> inline toast state 與 JSX；改用 toast.success() / toast.error() from sonner；移除 showToast helper
+- [x] **[ux-feedback] admin/dashboard/page.tsx 換 sonner toast** ✅ 2026-04-25
+  `src/app/[locale]/admin/dashboard/page.tsx` — 移除 useState<string | null> inline toast state 與 JSX；改用 toast.success() / toast.error()；移除 showToast helper；confirmEditCredits 驗證錯誤也改用 toast.error
+- [x] **[ux-feedback] i18n: zh.json / en.json 加入 downloadPdfError key** ✅ 2026-04-25
+  `common.downloadPdfError` = "PDF 生成失敗，請稍後再試" / "PDF generation failed, please try again"
+- [x] **[perf] `BlurImage` 元件** ✅ 2026-04-25
+  `src/components/shared/BlurImage.tsx` — 包裝 next/image；blur(20px) scale(1.05) → onLoad → blur(0) scale(1)；300ms ease transition；内建灰色 shimmer blurDataURL
+- [x] **[perf] `next.config.ts` 更新** ✅ 2026-04-25
+  加入 Supabase storage 域名（`*.supabase.co` / `*.supabase.in`）；加 `formats: ['image/webp', 'image/avif']`；加 `minimumCacheTTL: 604800`
+- [x] **[perf] Admin templates 列表** ✅ 2026-04-25
+  `/admin/templates/page.tsx` 的 `<Image>` 替換為 `<BlurImage sizes="(max-width: 768px) 100vw, 300px">`
+- [x] **[perf] Admin import wizard 參考圖** ✅ 2026-04-25
+  `/admin/templates/import/page.tsx` 兩處 `<img>` 替換為 `<BlurImage fill>`；外層容器加 `position: relative`
+- [x] **[perf] UserAvatarDropdown 頭像** ✅ 2026-04-25
+  `<Image src={user.image}>` 替換為 `<BlurImage priority sizes="40px">`（觸發按鈕與 dropdown header 頭像均替換）
 - [x] **[stripe-subscription] Frontend: `/[locale]/pricing` 頁面** ✅ 2026-04-25
   `src/app/[locale]/pricing/page.tsx` — 兩欄 Free vs Pro 方案卡片；CTA 依 auth 狀態呈現（未登入 → /login、Free → checkout API → Stripe redirect、Pro → portal API）；loading skeleton；ring-2 ring-primary highlight on Pro card
 - [x] **[stripe-subscription] Frontend: `/[locale]/settings/billing` 頁面** ✅ 2026-04-25

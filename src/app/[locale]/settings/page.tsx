@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useLocale } from 'next-intl'
 import Image from 'next/image'
 import { UserCircle, Check, Pencil, X, Coins, CreditCard, Star } from 'lucide-react'
+import { toast } from 'sonner'
 
 interface UserProfile {
   id: string
@@ -43,7 +44,6 @@ export default function SettingsPage() {
   const [editingName, setEditingName] = useState(false)
   const [nameInput, setNameInput] = useState('')
   const [saving, setSaving] = useState(false)
-  const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null)
 
   useEffect(() => {
     if (status === 'unauthenticated') router.replace(`/${locale}/login`)
@@ -79,15 +79,10 @@ export default function SettingsPage() {
       setProfile(prev => prev ? { ...prev, name: data.name } : prev)
       setEditingName(false)
       await update({ name: data.name })
-      showToast('名字已更新', true)
+      toast.success('名字已更新')
     } else {
-      showToast(data.error ?? '更新失敗', false)
+      toast.error(data.error ?? '更新失敗')
     }
-  }
-
-  function showToast(msg: string, ok: boolean) {
-    setToast({ msg, ok })
-    setTimeout(() => setToast(null), 3000)
   }
 
   if (status === 'loading' || loading || !profile) {
@@ -102,15 +97,6 @@ export default function SettingsPage() {
 
   return (
     <div className="container mx-auto px-4 py-10 max-w-2xl">
-      {/* Toast */}
-      {toast && (
-        <div className={`fixed top-4 right-4 z-50 text-sm px-4 py-2 rounded-lg shadow-lg animate-in fade-in-0 ${
-          toast.ok ? 'bg-foreground text-background' : 'bg-destructive text-destructive-foreground'
-        }`}>
-          {toast.msg}
-        </div>
-      )}
-
       <h1 className="text-2xl font-bold mb-8">帳號設定</h1>
 
       {/* ── 個人資料 ── */}

@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Link, useRouter } from '@/i18n/navigation'
-import { Download, Pencil, Trash2 } from 'lucide-react'
+import { Download, Loader2, Pencil, Trash2 } from 'lucide-react'
+import { toast } from 'sonner'
 
 interface ResumeActionsProps {
   resumeId: string
@@ -17,6 +18,7 @@ export function ResumeActions({ resumeId, rawPdfUrl }: ResumeActionsProps) {
   const [confirming, setConfirming] = useState(false)
   const [loading, setLoading] = useState(false)
   const [rawLoading, setRawLoading] = useState(false)
+  const [isPdfDownloading, setIsPdfDownloading] = useState(false)
 
   async function handleDelete() {
     setLoading(true)
@@ -26,6 +28,26 @@ export function ResumeActions({ resumeId, rawPdfUrl }: ResumeActionsProps) {
     } finally {
       setLoading(false)
       setConfirming(false)
+    }
+  }
+
+  async function handleDownloadPdf() {
+    if (isPdfDownloading) return
+    setIsPdfDownloading(true)
+    try {
+      const res = await fetch(`/api/pdf/download/${resumeId}`)
+      if (!res.ok) throw new Error('failed')
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `resume-${resumeId}.pdf`
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch {
+      toast.error(tc('downloadPdfError'))
+    } finally {
+      setIsPdfDownloading(false)
     }
   }
 
@@ -54,14 +76,18 @@ export function ResumeActions({ resumeId, rawPdfUrl }: ResumeActionsProps) {
         {tr('edit')}
       </Link>
 
-      <a
-        href={`/api/pdf/download/${resumeId}`}
-        download
-        className="flex items-center gap-1.5 px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm hover:opacity-90 hover:scale-105 active:scale-95 transition-all focus-visible:ring-2 focus-visible:ring-primary outline-none"
+      <button
+        onClick={handleDownloadPdf}
+        disabled={isPdfDownloading}
+        className="flex items-center gap-1.5 px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm hover:opacity-90 hover:scale-105 active:scale-95 transition-all focus-visible:ring-2 focus-visible:ring-primary outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100"
       >
-        <Download className="h-4 w-4" />
+        {isPdfDownloading ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <Download className="h-4 w-4" />
+        )}
         {tr('download')}
-      </a>
+      </button>
 
       {rawPdfUrl && rawPdfUrl !== '' && (
         <button

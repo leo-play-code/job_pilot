@@ -30,6 +30,14 @@
 - [x] [stripe-subscription] Integration — `GET /api/user/subscription`：Free 用戶回 `{ plan:'FREE', hasActiveSubscription:false }`；Pro 用戶回 `{ plan:'PRO', hasActiveSubscription:true, currentPeriodEnd: <ISO string> }`（completed: 2026-04-25）
 - [x] [stripe-subscription] Integration — `POST /api/stripe/create-checkout-session`：未登入 → 401；已登入 → 呼叫 Stripe mock → 回傳 checkoutUrl（completed: 2026-04-25）
 
+- [x] [Regression] AWS S3 模板縮圖域名允許 — 確認 `next.config.ts` 的 `remotePatterns` 含 `*.s3.amazonaws.com` 和 `*.s3.*.amazonaws.com`；訪問 `job-pilot-assets.s3.ap-northeast-1.amazonaws.com` 圖片 URL 不拋出 `hostname not configured` 錯誤（completed: 2026-04-25）
+- [x] **[ux-feedback] Unit — `LoadingButton` 元件**：render `<LoadingButton isLoading={false}>`，驗證按鈕可點擊；`isLoading={true}` 時按鈕 disabled、className 含 `animate-spin`（Loader2）（completed: 2026-04-25）
+- [x] **[ux-feedback] Regression — PDF 下載 loading state**：`ResumeActions` render，mock `fetch` 延遲回傳 200 blob；點「下載 PDF」後按鈕應立刻進入 disabled 狀態；fetch resolve 後 disabled 解除（completed: 2026-04-25）
+- [x] **[ux-feedback] Regression — PDF 下載錯誤 toast**：mock `fetch` 回傳 500；點「下載 PDF」後應呼叫 `toast.error()`（mock sonner）（completed: 2026-04-25）
+- [x] **[ux-feedback] Regression — Providers 包含 NextTopLoader + Toaster**：讀取 `src/components/shared/Providers.tsx` 原始碼，驗證包含 `NextTopLoader` 和 `Toaster`（completed: 2026-04-25）
+- [x] **[perf] Unit — `BlurImage` loaded 狀態**：render `<BlurImage src="..." alt="..."/>`，驗證初始 className 含 `blur`；模擬 `onLoad` 後 className 不含 `blur`，含 `scale-100`（completed: 2026-04-25）
+- [x] **[perf] Regression — Admin templates 縮圖 blur-up**：`/admin/templates` 有 thumbnailUrl 的模板卡片，DOM 中 `<img>` 出現時應有 blur className；`next/image` 不報 `hostname not allowed`（completed: 2026-04-25）
+- [x] **[perf] Regression — Supabase 圖片域名允許**：`next.config.ts` 的 `remotePatterns` 含 `*.supabase.co`；訪問 S3 圖片 URL 不出現 Next.js image 域名錯誤（completed: 2026-04-25）
 - [ ] [Regression] Pricing 頁已登入用戶點「繼續免費使用」不應跳轉登入 — 已登入 Free 用戶進入 /pricing，Free Card CTA 應顯示「目前方案」disabled 按鈕，點擊不跳轉至 /login；subscription 資料載入前應顯示 skeleton 而非 login link
 
 - [ ] [Regression] 原始 PDF 履歷排版保留 — 確認 raw import 上傳 PDF 後，詳細頁顯示的是嵌入 PDF iframe（`RawPdfView`）而非純文字 `RawTextView`；`rawPdfUrl` 非空時 `ResumeEditorClient` 必須優先渲染 `RawPdfView`

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useCallback } from 'react'
+import { BlurImage } from '@/components/shared/BlurImage'
 import {
   DndContext,
   closestCenter,
@@ -464,12 +465,13 @@ export default function TemplateImportPage() {
 
             {/* Preview */}
             {previewUrl && (
-              <div className="mt-4 rounded-lg overflow-hidden border border-gray-200">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+              <div className="mt-4 rounded-lg overflow-hidden border border-gray-200 relative h-64">
+                <BlurImage
                   src={previewUrl}
                   alt="設計圖預覽"
-                  className="w-full object-contain max-h-64"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 672px"
+                  className="object-contain"
                 />
               </div>
             )}
@@ -515,12 +517,15 @@ export default function TemplateImportPage() {
                   原始設計圖
                 </p>
                 {previewUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={previewUrl}
-                    alt="原始設計"
-                    className="w-full rounded-lg object-contain border border-gray-100"
-                  />
+                  <div className="relative w-full rounded-lg border border-gray-100 overflow-hidden" style={{ minHeight: '300px' }}>
+                    <BlurImage
+                      src={previewUrl}
+                      alt="原始設計"
+                      fill
+                      sizes="(max-width: 1280px) 50vw, 400px"
+                      className="object-contain rounded-lg"
+                    />
+                  </div>
                 ) : (
                   <div className="flex items-center justify-center h-64 bg-gray-50 rounded-lg border border-gray-100 text-gray-400 text-sm">
                     PDF 檔案（無預覽）

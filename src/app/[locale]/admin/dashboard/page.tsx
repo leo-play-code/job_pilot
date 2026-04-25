@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useLocale } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { Users, FileText, Mail, Zap, LayoutTemplate, RefreshCw, Check, X } from 'lucide-react'
+import { toast } from 'sonner'
 
 interface UserRow {
   id: string
@@ -38,7 +39,6 @@ export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [updatingId, setUpdatingId] = useState<string | null>(null)
-  const [toast, setToast] = useState<string | null>(null)
   // credits inline edit state: { [userId]: string }
   const [editingCredits, setEditingCredits] = useState<Record<string, string>>({})
   const creditsInputRef = useRef<HTMLInputElement | null>(null)
@@ -72,9 +72,9 @@ export default function AdminDashboardPage() {
     const data = await res.json()
     if (res.ok) {
       setUsers(prev => prev.map(u => u.id === userId ? { ...u, ...data } : u))
-      showToast('已更新')
+      toast.success('已更新')
     } else {
-      showToast('更新失敗，請再試一次')
+      toast.error('更新失敗，請再試一次')
     }
     setUpdatingId(null)
   }
@@ -90,14 +90,9 @@ export default function AdminDashboardPage() {
 
   async function confirmEditCredits(userId: string) {
     const val = parseInt(editingCredits[userId] ?? '', 10)
-    if (isNaN(val) || val < 0) { showToast('請輸入有效的點數數字'); return }
+    if (isNaN(val) || val < 0) { toast.error('請輸入有效的點數數字'); return }
     cancelEditCredits(userId)
     await patchUser(userId, { credits: val })
-  }
-
-  function showToast(msg: string) {
-    setToast(msg)
-    setTimeout(() => setToast(null), 3000)
   }
 
   const filtered = users.filter(u =>
@@ -111,13 +106,6 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
-      {/* Toast */}
-      {toast && (
-        <div className="fixed top-4 right-4 z-50 bg-foreground text-background text-sm px-4 py-2 rounded-lg shadow-lg animate-in fade-in-0">
-          {toast}
-        </div>
-      )}
-
       {/* Page header */}
       <div className="flex items-center justify-between mb-6">
         <div>
