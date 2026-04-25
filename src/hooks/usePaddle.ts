@@ -18,6 +18,9 @@ export function usePaddle() {
             }),
           )
         }
+        if (event.name === 'checkout.closed') {
+          window.dispatchEvent(new CustomEvent('paddle:checkout:closed'))
+        }
       },
     }).then(setPaddle)
   }, [])

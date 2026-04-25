@@ -80,6 +80,8 @@
 - [ ] [credits-live-update] Unit — `useCreditsBalance` hook：mock fetch，驗回傳 credits 數字；fetch 非 200 時回傳 null；queryKey 為 `['credits', 'balance']`
 - [ ] [credits-live-update] Integration — Paddle checkout.completed 後點數即時更新：mock `paddle.Checkout.open` 觸發 eventCallback；驗 `invalidateQueries` 被呼叫；驗 verify-transaction API 被 POST；驗 badge 最終顯示新點數
 - [ ] [Regression] CreditsBadge 跨頁導航後即時更新 — 初始顯示 0 點數，模擬 pathname 改變後，badge 應重新 fetch 並顯示 120；API 回 401/500 時 badge 應保持隱藏（不顯示 0）
+- [ ] [Regression] 點數購買後 CreditsBadge 即時更新 — 購買後 `checkout.completed` 事件觸發，`verify-transaction` 成功時直接以回傳的 `credits` 更新 React Query cache；verify 失敗時輪詢 `/api/credits/balance` 每 2 秒直到 `newCredits > snapshot`；badge 顯示數字不再需要手動刷新頁面
+- [ ] [Regression] 點數購買期間 beforeunload 阻擋 — `paddle.Checkout.open` 後 `beforeunload` listener 掛上，關閉視窗會出現離開確認；`checkout.closed`（取消）移除阻擋；`checkout.completed` 後阻擋持續到 credits 確認更新才解除
 - [ ] [Regression] LanguageSwitcher 不允許重複點擊當前語言 — 已在中文頁面時，「中文」按鈕應為 disabled 且 cursor-default；已在英文頁面時，「EN」按鈕應為 disabled；點擊 disabled 按鈕不觸發任何導航
 
 - [ ] [Regression] Pricing 頁已登入用戶點「繼續免費使用」不應跳轉登入 — 已登入 Free 用戶進入 /pricing，Free Card CTA 應顯示「目前方案」disabled 按鈕，點擊不跳轉至 /login；subscription 資料載入前應顯示 skeleton 而非 login link

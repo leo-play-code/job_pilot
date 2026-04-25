@@ -32,7 +32,9 @@
       "Bash(mkdir -p \"c:/Users/User/Desktop/github/AI_startup/job_pilot/src/app/api/admin/resumes/[id]\")",
       "Bash(mkdir -p \"c:/Users/User/Desktop/github/AI_startup/job_pilot/src/app/api/admin/cover-letters/[id]\")",
       "Bash(dir /a \"c:\\\\Users\\\\User\\\\Desktop\\\\github\\\\AI_startup\\\\job_pilot\")",
-      "Bash(findstr \".env\")"
+      "Bash(findstr \".env\")",
+      "Bash(node -e \"const { Paddle } = require\\('@paddle/paddle-node-sdk'\\); const p = new Paddle\\('test'\\); console.log\\(Object.getOwnPropertyNames\\(p.transactions\\)\\)\")",
+      "Bash(git stash *)"
     ],
     "additionalDirectories": [
       "c:\\Users\\User\\Desktop\\github\\AI_startup\\job_pilot\\src\\app\\[locale]\\admin\\templates",

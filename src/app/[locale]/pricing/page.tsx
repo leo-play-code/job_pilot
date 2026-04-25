@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
 import { useSearchParams } from 'next/navigation'
@@ -54,6 +54,12 @@ export default function PricingPage() {
   const [creditPackLoading, setCreditPackLoading] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
+  // overlay is open → block page navigation
+  const [checkoutActive, setCheckoutActive] = useState(false)
+  // payment completed, polling for credits update → still block navigation
+  const [confirmingCredits, setConfirmingCredits] = useState(false)
+  const creditsSnapshotRef = useRef<number>(0)
+
   const searchParams = useSearchParams()
   const creditsSuccess = searchParams.get('credits_success') === 'true'
   const creditsCanceled = searchParams.get('credits_canceled') === 'true'
@@ -69,20 +75,83 @@ export default function PricingPage() {
     }
   }, [authStatus])
 
-  // Listen for Paddle checkout.completed → verify transaction → update credits badge live
+  // Block page navigation while checkout is open or credits are being confirmed
   useEffect(() => {
-    const handler = (e: Event) => {
-      const { transactionId } = (e as CustomEvent<{ transactionId: string }>).detail
-      queryClient.invalidateQueries({ queryKey: [...CREDITS_QUERY_KEY] })
-      void fetch('/api/paddle/verify-transaction', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ transactionId }),
-      })
-        .then(() => queryClient.invalidateQueries({ queryKey: [...CREDITS_QUERY_KEY] }))
-        .then(() => toast.success(t('credits.success')))
-        .catch(() => toast.info('點數確認中，請稍後查看餘額'))
+    if (!checkoutActive && !confirmingCredits) return
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+      e.returnValue = ''
     }
+    window.addEventListener('beforeunload', handler)
+    return () => window.removeEventListener('beforeunload', handler)
+  }, [checkoutActive, confirmingCredits])
+
+  // When user closes the overlay without paying
+  useEffect(() => {
+    const handler = () => setCheckoutActive(false)
+    window.addEventListener('paddle:checkout:closed', handler)
+    return () => window.removeEventListener('paddle:checkout:closed', handler)
+  }, [])
+
+  // After payment completes: verify server-side then poll until header badge updates
+  useEffect(() => {
+    const handler = async (e: Event) => {
+      const { transactionId } = (e as CustomEvent<{ transactionId: string }>).detail
+      setCheckoutActive(false)
+      setConfirmingCredits(true)
+      const snapshot = creditsSnapshotRef.current
+
+      try {
+        // Attempt immediate verification — adds credits or returns current balance
+        let updated = false
+        try {
+          const res = await fetch('/api/paddle/verify-transaction', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ transactionId }),
+          })
+          const json = await res.json() as { data?: { credits?: number } }
+          if (res.ok && typeof json.data?.credits === 'number' && json.data.credits > snapshot) {
+            queryClient.setQueryData([...CREDITS_QUERY_KEY], json.data.credits)
+            updated = true
+          }
+        } catch {
+          // verify-transaction failed — fall through to polling
+        }
+
+        // If verify-transaction didn't confirm, poll balance until webhook credits the user
+        if (!updated) {
+          for (let i = 0; i < 15; i++) {
+            await new Promise<void>((r) => setTimeout(r, 2000))
+            try {
+              const res = await fetch('/api/credits/balance')
+              if (res.ok) {
+                const json = await res.json() as { data?: { credits?: number } }
+                const newCredits = json.data?.credits ?? 0
+                if (newCredits > snapshot) {
+                  queryClient.setQueryData([...CREDITS_QUERY_KEY], newCredits)
+                  updated = true
+                  break
+                }
+              }
+            } catch {
+              // continue polling
+            }
+          }
+        }
+
+        if (updated) {
+          toast.success(t('credits.success'))
+        } else {
+          // Timed out — webhook will credit eventually, nudge the user
+          void queryClient.invalidateQueries({ queryKey: [...CREDITS_QUERY_KEY] })
+          toast.info('點數確認中，請稍後查看餘額')
+        }
+      } finally {
+        setConfirmingCredits(false)
+      }
+    }
+
     window.addEventListener('paddle:checkout:completed', handler)
     return () => window.removeEventListener('paddle:checkout:completed', handler)
   }, [queryClient, t])
@@ -132,6 +201,10 @@ export default function PricingPage() {
       const json = await res.json()
       if (!res.ok) throw new Error(json.error ?? 'Failed')
       const txnId = json.data.transactionId
+      // Snapshot current credits so we can detect when balance increases
+      const current = queryClient.getQueryData<number | null>(CREDITS_QUERY_KEY)
+      creditsSnapshotRef.current = current ?? 0
+      setCheckoutActive(true)
       paddle.Checkout.open({
         transactionId: txnId,
       })
@@ -167,6 +240,13 @@ export default function PricingPage() {
         <div className="text-center mb-12">
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight">{t('title')}</h1>
         </div>
+
+        {confirmingCredits && (
+          <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground bg-muted rounded-lg px-4 py-3 mb-6">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            正在確認付款，請勿關閉此頁面…
+          </div>
+        )}
 
         {creditsSuccess && (
           <p className="text-center text-sm text-green-600 bg-green-50 border border-green-200 rounded-lg px-4 py-3 mb-6">
