@@ -25,13 +25,24 @@ export async function POST(request: Request) {
     switch (event.eventType) {
       case 'transaction.completed': {
         const customData = data.customData as Record<string, string> | null
+        const transactionId = data.id as string
+        console.log(`[paddle-webhook] transaction.completed txn=${transactionId} customData=`, customData)
 
         if (customData?.type === 'credit_pack') {
+          // Idempotency: skip if already credited (e.g. verify-transaction already ran)
+          const existing = await prisma.creditTransaction.findFirst({
+            where: { paddleTransactionId: transactionId },
+          })
+          if (existing) {
+            console.log(`[paddle-webhook] txn=${transactionId} already credited, skipping`)
+            break
+          }
+
           const userId = customData.userId
           const credits = parseInt(customData.credits, 10)
           const packId = customData.packId
-          const transactionId = data.id as string
           await addCredits(userId, credits, packId.toUpperCase() + '_PACK', transactionId)
+          console.log(`[paddle-webhook] credited ${credits} pts to user=${userId}`)
 
           if (data.customerId) {
             await prisma.user.update({

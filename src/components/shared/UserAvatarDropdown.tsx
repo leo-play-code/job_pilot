@@ -3,7 +3,7 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { signOut } from 'next-auth/react'
 import { BlurImage } from '@/components/shared/BlurImage'
-import { useRouter, usePathname } from 'next/navigation'
+import { useRouter, usePathname } from '@/i18n/navigation'
 import { useTranslations } from 'next-intl'
 import { useState, useEffect } from 'react'
 import {
@@ -141,13 +141,13 @@ export function UserAvatarDropdown({ session, locale }: Props) {
           {!isPro && (
             <>
               <DropdownMenu.Item
-                onSelect={() => navigate(`/${locale}/pricing`)}
+                onSelect={() => navigate('/pricing')}
                 className={cn(
-                  itemClass(`/${locale}/pricing`),
+                  itemClass('/pricing'),
                   'text-primary font-medium hover:bg-primary/5 focus:bg-primary/5',
                 )}
               >
-                {navigatingTo === `/${locale}/pricing`
+                {navigatingTo === '/pricing'
                   ? <Loader2 className="h-4 w-4 animate-spin text-amber-500" />
                   : <Sparkles className="h-4 w-4 text-amber-500" />
                 }
@@ -159,10 +159,10 @@ export function UserAvatarDropdown({ session, locale }: Props) {
 
           {/* Settings items */}
           <DropdownMenu.Item
-            onSelect={() => navigate(`/${locale}/settings`)}
-            className={itemClass(`/${locale}/settings`)}
+            onSelect={() => navigate('/settings')}
+            className={itemClass('/settings')}
           >
-            {navigatingTo === `/${locale}/settings`
+            {navigatingTo === '/settings'
               ? <Loader2 className="h-4 w-4 animate-spin" />
               : <Settings className="h-4 w-4" />
             }
@@ -170,10 +170,10 @@ export function UserAvatarDropdown({ session, locale }: Props) {
           </DropdownMenu.Item>
 
           <DropdownMenu.Item
-            onSelect={() => navigate(`/${locale}/settings/billing`)}
-            className={itemClass(`/${locale}/settings/billing`)}
+            onSelect={() => navigate('/settings/billing')}
+            className={itemClass('/settings/billing')}
           >
-            {navigatingTo === `/${locale}/settings/billing`
+            {navigatingTo === '/settings/billing'
               ? <Loader2 className="h-4 w-4 animate-spin" />
               : <CreditCard className="h-4 w-4" />
             }
@@ -181,10 +181,10 @@ export function UserAvatarDropdown({ session, locale }: Props) {
           </DropdownMenu.Item>
 
           <DropdownMenu.Item
-            onSelect={() => navigate(`/${locale}/settings/credits`)}
-            className={itemClass(`/${locale}/settings/credits`)}
+            onSelect={() => navigate('/settings/credits')}
+            className={itemClass('/settings/credits')}
           >
-            {navigatingTo === `/${locale}/settings/credits`
+            {navigatingTo === '/settings/credits'
               ? <Loader2 className="h-4 w-4 animate-spin" />
               : <Coins className="h-4 w-4" />
             }
@@ -201,10 +201,10 @@ export function UserAvatarDropdown({ session, locale }: Props) {
               </DropdownMenu.Label>
 
               <DropdownMenu.Item
-                onSelect={() => navigate(`/${locale}/admin/templates`)}
-                className={itemClass(`/${locale}/admin/templates`)}
+                onSelect={() => navigate('/admin/templates')}
+                className={itemClass('/admin/templates')}
               >
-                {navigatingTo === `/${locale}/admin/templates`
+                {navigatingTo === '/admin/templates'
                   ? <Loader2 className="h-4 w-4 animate-spin" />
                   : <LayoutTemplate className="h-4 w-4" />
                 }
@@ -212,10 +212,10 @@ export function UserAvatarDropdown({ session, locale }: Props) {
               </DropdownMenu.Item>
 
               <DropdownMenu.Item
-                onSelect={() => navigate(`/${locale}/admin/dashboard`)}
-                className={itemClass(`/${locale}/admin/dashboard`)}
+                onSelect={() => navigate('/admin/dashboard')}
+                className={itemClass('/admin/dashboard')}
               >
-                {navigatingTo === `/${locale}/admin/dashboard`
+                {navigatingTo === '/admin/dashboard'
                   ? <Loader2 className="h-4 w-4 animate-spin" />
                   : <Users className="h-4 w-4" />
                 }

@@ -3,9 +3,13 @@
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
+import { useSearchParams } from 'next/navigation'
 import { Link } from '@/i18n/navigation'
 import { Loader2, Check, Coins } from 'lucide-react'
 import { usePaddle } from '@/hooks/usePaddle'
+import { useQueryClient } from '@tanstack/react-query'
+import { CREDITS_QUERY_KEY } from '@/hooks/useCreditsBalance'
+import { toast } from 'sonner'
 
 interface SubscriptionData {
   plan: 'FREE' | 'PRO'
@@ -39,6 +43,7 @@ export default function PricingPage() {
   const { data: session, status: authStatus } = useSession()
 
   const paddle = usePaddle()
+  const queryClient = useQueryClient()
 
   const [subscription, setSubscription] = useState<SubscriptionData | null>(null)
   const [subscriptionLoading, setSubscriptionLoading] = useState(false)
@@ -49,11 +54,9 @@ export default function PricingPage() {
   const [creditPackLoading, setCreditPackLoading] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const searchParams = typeof window !== 'undefined'
-    ? new URLSearchParams(window.location.search)
-    : null
-  const creditsSuccess = searchParams?.get('credits_success') === 'true'
-  const creditsCanceled = searchParams?.get('credits_canceled') === 'true'
+  const searchParams = useSearchParams()
+  const creditsSuccess = searchParams.get('credits_success') === 'true'
+  const creditsCanceled = searchParams.get('credits_canceled') === 'true'
 
   useEffect(() => {
     if (authStatus === 'authenticated') {
@@ -65,6 +68,24 @@ export default function PricingPage() {
         .finally(() => setSubscriptionLoading(false))
     }
   }, [authStatus])
+
+  // Listen for Paddle checkout.completed → verify transaction → update credits badge live
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const { transactionId } = (e as CustomEvent<{ transactionId: string }>).detail
+      queryClient.invalidateQueries({ queryKey: [...CREDITS_QUERY_KEY] })
+      void fetch('/api/paddle/verify-transaction', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transactionId }),
+      })
+        .then(() => queryClient.invalidateQueries({ queryKey: [...CREDITS_QUERY_KEY] }))
+        .then(() => toast.success(t('credits.success')))
+        .catch(() => toast.info('點數確認中，請稍後查看餘額'))
+    }
+    window.addEventListener('paddle:checkout:completed', handler)
+    return () => window.removeEventListener('paddle:checkout:completed', handler)
+  }, [queryClient, t])
 
   const handleCheckout = async () => {
     setCheckoutLoading(true)
@@ -110,11 +131,9 @@ export default function PricingPage() {
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error ?? 'Failed')
+      const txnId = json.data.transactionId
       paddle.Checkout.open({
-        transactionId: json.data.transactionId,
-        settings: {
-          successUrl: `${window.location.origin}/zh/pricing?credits_success=true`,
-        },
+        transactionId: txnId,
       })
     } catch {
       setError('checkout_failed')

@@ -69,6 +69,19 @@
 
 - [ ] [Regression] Paddle checkout successUrl 跟隨當前環境 — 確認 `paddle.Checkout.open()` 的 `successUrl` 使用 `window.location.origin`，不得硬編碼 `NEXT_PUBLIC_APP_URL`；本地開發時 successUrl 應為 `http://localhost:3000/zh/pricing?credits_success=true`，不得跳轉至 Vercel 網域
 
+- [ ] [Regression] 點數購買後主動驗證補發 — 確認 `GET /zh/pricing?credits_success=true&txn=<id>` 頁面載入後自動呼叫 `POST /api/paddle/verify-transaction`；mock Paddle API 回傳 completed transaction，驗 DB credits 增加正確點數；同一 txn 重複呼叫不得重複加點（idempotency）
+
+- [ ] [Regression] verify-transaction 安全性 — 確認 `POST /api/paddle/verify-transaction` 未登入 → 401；transaction 的 customData.userId 與登入者不符 → 403；transaction status 非 completed → 400
+
+- [ ] [Regression] CreditsBadge 點數連結不重複 locale 前綴 — 在 `/zh` 頁面點擊右上角點數 badge，URL 應為 `/zh/settings/credits`，不得出現 `/zh/zh/settings/credits`；確認 Header 的 Link 使用 `href="/settings/credits"`（無手動 locale 前綴）
+
+- [ ] [Regression] UserAvatarDropdown 導航路徑不重複 locale — 點選「點數餘額」後 URL 為 `/zh/settings/credits`；點選「個人設定」後 URL 為 `/zh/settings`；確認所有 navigate() 呼叫已改用 `@/i18n/navigation` router，路徑不含手動 locale 前綴
+
+- [ ] [credits-live-update] Unit — `useCreditsBalance` hook：mock fetch，驗回傳 credits 數字；fetch 非 200 時回傳 null；queryKey 為 `['credits', 'balance']`
+- [ ] [credits-live-update] Integration — Paddle checkout.completed 後點數即時更新：mock `paddle.Checkout.open` 觸發 eventCallback；驗 `invalidateQueries` 被呼叫；驗 verify-transaction API 被 POST；驗 badge 最終顯示新點數
+- [ ] [Regression] CreditsBadge 跨頁導航後即時更新 — 初始顯示 0 點數，模擬 pathname 改變後，badge 應重新 fetch 並顯示 120；API 回 401/500 時 badge 應保持隱藏（不顯示 0）
+- [ ] [Regression] LanguageSwitcher 不允許重複點擊當前語言 — 已在中文頁面時，「中文」按鈕應為 disabled 且 cursor-default；已在英文頁面時，「EN」按鈕應為 disabled；點擊 disabled 按鈕不觸發任何導航
+
 - [ ] [Regression] Pricing 頁已登入用戶點「繼續免費使用」不應跳轉登入 — 已登入 Free 用戶進入 /pricing，Free Card CTA 應顯示「目前方案」disabled 按鈕，點擊不跳轉至 /login；subscription 資料載入前應顯示 skeleton 而非 login link
 
 - [ ] [Regression] 原始 PDF 履歷排版保留 — 確認 raw import 上傳 PDF 後，詳細頁顯示的是嵌入 PDF iframe（`RawPdfView`）而非純文字 `RawTextView`；`rawPdfUrl` 非空時 `ResumeEditorClient` 必須優先渲染 `RawPdfView`

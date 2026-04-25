@@ -16,9 +16,12 @@ export function LanguageSwitcher() {
     <div className="flex gap-2 text-sm" role="navigation" aria-label="Language switcher">
       <button
         onClick={() => switchLocale('zh')}
+        disabled={locale === 'zh'}
         aria-current={locale === 'zh' ? 'true' : undefined}
-        className={`focus-visible:ring-2 focus-visible:ring-primary outline-none rounded transition-all ${
-          locale === 'zh' ? 'font-bold' : 'text-muted-foreground hover:text-foreground hover:scale-110 active:scale-90'
+        className={`outline-none rounded transition-all ${
+          locale === 'zh'
+            ? 'font-bold cursor-default'
+            : 'text-muted-foreground hover:text-foreground hover:scale-110 active:scale-90 focus-visible:ring-2 focus-visible:ring-primary'
         }`}
       >
         中文
@@ -26,9 +29,12 @@ export function LanguageSwitcher() {
       <span className="text-muted-foreground" aria-hidden="true">/</span>
       <button
         onClick={() => switchLocale('en')}
+        disabled={locale === 'en'}
         aria-current={locale === 'en' ? 'true' : undefined}
-        className={`focus-visible:ring-2 focus-visible:ring-primary outline-none rounded ${
-          locale === 'en' ? 'font-bold' : 'text-muted-foreground hover:text-foreground'
+        className={`outline-none rounded transition-all ${
+          locale === 'en'
+            ? 'font-bold cursor-default'
+            : 'text-muted-foreground hover:text-foreground hover:scale-110 active:scale-90 focus-visible:ring-2 focus-visible:ring-primary'
         }`}
       >
         EN

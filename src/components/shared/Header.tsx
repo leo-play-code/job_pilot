@@ -4,30 +4,24 @@ import { useSession } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { useLocale } from 'next-intl'
-import { useEffect, useState } from 'react'
-import { Coins } from 'lucide-react'
+import { Coins, Loader2 } from 'lucide-react'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { UserAvatarDropdown } from './UserAvatarDropdown'
+import { useCreditsBalance } from '@/hooks/useCreditsBalance'
 
-function CreditsBadge({ locale }: { locale: string }) {
-  const [credits, setCredits] = useState<number | null>(null)
+function CreditsBadge() {
+  const { data: credits, isFetching } = useCreditsBalance()
 
-  useEffect(() => {
-    fetch('/api/credits/balance')
-      .then(r => r.json())
-      .then(json => setCredits(json.data?.credits ?? 0))
-      .catch(() => null)
-  }, [])
-
-  if (credits === null) return null
+  if (credits === null || credits === undefined) return null
 
   return (
     <Link
-      href={`/${locale}/settings/credits`}
+      href="/settings/credits"
       className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors bg-muted px-2 py-1 rounded-full"
     >
       <Coins className="h-3 w-3 text-amber-500" />
       {credits}
+      {isFetching && <Loader2 className="h-3 w-3 animate-spin ml-0.5" />}
     </Link>
   )
 }
@@ -53,7 +47,7 @@ export function Header() {
               >
                 Dashboard
               </Link>
-              <CreditsBadge locale={locale} />
+              <CreditsBadge />
               <UserAvatarDropdown session={session} locale={locale} />
             </>
           ) : (

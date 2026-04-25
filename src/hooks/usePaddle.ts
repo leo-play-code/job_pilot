@@ -10,6 +10,15 @@ export function usePaddle() {
     initializePaddle({
       environment: process.env.NEXT_PUBLIC_PADDLE_ENV === 'production' ? 'production' : 'sandbox',
       token: process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN!,
+      eventCallback: (event) => {
+        if (event.name === 'checkout.completed' && event.data?.transaction_id) {
+          window.dispatchEvent(
+            new CustomEvent('paddle:checkout:completed', {
+              detail: { transactionId: event.data.transaction_id },
+            }),
+          )
+        }
+      },
     }).then(setPaddle)
   }, [])
 

@@ -38,6 +38,28 @@ Cover Letter Result → CoverLetterDisplay, CopyButton, DownloadTxtButton
 | `LanguageSwitcher` | Header 右上角，切換 /zh ↔ /en |
 | `LoadingOverlay` | AI 生成中的 spinner + 說明文字 |
 | `StepIndicator` | 多步驟表單的進度條 |
+| `CreditsBadge` | Header 右上角點數顯示，使用 `useCreditsBalance` hook（React Query），購買後不刷頁，badge 進入 isFetching 狀態顯示 spinner，verify-transaction 完成後自動更新 |
+
+## 點數餘額狀態管理
+
+使用 `@tanstack/react-query`（已安裝）管理跨元件的點數狀態：
+
+- **Hook**: `useCreditsBalance` (`src/hooks/useCreditsBalance.ts`)
+  - queryKey: `['credits', 'balance']`
+  - 回傳 `{ data: credits, isFetching }`
+- **更新時機**: 在任何元件使用 `queryClient.invalidateQueries({ queryKey: ['credits', 'balance'] })` 即可觸發 badge 重新 fetch
+- **購買後流程**: Paddle `eventCallback` 偵測 `checkout.completed` → invalidateQueries（badge 進 loading）→ verify-transaction → invalidateQueries（badge 更新）
+
+## Task Status
+
+### Pending
+
+- [ ] [credits-live-update] 新增 `useCreditsBalance` hook (`src/hooks/useCreditsBalance.ts`)，使用 React Query queryKey `['credits', 'balance']`，staleTime 30s
+- [ ] [credits-live-update] 更新 `CreditsBadge`：使用 `useCreditsBalance`，`isFetching` 時顯示 Loader2 spinner
+- [ ] [credits-live-update] 更新 pricing page `handleBuyCredits`：移除 successUrl redirect，改用 `eventCallback` 偵測 `checkout.completed`，呼叫 `invalidateQueries` + verify-transaction
+- [ ] [credits-live-update] 移除 pricing page 的 `pendingTxn` URL param 邏輯（已由 eventCallback 取代）
+
+### Done
 
 ## i18n 規範（所有新頁面 / 元件必須遵守）
 
