@@ -33,7 +33,7 @@
 | DELETE | /api/admin/resumes/:id | admin | 刪除任意履歷 |
 | GET | /api/admin/cover-letters | admin | 列出所有自薦信（分頁、搜尋）|
 | DELETE | /api/admin/cover-letters/:id | admin | 刪除任意自薦信 |
-| GET | /api/admin/usage-logs | admin | 列出使用記錄（唯讀、可依 action/date 篩選）|
+| GET | /api/admin/usage-logs | admin | 列出使用記錄（唯讀、可依 action/date/search/userId 篩選）|
 | GET | /api/admin/templates | admin | 列出全部模板（含 draft）|
 | POST | /api/admin/templates | admin | 手動建立模板（JSON CSS）|
 | PATCH | /api/admin/templates/:id | admin | 更新模板（含 status 發佈）|
@@ -183,6 +183,7 @@ GET /api/user/subscription
 - [x] **[pagination] Backend: 修改 `GET /api/cover-letter`** ✅ 2026-04-25 — 同上，加分頁支援；response 改為 `{ data: { coverLetters: CoverLetter[], total: number, page: number, totalPages: number } }`
 - [x] **[pagination] Backend: 修改 `GET /api/templates`** ✅ 2026-04-25 — 加 `?page=1&limit=6`；response 改為 `{ data: { templates: Template[], total: number, page: number, totalPages: number } }`；`status='active'` 篩選保留
 - [x] **[admin-users] Backend: `DELETE /api/admin/users/:id`** ✅ 2026-04-25 — admin only；transaction 依序刪除 UsageLog → CoverLetter → Resume → Account → Session → User；不允許刪除自己（400）；找不到 → 404；回傳 `{ data: { ok: true, deletedEmail: string } }`
+- [x] **[usage-logs-search] Backend: 修改 `GET /api/admin/usage-logs`** ✅ 2026-04-25 — 加 `?search=` query param；對 `user.email` 做 case-insensitive CONTAINS 篩選；與現有 `action`、`date`、`userId` params 並存；無 search 時行為不變
 
 ### Done
 

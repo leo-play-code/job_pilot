@@ -26,6 +26,7 @@ export default function AdminUsageLogsTab() {
   const [page, setPage] = useState(1)
   const [actionFilter, setActionFilter] = useState<ActionType>('')
   const [dateFilter, setDateFilter] = useState('')
+  const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(false)
 
   async function fetchLogs() {
@@ -33,6 +34,7 @@ export default function AdminUsageLogsTab() {
     const params = new URLSearchParams()
     if (actionFilter) params.set('action', actionFilter)
     if (dateFilter) params.set('date', dateFilter)
+    if (search) params.set('search', search)
     params.set('page', String(page))
     const res = await fetch(`/api/admin/usage-logs?${params}`)
     const json = await res.json()
@@ -44,7 +46,7 @@ export default function AdminUsageLogsTab() {
   useEffect(() => {
     fetchLogs()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, actionFilter, dateFilter])
+  }, [page, actionFilter, dateFilter, search])
 
   function handleActionChange(e: React.ChangeEvent<HTMLSelectElement>) {
     setActionFilter(e.target.value as ActionType)
@@ -56,13 +58,25 @@ export default function AdminUsageLogsTab() {
     setPage(1)
   }
 
+  function handleSearchChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setSearch(e.target.value)
+    setPage(1)
+  }
+
   const totalPages = Math.ceil(total / 50)
 
   return (
     <div className="border border-border rounded-lg overflow-hidden">
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 border-b border-border bg-muted/30">
         <h2 className="text-sm font-semibold">使用記錄 ({total})</h2>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <input
+            type="text"
+            placeholder="搜尋 email…"
+            value={search}
+            onChange={handleSearchChange}
+            className="text-sm px-3 py-1.5 border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary w-44"
+          />
           <select
             value={actionFilter}
             onChange={handleActionChange}
@@ -87,6 +101,7 @@ export default function AdminUsageLogsTab() {
           <thead>
             <tr className="border-b border-border bg-muted/20">
               <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">用戶 email</th>
+              <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">User ID</th>
               <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">動作</th>
               <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">日期</th>
               <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">建立時間</th>
@@ -95,11 +110,11 @@ export default function AdminUsageLogsTab() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={4} className="text-center py-12 text-muted-foreground">載入中…</td>
+                <td colSpan={5} className="text-center py-12 text-muted-foreground">載入中…</td>
               </tr>
             ) : logs.length === 0 ? (
               <tr>
-                <td colSpan={4} className="text-center py-12 text-muted-foreground">沒有使用記錄</td>
+                <td colSpan={5} className="text-center py-12 text-muted-foreground">沒有使用記錄</td>
               </tr>
             ) : (
               logs.map(log => {
@@ -107,6 +122,7 @@ export default function AdminUsageLogsTab() {
                 return (
                   <tr key={log.id} className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors">
                     <td className="px-4 py-3 text-muted-foreground truncate max-w-[200px]">{log.userEmail}</td>
+                    <td className="px-4 py-3 text-muted-foreground text-xs font-mono truncate max-w-[120px]" title={log.userId}>{log.userId}</td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${badge.className}`}>
                         {badge.label}

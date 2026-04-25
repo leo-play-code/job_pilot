@@ -25,6 +25,7 @@ export async function GET(req: Request) {
   const actionParam = searchParams.get('action') ?? undefined
   const date = searchParams.get('date') ?? undefined
   const userId = searchParams.get('userId') ?? undefined
+  const search = searchParams.get('search')?.trim() ?? undefined
   const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10))
 
   const where: Prisma.UsageLogWhereInput = {}
@@ -39,6 +40,10 @@ export async function GET(req: Request) {
 
   if (userId) {
     where.userId = userId
+  }
+
+  if (search) {
+    where.user = { email: { contains: search, mode: 'insensitive' } }
   }
 
   const [logs, total] = await Promise.all([

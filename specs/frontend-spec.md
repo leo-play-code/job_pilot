@@ -680,6 +680,7 @@ common.pagination.of          = "共 {total} 頁" / "of {total}"
   `src/components/admin/AdminCoverLettersTab.tsx` — 欄位：ID(8碼)、職缺標題、email、字數(SHORT灰/MEDIUM藍/LONG紫 badge)、語言、建立時間、刪除；同 resumes 搜尋+分頁+樂觀刪除模式
 - [x] **[admin-db] `AdminUsageLogsTab` 子元件** ✅ 2026-04-25
   `src/components/admin/AdminUsageLogsTab.tsx` — 欄位：email、動作(GENERATE_RESUME藍/PARSE_PDF橙/GENERATE_COVER_LETTER綠 badge)、日期、建立時間；action 下拉 + date input 篩選；純唯讀無刪除；pagination
+- [x] **[usage-logs-search] Frontend: `AdminUsageLogsTab` 加 email 搜尋** ✅ 2026-04-25 — 新增 search text input；搜尋框 onChange → setSearch + reset page=1；搜尋值以 `search` query param 傳給後端；表格新增 User ID 欄位（monospace font，hover 顯示完整 ID）
 
 ### Done
 - [x] **[ux-feedback] 安裝套件** ✅ 2026-04-25

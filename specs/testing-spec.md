@@ -62,6 +62,7 @@
 - [x] [Regression] UserAvatarDropdown 點數餘額路由 — 「點數餘額」item 導向路徑為 `/settings/credits`，不再與「個人設定」（/settings）重複，且不含 `?tab=credits` query string（completed: 2026-04-25）
 - [x] [Regression] settings 頁不再顯示點數餘額 — `settings/page.tsx` DOM 中不得包含 Coins icon 或「點數餘額」heading；只顯示「個人資料」與「帳單與訂閱」兩個 section（completed: 2026-04-25）
 - [x] [Regression] `/settings/credits` 頁顯示點數 — 頁面正確 fetch `/api/user/me` 並顯示 `credits` 數字；格式「N 點」（completed: 2026-04-25）
+- [ ] **[usage-logs-search] Integration — `GET /api/admin/usage-logs?search=`** — admin session；DB 有 2 筆不同 email 的 log；`?search=alice` 只回 alice 的記錄；`?search=` 空字串回全部；非 admin → 403
 - [ ] [Regression] Pricing 頁已登入用戶點「繼續免費使用」不應跳轉登入 — 已登入 Free 用戶進入 /pricing，Free Card CTA 應顯示「目前方案」disabled 按鈕，點擊不跳轉至 /login；subscription 資料載入前應顯示 skeleton 而非 login link
 
 - [ ] [Regression] 原始 PDF 履歷排版保留 — 確認 raw import 上傳 PDF 後，詳細頁顯示的是嵌入 PDF iframe（`RawPdfView`）而非純文字 `RawTextView`；`rawPdfUrl` 非空時 `ResumeEditorClient` 必須優先渲染 `RawPdfView`
