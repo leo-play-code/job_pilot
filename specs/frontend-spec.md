@@ -664,6 +664,7 @@ common.pagination.of          = "共 {total} 頁" / "of {total}"
 - [x] **[pagination] Frontend: Admin 三個 Tab 升級分頁 UI** ✅ 2026-04-25 — AdminResumesTab / AdminCoverLettersTab / AdminUsageLogsTab 原有 [上一頁]/[下一頁] 替換為 `<Pagination>` 元件
 - [x] **[pagination] Frontend: i18n — zh.json / en.json 加入 `common.pagination.*` 四個 key** ✅ 2026-04-25 — prev / next / page / of
 - [x] **[pagination] Frontend: `AdminTemplatesPage` 加分頁** ✅ 2026-04-25 — `src/app/[locale]/admin/templates/page.tsx`；6 per page；statusFilter 切換時重置 page=1；`<Pagination>` 放在 grid 下方
+- [x] **[admin-users] Frontend: AdminDashboardPage 使用者 Tab 加刪除 + 分頁** ✅ 2026-04-25 — `src/app/[locale]/admin/dashboard/page.tsx`；新增「操作」欄位含「刪除」按鈕；window.confirm 確認；admin 自己的帳號 disabled；樂觀移除；10 per page `<Pagination>`；搜尋後重置 page=1
 - [x] **[credits-consolidation] Frontend: 新增 `/settings/credits` 頁面** ✅ 2026-04-25
   `src/app/[locale]/settings/credits/page.tsx`；頁面只顯示點數餘額 section（Coins icon + 點數數字 + 說明文字）；從 `GET /api/user/me` 取 credits；樣式與 settings/page.tsx 的點數 section 一致
 - [x] **[credits-consolidation] Frontend: 移除 `settings/page.tsx` 的點數餘額 section** ✅ 2026-04-25

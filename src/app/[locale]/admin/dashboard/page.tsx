@@ -1,15 +1,18 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useLocale } from 'next-intl'
 import { Link } from '@/i18n/navigation'
-import { Users, FileText, Mail, Zap, LayoutTemplate, RefreshCw, Check, X } from 'lucide-react'
+import { Users, FileText, Mail, Zap, LayoutTemplate, RefreshCw, Check, X, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import AdminResumesTab from '@/components/admin/AdminResumesTab'
 import AdminCoverLettersTab from '@/components/admin/AdminCoverLettersTab'
 import AdminUsageLogsTab from '@/components/admin/AdminUsageLogsTab'
+import { Pagination } from '@/components/shared/Pagination'
+
+const USER_PAGE_SIZE = 10
 
 type TabId = 'users' | 'resumes' | 'coverLetters' | 'usageLogs'
 
@@ -53,6 +56,8 @@ export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [updatingId, setUpdatingId] = useState<string | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [page, setPage] = useState(1)
   // credits inline edit state: { [userId]: string }
   const [editingCredits, setEditingCredits] = useState<Record<string, string>>({})
   const creditsInputRef = useRef<HTMLInputElement | null>(null)
@@ -109,10 +114,39 @@ export default function AdminDashboardPage() {
     await patchUser(userId, { credits: val })
   }
 
-  const filtered = users.filter(u =>
-    u.email.toLowerCase().includes(search.toLowerCase()) ||
-    (u.name ?? '').toLowerCase().includes(search.toLowerCase())
+  async function deleteUser(userId: string, email: string) {
+    if (!window.confirm(`確定要刪除使用者「${email}」？此操作將一併刪除其所有履歷、自薦信與使用記錄，無法復原。`)) return
+    setDeletingId(userId)
+    const res = await fetch(`/api/admin/users/${userId}`, { method: 'DELETE' })
+    if (res.ok) {
+      setUsers((prev) => prev.filter((u) => u.id !== userId))
+      toast.success(`已刪除使用者 ${email}`)
+    } else {
+      const json = await res.json()
+      toast.error(json.error ?? '刪除失敗，請再試一次')
+    }
+    setDeletingId(null)
+  }
+
+  const filtered = useMemo(
+    () => users.filter(
+      (u) =>
+        u.email.toLowerCase().includes(search.toLowerCase()) ||
+        (u.name ?? '').toLowerCase().includes(search.toLowerCase()),
+    ),
+    [users, search],
   )
+
+  const totalPages = Math.ceil(filtered.length / USER_PAGE_SIZE)
+  const pagedUsers = useMemo(
+    () => filtered.slice((page - 1) * USER_PAGE_SIZE, page * USER_PAGE_SIZE),
+    [filtered, page],
+  )
+
+  function handleSearchChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setSearch(e.target.value)
+    setPage(1)
+  }
 
   if (status === 'loading' || (!session?.user?.isAdmin && status === 'authenticated')) {
     return null
@@ -188,7 +222,7 @@ export default function AdminDashboardPage() {
             type="text"
             placeholder="搜尋 email 或名字…"
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={handleSearchChange}
             className="text-sm px-3 py-1.5 border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary w-48"
           />
         </div>
@@ -205,15 +239,16 @@ export default function AdminDashboardPage() {
                 <th className="text-center px-4 py-2.5 font-medium text-muted-foreground">CL</th>
                 <th className="text-center px-4 py-2.5 font-medium text-muted-foreground">AI 次數</th>
                 <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">加入時間</th>
+                <th className="text-center px-4 py-2.5 font-medium text-muted-foreground">操作</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={8} className="text-center py-12 text-muted-foreground">載入中…</td></tr>
+                <tr><td colSpan={9} className="text-center py-12 text-muted-foreground">載入中…</td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={8} className="text-center py-12 text-muted-foreground">找不到使用者</td></tr>
+                <tr><td colSpan={9} className="text-center py-12 text-muted-foreground">找不到使用者</td></tr>
               ) : (
-                filtered.map(user => (
+                pagedUsers.map(user => (
                   <tr key={user.id} className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors">
                     <td className="px-4 py-3 font-medium truncate max-w-[120px]">
                       {user.name ?? <span className="text-muted-foreground italic">未設定</span>}
@@ -278,6 +313,17 @@ export default function AdminDashboardPage() {
                     <td className="px-4 py-3 text-muted-foreground text-xs whitespace-nowrap">
                       {new Date(user.createdAt).toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' })}
                     </td>
+                    <td className="px-4 py-3 text-center">
+                      <button
+                        onClick={() => deleteUser(user.id, user.email)}
+                        disabled={deletingId === user.id || user.email === session?.user?.email}
+                        title={user.email === session?.user?.email ? '不能刪除自己的帳號' : '刪除使用者'}
+                        className="flex items-center gap-1 text-xs border border-red-200 text-red-600 rounded-md px-2 py-1 hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors mx-auto"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        {deletingId === user.id ? '刪除中…' : '刪除'}
+                      </button>
+                    </td>
                   </tr>
                 ))
               )}
@@ -285,6 +331,8 @@ export default function AdminDashboardPage() {
           </table>
         </div>
       </div>
+
+      <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
       </>}
     </div>
   )
