@@ -30,11 +30,15 @@
 - [x] [stripe-subscription] Integration — `GET /api/user/subscription`：Free 用戶回 `{ plan:'FREE', hasActiveSubscription:false }`；Pro 用戶回 `{ plan:'PRO', hasActiveSubscription:true, currentPeriodEnd: <ISO string> }`（completed: 2026-04-25）
 - [x] [stripe-subscription] Integration — `POST /api/stripe/create-checkout-session`：未登入 → 401；已登入 → 呼叫 Stripe mock → 回傳 checkoutUrl（completed: 2026-04-25）
 
+- [ ] [Regression] Pricing 頁已登入用戶點「繼續免費使用」不應跳轉登入 — 已登入 Free 用戶進入 /pricing，Free Card CTA 應顯示「目前方案」disabled 按鈕，點擊不跳轉至 /login；subscription 資料載入前應顯示 skeleton 而非 login link
+
 - [ ] [Regression] 原始 PDF 履歷排版保留 — 確認 raw import 上傳 PDF 後，詳細頁顯示的是嵌入 PDF iframe（`RawPdfView`）而非純文字 `RawTextView`；`rawPdfUrl` 非空時 `ResumeEditorClient` 必須優先渲染 `RawPdfView`
 
 - [ ] [Regression] Prisma client rawPdfUrl 欄位缺失 — 確認 `prisma.resume.findMany()` 的 `select` 包含 `rawPdfUrl: true` 時不拋出 `PrismaClientValidationError`；新增欄位後必須執行 `npx prisma generate` 才能讓 client types 同步
 
 - [ ] [Regression] credits 欄位 Prisma runtime 同步 — 確認 `GET /api/user/me` 在 `prisma.user.findUnique()` select `credits: true` 時不拋出 `PrismaClientValidationError`；觸發條件：`prisma db push` 時 dev server 持有 DLL 鎖導致 module cache 未更新，重啟 dev server 後必須恢復正常
+
+- [ ] [Regression] Stripe 欄位 Prisma Client 同步 — 確認 `GET /api/user/subscription` 在 select `stripeCurrentPeriodEnd` 時不拋出 `PrismaClientValidationError`；修復方法：停止 dev server → `npx prisma generate` → 重啟 dev server
 
 - [ ] [Regression] settings 頁 API 錯誤處理 — 確認 `GET /api/user/me` 回傳非 200 時，settings 頁不拋出 `Unexpected end of JSON input`；`fetch` 必須在 `.json()` 前先檢查 `r.ok`
 

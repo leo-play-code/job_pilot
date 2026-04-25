@@ -79,7 +79,8 @@ export default function PricingPage() {
 
   const isAuthenticated = authStatus === 'authenticated'
   const currentPlan = subscription?.plan ?? null
-  const isLoadingPlan = authStatus === 'loading' || (isAuthenticated && subscriptionLoading)
+  // Also treat "authenticated but subscription not yet fetched" as loading
+  const isLoadingPlan = authStatus === 'loading' || (isAuthenticated && (subscriptionLoading || subscription === null))
 
   const freeFeatures = [
     t('features.limit10'),
@@ -127,19 +128,13 @@ export default function PricingPage() {
             <div className="mt-auto">
               {isLoadingPlan ? (
                 <div className="h-10 w-full bg-muted animate-pulse rounded-lg" />
-              ) : isAuthenticated && currentPlan === 'FREE' ? (
+              ) : isAuthenticated ? (
+                // Authenticated users never redirect to login — show current plan label
                 <button
                   disabled
                   className="w-full h-10 rounded-lg border text-sm font-medium bg-muted text-muted-foreground cursor-not-allowed"
                 >
-                  {t('free.currentPlan')}
-                </button>
-              ) : isAuthenticated && currentPlan === 'PRO' ? (
-                <button
-                  disabled
-                  className="w-full h-10 rounded-lg border text-sm font-medium bg-muted text-muted-foreground cursor-not-allowed"
-                >
-                  {t('free.cta')}
+                  {currentPlan === 'PRO' ? t('free.cta') : t('free.currentPlan')}
                 </button>
               ) : (
                 <Link
