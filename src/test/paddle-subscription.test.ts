@@ -17,12 +17,10 @@ vi.mock('@/lib/prisma', () => ({
   },
 }))
 
-vi.mock('@/lib/stripe', () => ({
-  stripe: {
-    webhooks: { constructEvent: vi.fn() },
-    subscriptions: { retrieve: vi.fn() },
-    checkout: { sessions: { create: vi.fn() } },
-    customers: { create: vi.fn() },
+vi.mock('@/lib/paddle', () => ({
+  paddle: {
+    transactions: { create: vi.fn() },
+    customerPortalSessions: { create: vi.fn() },
   },
 }))
 
@@ -32,9 +30,9 @@ vi.mock('@/lib/stripe', () => ({
 
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
-import { stripe } from '@/lib/stripe'
+import { paddle } from '@/lib/paddle'
 import { GET } from '@/app/api/user/subscription/route'
-import { POST as createCheckoutSession } from '@/app/api/stripe/create-checkout-session/route'
+import { POST as createCheckoutSession } from '@/app/api/paddle/create-checkout-session/route'
 
 // ---------------------------------------------------------------------------
 // Tests — GET /api/user/subscription
@@ -57,7 +55,7 @@ describe('GET /api/user/subscription', () => {
     vi.mocked(auth).mockResolvedValue({ user: { id: 'user-free' } } as never)
     vi.mocked(prisma.user.findUnique).mockResolvedValue({
       plan: 'FREE',
-      stripeCurrentPeriodEnd: null,
+      paddleCurrentPeriodEnd: null,
     } as never)
 
     const res = await GET()
@@ -72,13 +70,12 @@ describe('GET /api/user/subscription', () => {
   })
 
   it('Pro 用戶回傳 plan=PRO, hasActiveSubscription=true', async () => {
-    // A date well in the future
-    const futureDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // +30 days
+    const futureDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
 
     vi.mocked(auth).mockResolvedValue({ user: { id: 'user-pro' } } as never)
     vi.mocked(prisma.user.findUnique).mockResolvedValue({
       plan: 'PRO',
-      stripeCurrentPeriodEnd: futureDate,
+      paddleCurrentPeriodEnd: futureDate,
     } as never)
 
     const res = await GET()
@@ -91,13 +88,12 @@ describe('GET /api/user/subscription', () => {
   })
 
   it('Pro 用戶但訂閱已過期回傳 hasActiveSubscription=false', async () => {
-    // A date in the past
-    const pastDate = new Date(Date.now() - 24 * 60 * 60 * 1000) // -1 day
+    const pastDate = new Date(Date.now() - 24 * 60 * 60 * 1000)
 
     vi.mocked(auth).mockResolvedValue({ user: { id: 'user-expired' } } as never)
     vi.mocked(prisma.user.findUnique).mockResolvedValue({
       plan: 'PRO',
-      stripeCurrentPeriodEnd: pastDate,
+      paddleCurrentPeriodEnd: pastDate,
     } as never)
 
     const res = await GET()
@@ -110,13 +106,13 @@ describe('GET /api/user/subscription', () => {
 })
 
 // ---------------------------------------------------------------------------
-// Tests — POST /api/stripe/create-checkout-session
+// Tests — POST /api/paddle/create-checkout-session
 // ---------------------------------------------------------------------------
 
-describe('POST /api/stripe/create-checkout-session', () => {
+describe('POST /api/paddle/create-checkout-session', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    process.env.STRIPE_PRICE_ID_MONTHLY = 'price_monthly_test'
+    process.env.PADDLE_PRICE_ID_MONTHLY = 'pri_monthly_test'
     process.env.NEXT_PUBLIC_APP_URL = 'http://localhost:3000'
   })
 
@@ -130,16 +126,16 @@ describe('POST /api/stripe/create-checkout-session', () => {
     expect(body.error).toBe('Unauthorized')
   })
 
-  it('已登入且有 stripeCustomerId 應回傳 checkoutUrl', async () => {
+  it('已登入且有 paddleCustomerId 應回傳 checkoutUrl', async () => {
     vi.mocked(auth).mockResolvedValue({ user: { id: 'user-1' } } as never)
     vi.mocked(prisma.user.findUnique).mockResolvedValue({
       id: 'user-1',
       email: 'test@example.com',
       name: 'Test User',
-      stripeCustomerId: 'cus_test_existing',
+      paddleCustomerId: 'ctm_existing',
     } as never)
-    vi.mocked(stripe.checkout.sessions.create).mockResolvedValue({
-      url: 'https://checkout.stripe.com/pay/cs_test_abc123',
+    vi.mocked(paddle.transactions.create).mockResolvedValue({
+      checkout: { url: 'https://buy.paddle.com/checkout/test123' },
     } as never)
 
     const res = await createCheckoutSession()
@@ -147,53 +143,38 @@ describe('POST /api/stripe/create-checkout-session', () => {
     expect(res.status).toBe(200)
     const body = await res.json()
     expect(body.data).toHaveProperty('checkoutUrl')
-    expect(body.data.checkoutUrl).toBe('https://checkout.stripe.com/pay/cs_test_abc123')
+    expect(body.data.checkoutUrl).toBe('https://buy.paddle.com/checkout/test123')
 
-    // stripe.checkout.sessions.create should be called with customer ID
-    expect(stripe.checkout.sessions.create).toHaveBeenCalledWith(
+    expect(paddle.transactions.create).toHaveBeenCalledWith(
       expect.objectContaining({
-        customer: 'cus_test_existing',
-        mode: 'subscription',
+        customerId: 'ctm_existing',
+        items: [{ priceId: 'pri_monthly_test', quantity: 1 }],
       }),
     )
   })
 
-  it('已登入但無 stripeCustomerId 應先建立 Customer 再回傳 checkoutUrl', async () => {
+  it('已登入但無 paddleCustomerId 應以 email 建立 checkout', async () => {
     vi.mocked(auth).mockResolvedValue({ user: { id: 'user-new' } } as never)
-
-    // First findUnique returns user without stripeCustomerId
     vi.mocked(prisma.user.findUnique).mockResolvedValue({
       id: 'user-new',
       email: 'newuser@example.com',
       name: 'New User',
-      stripeCustomerId: null,
+      paddleCustomerId: null,
     } as never)
-
-    vi.mocked(stripe.customers.create).mockResolvedValue({
-      id: 'cus_new_123',
-    } as never)
-
-    // After update, user has stripeCustomerId
-    vi.mocked(prisma.user.update).mockResolvedValue({
-      id: 'user-new',
-      email: 'newuser@example.com',
-      name: 'New User',
-      stripeCustomerId: 'cus_new_123',
-    } as never)
-
-    vi.mocked(stripe.checkout.sessions.create).mockResolvedValue({
-      url: 'https://checkout.stripe.com/pay/cs_test_new',
+    vi.mocked(paddle.transactions.create).mockResolvedValue({
+      checkout: { url: 'https://buy.paddle.com/checkout/new123' },
     } as never)
 
     const res = await createCheckoutSession()
 
     expect(res.status).toBe(200)
     const body = await res.json()
-    expect(body.data.checkoutUrl).toBe('https://checkout.stripe.com/pay/cs_test_new')
+    expect(body.data.checkoutUrl).toBe('https://buy.paddle.com/checkout/new123')
 
-    // stripe.customers.create should have been called
-    expect(stripe.customers.create).toHaveBeenCalledWith(
-      expect.objectContaining({ email: 'newuser@example.com' }),
+    expect(paddle.transactions.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        customer: expect.objectContaining({ email: 'newuser@example.com' }),
+      }),
     )
   })
 })

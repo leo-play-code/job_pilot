@@ -20,7 +20,7 @@ export function UpgradeModal({ open, onClose }: UpgradeModalProps) {
     setLoading(true)
     setError(false)
     try {
-      const res = await fetch('/api/stripe/create-checkout-session', { method: 'POST' })
+      const res = await fetch('/api/paddle/create-checkout-session', { method: 'POST' })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error ?? 'Failed')
       window.location.href = json.data.checkoutUrl

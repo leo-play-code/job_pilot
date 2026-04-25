@@ -101,7 +101,7 @@
     "loading": "載入中...",
     "error": "發生錯誤，請稍後再試",
     "upgradeTitle": "已達今日上限",
-    "upgradeDesc": "免費方案每日 3 次 AI 操作，升級 PRO 以無限使用",
+    "upgradeDesc": "免費方案每日 5 次 AI 操作，升級 PRO 以無限使用",
     "downloadPdfError": "PDF 生成失敗，請稍後再試",
     "pagination": {
       "prev": "上一頁",
@@ -120,17 +120,45 @@
     },
     "pro": {
       "name": "Pro",
-      "price": "$19.99 / 月",
+      "price": "$199.99 / 月",
       "cta": "立即訂閱",
       "currentPlan": "目前方案",
       "manage": "管理訂閱"
     },
     "features": {
       "unlimited": "無限 AI 使用次數",
-      "limit10": "每日 10 次 AI 使用",
+      "limit5": "每日 5 次 AI 使用",
       "templates": "全部模板",
       "pdf": "PDF 下載",
-      "priority": "優先客戶支援"
+      "priority": "優先客戶支援",
+      "autoApply": "自動投遞履歷（無限次）"
+    },
+    "credits": {
+      "title": "點數包",
+      "subtitle": "點數永不過期，用於自動投遞履歷",
+      "autoApplyCost": "1 次自動投遞 = 5 點",
+      "buyNow": "立即購買",
+      "popularBadge": "最熱門",
+      "starter": {
+        "name": "入門包",
+        "credits": "20 點",
+        "price": "$4.99",
+        "highlight": "= 4 次自動投遞"
+      },
+      "jobseeker": {
+        "name": "求職包",
+        "credits": "50 點",
+        "price": "$9.99",
+        "highlight": "= 10 次自動投遞"
+      },
+      "power": {
+        "name": "進階包",
+        "credits": "120 點",
+        "price": "$18.99",
+        "highlight": "= 24 次自動投遞"
+      },
+      "success": "點數已成功加入您的帳戶！",
+      "canceled": "購買已取消。"
     }
   },
   "billing": {
@@ -139,7 +167,7 @@
     "planFree": "免費版",
     "planPro": "Pro 專業版",
     "periodEnd": "下次續費 / 到期日",
-    "subscribeCta": "升級 Pro — $19.99/月",
+    "subscribeCta": "升級 Pro — $199.99/月",
     "portalCta": "管理訂閱",
     "successBanner": "訂閱成功！歡迎使用 Pro！",
     "canceledBanner": "訂閱已取消，隨時可重新訂閱。"
@@ -147,7 +175,7 @@
   "upgrade": {
     "title": "升級到 Pro",
     "description": "您已達到今日 AI 使用上限。升級 Pro 享無限使用！",
-    "cta": "立即訂閱 $19.99/月"
+    "cta": "立即訂閱 $199.99/月"
   },
   "header": {
     "upgradePro": "升級 Pro ✨"
@@ -167,11 +195,11 @@
     },
     "service": {
       "title": "2. 服務說明",
-      "body": "JobPilot 是一款 AI 驅動的履歷與自薦信生成工具。我們提供免費方案（每日 10 次 AI 操作）及 Pro 訂閱方案（無限使用，$19.99 美元/月）。"
+      "body": "JobPilot 是一款 AI 驅動的履歷與自薦信生成工具。我們提供免費方案（每日 5 次 AI 操作）及 Pro 訂閱方案（無限使用，$199.99 美元/月），並提供點數包用於自動投遞履歷功能。"
     },
     "payment": {
       "title": "3. 訂閱與付款",
-      "item1": "Pro 方案費用為每月 $19.99 美元，透過 Stripe 安全處理付款。",
+      "item1": "Pro 方案費用為每月 $199.99 美元，透過 Paddle 安全處理付款。點數包為一次性付款，點數永不過期。",
       "item2": "訂閱將於每個計費週期自動續費，除非您在到期前取消。",
       "item3": "您可以隨時透過「帳單管理」頁面取消訂閱，取消後訂閱將在當前計費週期結束時失效。",
       "item4": "價格可能隨時調整，我們將提前 30 天以電子郵件通知您。"
@@ -213,7 +241,7 @@
       "item1": "帳號資訊：姓名、電子郵件地址（Email/Google 登入）",
       "item2": "履歷內容：您輸入或上傳的個人資料、工作經歷、學歷等",
       "item3": "使用紀錄：AI 操作次數、登入時間、功能使用情況",
-      "item4": "付款資訊：由 Stripe 處理，我們不儲存完整卡號或銀行帳號"
+      "item4": "付款資訊：由 Paddle 處理，我們不儲存完整卡號或銀行帳號"
     },
     "usage": {
       "title": "3. 資料使用目的",
@@ -222,12 +250,12 @@
       "item3": "發送服務相關通知（帳單、重要更新）"
     },
     "stripe": {
-      "title": "4. 付款資料（Stripe）",
-      "body": "所有付款均透過 Stripe 處理。JobPilot 不直接儲存您的信用卡資訊。Stripe 符合 PCI DSS Level 1 安全標準。我們僅儲存 Stripe 提供的客戶 ID 及訂閱 ID 以管理您的帳號狀態。詳細資訊請參閱 Stripe 隱私政策（stripe.com/privacy）。"
+      "title": "4. 付款資料（Paddle）",
+      "body": "所有付款均透過 Paddle 處理。JobPilot 不直接儲存您的信用卡資訊。Paddle 符合 PCI DSS Level 1 安全標準，並以 Merchant of Record 身份處理稅務合規。我們僅儲存 Paddle 提供的客戶 ID 及訂閱 ID 以管理您的帳號狀態。詳細資訊請參閱 Paddle 隱私政策（paddle.com/legal/privacy）。"
     },
     "thirdparty": {
       "title": "5. 第三方服務",
-      "item1": "Stripe：付款處理（stripe.com/privacy）",
+      "item1": "Paddle：付款處理（paddle.com/legal/privacy）",
       "item2": "Google OAuth：登入驗證（選擇性使用）",
       "item3": "AWS S3：PDF 及圖片檔案儲存"
     },

@@ -100,7 +100,7 @@
     "loading": "Loading...",
     "error": "Something went wrong. Please try again.",
     "upgradeTitle": "Daily Limit Reached",
-    "upgradeDesc": "Free plan includes 3 AI operations per day. Upgrade to PRO for unlimited use.",
+    "upgradeDesc": "Free plan includes 5 AI operations per day. Upgrade to PRO for unlimited use.",
     "downloadPdfError": "PDF generation failed, please try again",
     "pagination": {
       "prev": "Previous",
@@ -119,17 +119,45 @@
     },
     "pro": {
       "name": "Pro",
-      "price": "$19.99 / month",
+      "price": "$199.99 / month",
       "cta": "Subscribe Now",
       "currentPlan": "Current Plan",
       "manage": "Manage Subscription"
     },
     "features": {
       "unlimited": "Unlimited AI usage",
-      "limit10": "10 AI uses per day",
+      "limit5": "5 AI uses per day",
       "templates": "All templates",
       "pdf": "PDF download",
-      "priority": "Priority support"
+      "priority": "Priority support",
+      "autoApply": "Auto job application (unlimited)"
+    },
+    "credits": {
+      "title": "Credit Packs",
+      "subtitle": "Credits never expire. Use them for auto job applications.",
+      "autoApplyCost": "1 auto-application = 5 credits",
+      "buyNow": "Buy Now",
+      "popularBadge": "Most Popular",
+      "starter": {
+        "name": "Starter",
+        "credits": "20 Credits",
+        "price": "$4.99",
+        "highlight": "= 4 auto-applications"
+      },
+      "jobseeker": {
+        "name": "Job Seeker",
+        "credits": "50 Credits",
+        "price": "$9.99",
+        "highlight": "= 10 auto-applications"
+      },
+      "power": {
+        "name": "Power Pack",
+        "credits": "120 Credits",
+        "price": "$18.99",
+        "highlight": "= 24 auto-applications"
+      },
+      "success": "Credits successfully added to your account!",
+      "canceled": "Purchase canceled."
     }
   },
   "billing": {
@@ -138,7 +166,7 @@
     "planFree": "Free",
     "planPro": "Pro",
     "periodEnd": "Next billing / Expiry",
-    "subscribeCta": "Upgrade to Pro — $19.99/month",
+    "subscribeCta": "Upgrade to Pro — $199.99/month",
     "portalCta": "Manage Subscription",
     "successBanner": "Subscription successful! Welcome to Pro!",
     "canceledBanner": "Subscription canceled. You can resubscribe anytime."
@@ -146,7 +174,7 @@
   "upgrade": {
     "title": "Upgrade to Pro",
     "description": "You've reached your daily AI limit. Upgrade to Pro for unlimited usage!",
-    "cta": "Subscribe for $19.99/month"
+    "cta": "Subscribe for $199.99/month"
   },
   "header": {
     "upgradePro": "Upgrade to Pro ✨"
@@ -166,11 +194,11 @@
     },
     "service": {
       "title": "2. Service Description",
-      "body": "JobPilot is an AI-powered resume and cover letter generation tool. We offer a Free plan (10 AI operations per day) and a Pro subscription plan (unlimited usage at $19.99 USD/month)."
+      "body": "JobPilot is an AI-powered resume and cover letter generation tool. We offer a Free plan (5 AI operations per day), a Pro subscription ($199.99 USD/month, unlimited usage), and credit packs for auto job application features."
     },
     "payment": {
       "title": "3. Subscription & Payment",
-      "item1": "The Pro plan is billed at $19.99 USD per month, processed securely via Stripe.",
+      "item1": "The Pro plan is billed at $199.99 USD per month, processed securely via Paddle. Credit packs are one-time purchases that never expire.",
       "item2": "Subscriptions automatically renew each billing cycle unless canceled before the renewal date.",
       "item3": "You may cancel at any time through the Billing page. Cancellation takes effect at the end of the current billing period.",
       "item4": "Prices may change with 30 days' advance notice sent to your registered email."
@@ -212,7 +240,7 @@
       "item1": "Account information: name and email address (Email or Google login)",
       "item2": "Resume content: personal details, work history, education, and skills you enter or upload",
       "item3": "Usage logs: AI operation count, login times, and feature usage",
-      "item4": "Payment information: processed by Stripe — we do not store full card numbers or bank details"
+      "item4": "Payment information: processed by Paddle — we do not store full card numbers or bank details"
     },
     "usage": {
       "title": "3. How We Use Your Data",
@@ -221,12 +249,12 @@
       "item3": "To send service-related notifications (billing, important updates)"
     },
     "stripe": {
-      "title": "4. Payment Data (Stripe)",
-      "body": "All payments are processed by Stripe. JobPilot does not directly store your credit card information. Stripe is PCI DSS Level 1 compliant. We only store Stripe-provided customer IDs and subscription IDs to manage your account status. For more details, see Stripe's privacy policy at stripe.com/privacy."
+      "title": "4. Payment Data (Paddle)",
+      "body": "All payments are processed by Paddle. JobPilot does not directly store your credit card information. Paddle is PCI DSS Level 1 compliant and acts as Merchant of Record. We only store Paddle-provided customer IDs and subscription IDs to manage your account status. For more details, see Paddle's privacy policy at paddle.com/legal/privacy."
     },
     "thirdparty": {
       "title": "5. Third-Party Services",
-      "item1": "Stripe: payment processing (stripe.com/privacy)",
+      "item1": "Paddle: payment processing (paddle.com/legal/privacy)",
       "item2": "Google OAuth: authentication (optional)",
       "item3": "AWS S3: PDF and image file storage"
     },

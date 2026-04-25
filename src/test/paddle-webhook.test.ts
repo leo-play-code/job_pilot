@@ -4,12 +4,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 // Module mocks — must be declared before any imports that trigger side-effects
 // ---------------------------------------------------------------------------
 
-vi.mock('@/lib/stripe', () => ({
-  stripe: {
-    webhooks: { constructEvent: vi.fn() },
-    subscriptions: { retrieve: vi.fn() },
-    checkout: { sessions: { create: vi.fn() } },
-    customers: { create: vi.fn() },
+vi.mock('@/lib/paddle', () => ({
+  paddle: {
+    webhooks: { unmarshal: vi.fn() },
   },
 }))
 
@@ -18,125 +15,97 @@ vi.mock('@/lib/prisma', () => ({
     user: {
       update: vi.fn(),
     },
+    $transaction: vi.fn(),
   },
 }))
 
-vi.mock('next/headers', () => ({
-  headers: vi.fn(),
+vi.mock('@/lib/credits', () => ({
+  addCredits: vi.fn(),
 }))
 
 // ---------------------------------------------------------------------------
 // Imports (after mocks)
 // ---------------------------------------------------------------------------
 
-import { POST } from '@/app/api/stripe/webhook/route'
-import { stripe } from '@/lib/stripe'
+import { POST } from '@/app/api/paddle/webhook/route'
+import { paddle } from '@/lib/paddle'
 import { prisma } from '@/lib/prisma'
-import { headers } from 'next/headers'
+import { addCredits } from '@/lib/credits'
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
 function makeWebhookRequest(body = 'raw-body-string'): Request {
-  return new Request('http://localhost/api/stripe/webhook', {
+  return new Request('http://localhost/api/paddle/webhook', {
     method: 'POST',
     body,
+    headers: { 'paddle-signature': 'test-sig' },
   })
 }
 
 // ---------------------------------------------------------------------------
-// Tests — POST /api/stripe/webhook
+// Tests — POST /api/paddle/webhook
 // ---------------------------------------------------------------------------
 
-describe('POST /api/stripe/webhook', () => {
+describe('POST /api/paddle/webhook', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    process.env.STRIPE_WEBHOOK_SECRET = 'whsec_test'
-
-    // Default headers mock returns a stripe-signature
-    vi.mocked(headers).mockResolvedValue({
-      get: (key: string) => (key === 'stripe-signature' ? 'test-sig' : null),
-    } as never)
+    process.env.PADDLE_WEBHOOK_SECRET = 'pdl_ntfset_test'
   })
 
   // -------------------------------------------------------------------------
-  // checkout.session.completed
+  // subscription.created
   // -------------------------------------------------------------------------
 
-  it('checkout.session.completed 應把 user 升級為 PRO', async () => {
+  it('subscription.created 應把 user 升級為 PRO', async () => {
     const mockEvent = {
-      type: 'checkout.session.completed',
+      eventType: 'subscription.created',
       data: {
-        object: {
-          customer: 'cus_test123',
-          subscription: 'sub_test456',
-        },
+        id: 'sub_test456',
+        customerId: 'ctm_test123',
+        customData: { userId: 'user-1' },
+        items: [{ price: { id: 'pri_monthly' } }],
+        currentBillingPeriod: { endsAt: '2026-05-25T00:00:00Z' },
       },
     }
 
-    vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(mockEvent as never)
-    vi.mocked(stripe.subscriptions.retrieve).mockResolvedValue({
-      items: {
-        data: [
-          {
-            current_period_end: 1748217600,
-            price: { id: 'price_test' },
-          },
-        ],
-      },
-    } as never)
+    vi.mocked(paddle.webhooks.unmarshal).mockReturnValue(mockEvent as never)
     vi.mocked(prisma.user.update).mockResolvedValue({} as never)
 
     const res = await POST(makeWebhookRequest())
 
-    // Response
     expect(res.status).toBe(200)
     const body = await res.json()
     expect(body).toEqual({ received: true })
 
-    // stripe.subscriptions.retrieve called with the subscription ID
-    expect(stripe.subscriptions.retrieve).toHaveBeenCalledWith('sub_test456')
-
-    // prisma.user.update called to upgrade user to PRO
     expect(prisma.user.update).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { stripeCustomerId: 'cus_test123' },
+        where: { id: 'user-1' },
         data: expect.objectContaining({
           plan: 'PRO',
-          stripeSubscriptionId: 'sub_test456',
-          stripePriceId: 'price_test',
-          stripeCurrentPeriodEnd: new Date(1748217600 * 1000),
+          paddleCustomerId: 'ctm_test123',
+          paddleSubscriptionId: 'sub_test456',
         }),
       }),
     )
   })
 
   // -------------------------------------------------------------------------
-  // customer.subscription.deleted
+  // subscription.canceled
   // -------------------------------------------------------------------------
 
-  it('customer.subscription.deleted 應把 user 降級為 FREE', async () => {
+  it('subscription.canceled 應把 user 降級為 FREE', async () => {
     const mockEvent = {
-      type: 'customer.subscription.deleted',
+      eventType: 'subscription.canceled',
       data: {
-        object: {
-          customer: 'cus_test123',
-          items: {
-            data: [
-              {
-                current_period_end: 1748217600,
-                price: { id: 'price_test' },
-              },
-            ],
-          },
-          current_period_end: 1748217600,
-          status: 'canceled',
-        },
+        id: 'sub_test456',
+        customerId: 'ctm_test123',
+        status: 'canceled',
       },
     }
 
-    vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(mockEvent as never)
+    vi.mocked(paddle.webhooks.unmarshal).mockReturnValue(mockEvent as never)
     vi.mocked(prisma.user.update).mockResolvedValue({} as never)
 
     const res = await POST(makeWebhookRequest())
@@ -145,17 +114,45 @@ describe('POST /api/stripe/webhook', () => {
     const body = await res.json()
     expect(body).toEqual({ received: true })
 
-    // prisma.user.update called to downgrade user to FREE
     expect(prisma.user.update).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { stripeCustomerId: 'cus_test123' },
+        where: { paddleCustomerId: 'ctm_test123' },
         data: expect.objectContaining({
           plan: 'FREE',
-          stripeSubscriptionId: null,
-          stripeCurrentPeriodEnd: null,
+          paddleSubscriptionId: null,
+          paddleCurrentPeriodEnd: null,
         }),
       }),
     )
+  })
+
+  // -------------------------------------------------------------------------
+  // transaction.completed (credit pack)
+  // -------------------------------------------------------------------------
+
+  it('transaction.completed (credit_pack) 應新增點數', async () => {
+    const mockEvent = {
+      eventType: 'transaction.completed',
+      data: {
+        id: 'txn_test789',
+        customerId: 'ctm_test123',
+        customData: {
+          type: 'credit_pack',
+          packId: 'starter',
+          userId: 'user-1',
+          credits: '20',
+        },
+      },
+    }
+
+    vi.mocked(paddle.webhooks.unmarshal).mockReturnValue(mockEvent as never)
+    vi.mocked(addCredits).mockResolvedValue(undefined)
+    vi.mocked(prisma.user.update).mockResolvedValue({} as never)
+
+    const res = await POST(makeWebhookRequest())
+
+    expect(res.status).toBe(200)
+    expect(addCredits).toHaveBeenCalledWith('user-1', 20, 'STARTER_PACK', 'txn_test789')
   })
 
   // -------------------------------------------------------------------------
@@ -163,7 +160,7 @@ describe('POST /api/stripe/webhook', () => {
   // -------------------------------------------------------------------------
 
   it('無效 signature 應回傳 400', async () => {
-    vi.mocked(stripe.webhooks.constructEvent).mockImplementation(() => {
+    vi.mocked(paddle.webhooks.unmarshal).mockImplementation(() => {
       throw new Error('Invalid signature')
     })
 

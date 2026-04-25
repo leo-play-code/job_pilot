@@ -43,7 +43,7 @@ function BillingContent() {
     setCheckoutLoading(true)
     setActionError(null)
     try {
-      const res = await fetch('/api/stripe/create-checkout-session', { method: 'POST' })
+      const res = await fetch('/api/paddle/create-checkout-session', { method: 'POST' })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error ?? 'Failed')
       window.location.href = json.data.checkoutUrl
@@ -57,7 +57,7 @@ function BillingContent() {
     setPortalLoading(true)
     setActionError(null)
     try {
-      const res = await fetch('/api/stripe/create-portal-session', { method: 'POST' })
+      const res = await fetch('/api/paddle/create-portal-session', { method: 'POST' })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error ?? 'Failed')
       window.location.href = json.data.portalUrl

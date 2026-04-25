@@ -12,7 +12,7 @@ export async function GET() {
     where: { id: session.user.id },
     select: {
       plan: true,
-      stripeCurrentPeriodEnd: true,
+      paddleCurrentPeriodEnd: true,
     },
   })
 
@@ -23,13 +23,13 @@ export async function GET() {
   const now = new Date()
   const hasActiveSubscription =
     user.plan === 'PRO' &&
-    user.stripeCurrentPeriodEnd != null &&
-    user.stripeCurrentPeriodEnd > now
+    user.paddleCurrentPeriodEnd != null &&
+    user.paddleCurrentPeriodEnd > now
 
   return NextResponse.json({
     data: {
       plan: user.plan,
-      currentPeriodEnd: user.stripeCurrentPeriodEnd?.toISOString() ?? null,
+      currentPeriodEnd: user.paddleCurrentPeriodEnd?.toISOString() ?? null,
       hasActiveSubscription,
     },
   })
