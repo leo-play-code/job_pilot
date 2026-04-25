@@ -65,6 +65,10 @@
 - [ ] **[usage-logs-search] Integration — `GET /api/admin/usage-logs?search=`** — admin session；DB 有 2 筆不同 email 的 log；`?search=alice` 只回 alice 的記錄；`?search=` 空字串回全部；非 admin → 403
 - [ ] [Regression] Google 登出再登入不應 AdapterError — 確認 Google OAuth callback 不拋出 `The column users.stripeCustomerId does not exist`；DB 需含 paddleCustomerId 等 Paddle 欄位且 Prisma client 已同步；重現條件：migration `20260425000001_migrate_stripe_to_paddle` 未套用或 `prisma generate` 未執行
 
+- [ ] [Regression] Paddle buy-credits 使用正確的 Price ID — 確認 `PADDLE_CREDIT_PACK_*_PRICE_ID` 環境變數的值以 `pri_` 開頭（Price ID），而非 `pro_`（Product ID）；呼叫 `POST /api/paddle/buy-credits` 傳入合法 packId 應回傳 `{ data: { transactionId: string } }`，不得拋出 Paddle `bad_request` 錯誤
+
+- [ ] [Regression] Paddle checkout successUrl 跟隨當前環境 — 確認 `paddle.Checkout.open()` 的 `successUrl` 使用 `window.location.origin`，不得硬編碼 `NEXT_PUBLIC_APP_URL`；本地開發時 successUrl 應為 `http://localhost:3000/zh/pricing?credits_success=true`，不得跳轉至 Vercel 網域
+
 - [ ] [Regression] Pricing 頁已登入用戶點「繼續免費使用」不應跳轉登入 — 已登入 Free 用戶進入 /pricing，Free Card CTA 應顯示「目前方案」disabled 按鈕，點擊不跳轉至 /login；subscription 資料載入前應顯示 skeleton 而非 login link
 
 - [ ] [Regression] 原始 PDF 履歷排版保留 — 確認 raw import 上傳 PDF 後，詳細頁顯示的是嵌入 PDF iframe（`RawPdfView`）而非純文字 `RawTextView`；`rawPdfUrl` 非空時 `ResumeEditorClient` 必須優先渲染 `RawPdfView`
