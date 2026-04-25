@@ -29,6 +29,11 @@
 | DELETE | /api/cover-letter | required | 刪除當前用戶所有自薦信 |
 | GET | /api/resume/:id/preview-html | required | 取得履歷完整 HTML（iframe 預覽用）|
 | GET | /api/templates | public | 列出 active 模板（用戶選擇用）|
+| GET | /api/admin/resumes | admin | 列出所有用戶履歷（分頁、搜尋）|
+| DELETE | /api/admin/resumes/:id | admin | 刪除任意履歷 |
+| GET | /api/admin/cover-letters | admin | 列出所有自薦信（分頁、搜尋）|
+| DELETE | /api/admin/cover-letters/:id | admin | 刪除任意自薦信 |
+| GET | /api/admin/usage-logs | admin | 列出使用記錄（唯讀、可依 action/date 篩選）|
 | GET | /api/admin/templates | admin | 列出全部模板（含 draft）|
 | POST | /api/admin/templates | admin | 手動建立模板（JSON CSS）|
 | PATCH | /api/admin/templates/:id | admin | 更新模板（含 status 發佈）|
@@ -174,7 +179,7 @@ GET /api/user/subscription
 
 ### Pending
 
-(all tasks done)
+_(no pending tasks)_
 
 ### Done
 
@@ -196,3 +201,8 @@ GET /api/user/subscription
 | [x] Task 4 | `PATCH /api/admin/templates/[id]` — 加入 status 欄位，status↔isActive 同步 | 2026-04-24 |
 | [x] Task 5 | `GET /api/admin/templates` — response 已含 status（findMany 不限 select） | 2026-04-24 |
 | [x] Task 6 | `GET /api/templates` — 改為 `status: 'active'` 篩選，排除 draft 模板 | 2026-04-24 |
+| [x] [admin-db] Backend: `GET /api/admin/resumes` | admin only；返回所有用戶履歷列表（id, title, userId, userEmail, templateId, language, rawPdfUrl, createdAt）；支援 query: search, page, userId；50 筆/頁 | 2026-04-25 |
+| [x] [admin-db] Backend: `DELETE /api/admin/resumes/:id` | admin only；刪除指定履歷，關聯 CoverLetter.resumeId 設為 null；回傳 `{ data: { ok: true } }` | 2026-04-25 |
+| [x] [admin-db] Backend: `GET /api/admin/cover-letters` | admin only；返回所有自薦信（id, jobTitle, userId, userEmail, wordCount, language, createdAt）；支援 query: search, page, userId | 2026-04-25 |
+| [x] [admin-db] Backend: `DELETE /api/admin/cover-letters/:id` | admin only；刪除指定自薦信；回傳 `{ data: { ok: true } }` | 2026-04-25 |
+| [x] [admin-db] Backend: `GET /api/admin/usage-logs` | admin only；返回使用記錄（id, userId, userEmail, action, date, createdAt）；支援 query: action, date, userId, page；純唯讀 | 2026-04-25 |

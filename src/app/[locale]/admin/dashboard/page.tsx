@@ -7,6 +7,18 @@ import { useLocale } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { Users, FileText, Mail, Zap, LayoutTemplate, RefreshCw, Check, X } from 'lucide-react'
 import { toast } from 'sonner'
+import AdminResumesTab from '@/components/admin/AdminResumesTab'
+import AdminCoverLettersTab from '@/components/admin/AdminCoverLettersTab'
+import AdminUsageLogsTab from '@/components/admin/AdminUsageLogsTab'
+
+type TabId = 'users' | 'resumes' | 'coverLetters' | 'usageLogs'
+
+const TABS: { id: TabId; label: string }[] = [
+  { id: 'users',       label: '使用者' },
+  { id: 'resumes',     label: '履歷' },
+  { id: 'coverLetters',label: '自薦信' },
+  { id: 'usageLogs',   label: '使用記錄' },
+]
 
 interface UserRow {
   id: string
@@ -33,6 +45,8 @@ export default function AdminDashboardPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const locale = useLocale()
+
+  const [activeTab, setActiveTab] = useState<TabId>('users')
 
   const [users, setUsers] = useState<UserRow[]>([])
   const [summary, setSummary] = useState<Summary | null>(null)
@@ -130,6 +144,31 @@ export default function AdminDashboardPage() {
           </button>
         </div>
       </div>
+
+      {/* Tab bar */}
+      <div className="flex gap-0 border-b border-border mb-6">
+        {TABS.map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`px-5 py-2.5 text-sm font-medium transition-colors ${
+              activeTab === tab.id
+                ? 'text-primary border-b-2 border-primary -mb-px'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Non-users tabs */}
+      {activeTab === 'resumes' && <AdminResumesTab />}
+      {activeTab === 'coverLetters' && <AdminCoverLettersTab />}
+      {activeTab === 'usageLogs' && <AdminUsageLogsTab />}
+
+      {/* Users tab content */}
+      {activeTab === 'users' && <>
 
       {/* Summary cards */}
       {summary && (
@@ -246,6 +285,7 @@ export default function AdminDashboardPage() {
           </table>
         </div>
       </div>
+      </>}
     </div>
   )
 }

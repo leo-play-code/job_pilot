@@ -576,6 +576,15 @@ UserAvatarDropdown.tsx
 
 ### Pending
 
+- [x] **[admin-db] `/admin/dashboard` 加入 Tab 切換** ✅ 2026-04-25
+  `src/app/[locale]/admin/dashboard/page.tsx` — 加入 TabId type（users/resumes/coverLetters/usageLogs）；useState('users') activeTab；4-tab underline bar；users tab 條件渲染 summary cards + users table；其餘 3 個 tab 渲染對應子元件（lazy fetch on mount）
+- [x] **[admin-db] `AdminResumesTab` 子元件** ✅ 2026-04-25
+  `src/components/admin/AdminResumesTab.tsx` — 欄位：ID(8碼)、標題、email、模板、語言、rawPDF badge、建立時間、刪除；搜尋框 reset page 1；window.confirm 確認刪除；樂觀 filter local state；pagination 上一頁/下一頁；loading/empty state
+- [x] **[admin-db] `AdminCoverLettersTab` 子元件** ✅ 2026-04-25
+  `src/components/admin/AdminCoverLettersTab.tsx` — 欄位：ID(8碼)、職缺標題、email、字數(SHORT灰/MEDIUM藍/LONG紫 badge)、語言、建立時間、刪除；同 resumes 搜尋+分頁+樂觀刪除模式
+- [x] **[admin-db] `AdminUsageLogsTab` 子元件** ✅ 2026-04-25
+  `src/components/admin/AdminUsageLogsTab.tsx` — 欄位：email、動作(GENERATE_RESUME藍/PARSE_PDF橙/GENERATE_COVER_LETTER綠 badge)、日期、建立時間；action 下拉 + date input 篩選；純唯讀無刪除；pagination
+
 ### Done
 - [x] **[ux-feedback] 安裝套件** ✅ 2026-04-25
   `npm install nextjs-toploader sonner`

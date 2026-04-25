@@ -38,6 +38,11 @@
 - [x] **[perf] Unit — `BlurImage` loaded 狀態**：render `<BlurImage src="..." alt="..."/>`，驗證初始 className 含 `blur`；模擬 `onLoad` 後 className 不含 `blur`，含 `scale-100`（completed: 2026-04-25）
 - [x] **[perf] Regression — Admin templates 縮圖 blur-up**：`/admin/templates` 有 thumbnailUrl 的模板卡片，DOM 中 `<img>` 出現時應有 blur className；`next/image` 不報 `hostname not allowed`（completed: 2026-04-25）
 - [x] **[perf] Regression — Supabase 圖片域名允許**：`next.config.ts` 的 `remotePatterns` 含 `*.supabase.co`；訪問 S3 圖片 URL 不出現 Next.js image 域名錯誤（completed: 2026-04-25）
+- [x] **[admin-db] Integration — `GET /api/admin/resumes`** — admin session；DB 有 2 筆不同用戶的 Resume；驗證回傳 `{ data: { resumes: [...], total: 2 } }`；resume 物件含 userEmail；非 admin → 403；search query 只回符合 title 的記錄（completed: 2026-04-25）
+- [x] **[admin-db] Integration — `DELETE /api/admin/resumes/:id`** — admin session；刪除後 DB 筆數 -1；相關 CoverLetter.resumeId 設為 null；非 admin → 403；不存在 id → 404（completed: 2026-04-25）
+- [x] **[admin-db] Integration — `GET /api/admin/cover-letters`** — admin session；DB 有 2 筆；驗證回傳含 userEmail；非 admin → 403（completed: 2026-04-25）
+- [x] **[admin-db] Integration — `DELETE /api/admin/cover-letters/:id`** — admin session；刪除後 DB 筆數 -1；非 admin → 403（completed: 2026-04-25）
+- [x] **[admin-db] Integration — `GET /api/admin/usage-logs`** — admin session；DB 有 3 筆 log；驗證回傳含 userEmail + action；action query 篩選只回對應 action；非 admin → 403（completed: 2026-04-25）
 - [ ] [Regression] UserAvatarDropdown 點擊不出現黑色 focus ring — trigger 按鈕 className 必須只有 `outline-none`，不含 `focus-visible:ring-2`；點擊後不顯示任何外框
 - [ ] [Regression] UserAvatarDropdown 同頁導航不觸發 spinner — 點選當前所在頁面的選單項目時，`navigate()` 應跳過 `setNavigatingTo`（目標 pathname === 當前 pathname），spinner 不出現
 - [ ] [Regression] UserAvatarDropdown Safety timeout 兜底 — `navigatingTo` 非 null 時，3000ms 後自動 `setNavigatingTo(null)`，避免 spinner 永久卡住
