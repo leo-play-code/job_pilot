@@ -38,6 +38,13 @@
 - [x] **[perf] Unit — `BlurImage` loaded 狀態**：render `<BlurImage src="..." alt="..."/>`，驗證初始 className 含 `blur`；模擬 `onLoad` 後 className 不含 `blur`，含 `scale-100`（completed: 2026-04-25）
 - [x] **[perf] Regression — Admin templates 縮圖 blur-up**：`/admin/templates` 有 thumbnailUrl 的模板卡片，DOM 中 `<img>` 出現時應有 blur className；`next/image` 不報 `hostname not allowed`（completed: 2026-04-25）
 - [x] **[perf] Regression — Supabase 圖片域名允許**：`next.config.ts` 的 `remotePatterns` 含 `*.supabase.co`；訪問 S3 圖片 URL 不出現 Next.js image 域名錯誤（completed: 2026-04-25）
+- [ ] [Regression] UserAvatarDropdown 點擊不出現黑色 focus ring — trigger 按鈕 className 必須只有 `outline-none`，不含 `focus-visible:ring-2`；點擊後不顯示任何外框
+- [ ] [Regression] UserAvatarDropdown 同頁導航不觸發 spinner — 點選當前所在頁面的選單項目時，`navigate()` 應跳過 `setNavigatingTo`（目標 pathname === 當前 pathname），spinner 不出現
+- [ ] [Regression] UserAvatarDropdown Safety timeout 兜底 — `navigatingTo` 非 null 時，3000ms 後自動 `setNavigatingTo(null)`，避免 spinner 永久卡住
+- [ ] [Regression] UserAvatarDropdown 導航後 spinner 自動停止 — 點選導航 item 後 spinner 啟動；pathname 變更後（useEffect 偵測）spinner 應重置為 null，不再永久旋轉
+- [ ] [Regression] UserAvatarDropdown 登出 loading — 點「登出」後 dropdown 保持開啟、顯示「登出中…」spinner；`signOut()` 被呼叫；`isLoggingOut=true` 期間 trigger 按鈕 disabled
+- [ ] [Regression] UserAvatarDropdown 導航 item loading — 點「個人設定」後該 item icon 切換為 Loader2；trigger ChevronDown 切換為 Loader2
+- [ ] [Regression] UserAvatarDropdown 點數餘額路由 — 「點數餘額」item 導向路徑包含 `settings?tab=credits`，不再與「個人設定」（/settings）重複
 - [ ] [Regression] Pricing 頁已登入用戶點「繼續免費使用」不應跳轉登入 — 已登入 Free 用戶進入 /pricing，Free Card CTA 應顯示「目前方案」disabled 按鈕，點擊不跳轉至 /login；subscription 資料載入前應顯示 skeleton 而非 login link
 
 - [ ] [Regression] 原始 PDF 履歷排版保留 — 確認 raw import 上傳 PDF 後，詳細頁顯示的是嵌入 PDF iframe（`RawPdfView`）而非純文字 `RawTextView`；`rawPdfUrl` 非空時 `ResumeEditorClient` 必須優先渲染 `RawPdfView`

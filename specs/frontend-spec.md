@@ -591,6 +591,12 @@ UserAvatarDropdown.tsx
   `src/app/[locale]/admin/dashboard/page.tsx` — 移除 useState<string | null> inline toast state 與 JSX；改用 toast.success() / toast.error()；移除 showToast helper；confirmEditCredits 驗證錯誤也改用 toast.error
 - [x] **[ux-feedback] i18n: zh.json / en.json 加入 downloadPdfError key** ✅ 2026-04-25
   `common.downloadPdfError` = "PDF 生成失敗，請稍後再試" / "PDF generation failed, please try again"
+- [x] **[ux-feedback] UserAvatarDropdown 導航 loading 狀態** ✅ 2026-04-25
+  `src/components/shared/UserAvatarDropdown.tsx` —
+  - 每個導航 item 點擊後圖示替換為 `Loader2 animate-spin`，並設 `opacity-50 pointer-events-none`
+  - `isNavigating` 時 trigger 按鈕 `ChevronDown` 換為 `Loader2 animate-spin`
+  - 登出：`onSelect e.preventDefault()` 保持 dropdown 開啟，顯示「登出中…」+ spinner，`isLoggingOut` 期間 trigger 按鈕 disabled
+  - Bug fix：「點數餘額」改為 `/${locale}/settings?tab=credits`（原本重複指向 /settings）
 - [x] **[perf] `BlurImage` 元件** ✅ 2026-04-25
   `src/components/shared/BlurImage.tsx` — 包裝 next/image；blur(20px) scale(1.05) → onLoad → blur(0) scale(1)；300ms ease transition；内建灰色 shimmer blurDataURL
 - [x] **[perf] `next.config.ts` 更新** ✅ 2026-04-25
