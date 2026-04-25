@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useLocale } from 'next-intl'
 import Image from 'next/image'
-import { UserCircle, Check, Pencil, X, Coins, CreditCard, Star } from 'lucide-react'
+import { UserCircle, Check, Pencil, X, CreditCard, Star } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface UserProfile {
@@ -178,16 +178,6 @@ export default function SettingsPage() {
             </div>
           </div>
         </div>
-      </section>
-
-      {/* ── 點數餘額 ── */}
-      <section className="border border-border rounded-xl p-6 mb-6">
-        <div className="flex items-center gap-2 mb-1">
-          <Coins className="h-5 w-5 text-amber-500" />
-          <h2 className="text-base font-semibold">點數餘額</h2>
-        </div>
-        <p className="text-3xl font-bold mt-2">{profile.credits} <span className="text-sm font-normal text-muted-foreground">點</span></p>
-        <p className="text-xs text-muted-foreground mt-1">點數由管理員發放，未來可用於兌換進階功能。</p>
       </section>
 
       {/* ── 帳單與訂閱 ── */}

@@ -576,6 +576,13 @@ UserAvatarDropdown.tsx
 
 ### Pending
 
+- [x] **[credits-consolidation] Frontend: 新增 `/settings/credits` 頁面** ✅ 2026-04-25
+  `src/app/[locale]/settings/credits/page.tsx`；頁面只顯示點數餘額 section（Coins icon + 點數數字 + 說明文字）；從 `GET /api/user/me` 取 credits；樣式與 settings/page.tsx 的點數 section 一致
+- [x] **[credits-consolidation] Frontend: 移除 `settings/page.tsx` 的點數餘額 section** ✅ 2026-04-25
+  刪除 `src/app/[locale]/settings/page.tsx` 中的「點數餘額」`<section>` block（保留個人資料與帳單訂閱兩個 section）；移除 `Coins` import
+- [x] **[credits-consolidation] Frontend: 更新 `UserAvatarDropdown` 點數餘額路由** ✅ 2026-04-25
+  `src/components/shared/UserAvatarDropdown.tsx`：將「點數餘額」item 的導向從 `/${locale}/settings?tab=credits` 改為 `/${locale}/settings/credits`；`itemClass` 的 path 參數、`navigatingTo` 比較、`navigate()` 呼叫皆同步更新
+
 - [x] **[admin-db] `/admin/dashboard` 加入 Tab 切換** ✅ 2026-04-25
   `src/app/[locale]/admin/dashboard/page.tsx` — 加入 TabId type（users/resumes/coverLetters/usageLogs）；useState('users') activeTab；4-tab underline bar；users tab 條件渲染 summary cards + users table；其餘 3 個 tab 渲染對應子元件（lazy fetch on mount）
 - [x] **[admin-db] `AdminResumesTab` 子元件** ✅ 2026-04-25

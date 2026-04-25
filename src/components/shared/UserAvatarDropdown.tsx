@@ -181,10 +181,10 @@ export function UserAvatarDropdown({ session, locale }: Props) {
           </DropdownMenu.Item>
 
           <DropdownMenu.Item
-            onSelect={() => navigate(`/${locale}/settings?tab=credits`)}
-            className={itemClass(`/${locale}/settings?tab=credits`)}
+            onSelect={() => navigate(`/${locale}/settings/credits`)}
+            className={itemClass(`/${locale}/settings/credits`)}
           >
-            {navigatingTo === `/${locale}/settings?tab=credits`
+            {navigatingTo === `/${locale}/settings/credits`
               ? <Loader2 className="h-4 w-4 animate-spin" />
               : <Coins className="h-4 w-4" />
             }
