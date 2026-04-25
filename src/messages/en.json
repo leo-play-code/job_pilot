@@ -101,7 +101,13 @@
     "error": "Something went wrong. Please try again.",
     "upgradeTitle": "Daily Limit Reached",
     "upgradeDesc": "Free plan includes 3 AI operations per day. Upgrade to PRO for unlimited use.",
-    "downloadPdfError": "PDF generation failed, please try again"
+    "downloadPdfError": "PDF generation failed, please try again",
+    "pagination": {
+      "prev": "Previous",
+      "next": "Next",
+      "page": "Page {n}",
+      "of": "of {total}"
+    }
   },
   "pricing": {
     "title": "Choose Your Plan",

@@ -43,6 +43,13 @@
 - [x] **[admin-db] Integration — `GET /api/admin/cover-letters`** — admin session；DB 有 2 筆；驗證回傳含 userEmail；非 admin → 403（completed: 2026-04-25）
 - [x] **[admin-db] Integration — `DELETE /api/admin/cover-letters/:id`** — admin session；刪除後 DB 筆數 -1；非 admin → 403（completed: 2026-04-25）
 - [x] **[admin-db] Integration — `GET /api/admin/usage-logs`** — admin session；DB 有 3 筆 log；驗證回傳含 userEmail + action；action query 篩選只回對應 action；非 admin → 403（completed: 2026-04-25）
+- [x] **[pagination] Unit — `Pagination` 元件 Smart Ellipsis** ✅ 2026-04-25 — totalPages=10, currentPage=5 → [1, ..., 4, 5, 6, ..., 10]；totalPages=1 → return null
+- [x] **[pagination] Unit — `Pagination` 點擊頁碼** ✅ 2026-04-25 — 點第 3 頁 → `onPageChange(3)` 被呼叫；prev/next disabled 狀態驗證
+- [x] **[pagination] Integration — `GET /api/resume?page=1&limit=6`** ✅ 2026-04-25 — DB 有 8 筆；page=1 回 6，total=8，totalPages=2；page=2 skip=6
+- [x] **[pagination] Integration — `GET /api/cover-letter?page=1&limit=6`** ✅ 2026-04-25 — 同上邏輯；backward compat 驗證
+- [x] **[pagination] Integration — `GET /api/templates?page=1&limit=6`** ✅ 2026-04-25 — DB 有 8 筆 active 模板；status=active 篩選驗證；backward compat 驗證
+- [x] **[pagination] Regression — Dashboard ResumeList 換頁** ✅ 2026-04-25 — 9 resumes；初始 6 筆；Next page → 3 筆；page 2 顯示 Resume 7
+- [x] **[pagination] Regression — ResumeList Edit Mode 隱藏 Pagination** ✅ 2026-04-25 — Edit Mode → Pagination 消失、全部 9 個 checkbox 顯示
 - [ ] [Regression] UserAvatarDropdown 點擊不出現黑色 focus ring — trigger 按鈕 className 必須只有 `outline-none`，不含 `focus-visible:ring-2`；點擊後不顯示任何外框
 - [ ] [Regression] UserAvatarDropdown 同頁導航不觸發 spinner — 點選當前所在頁面的選單項目時，`navigate()` 應跳過 `setNavigatingTo`（目標 pathname === 當前 pathname），spinner 不出現
 - [ ] [Regression] UserAvatarDropdown Safety timeout 兜底 — `navigatingTo` 非 null 時，3000ms 後自動 `setNavigatingTo(null)`，避免 spinner 永久卡住

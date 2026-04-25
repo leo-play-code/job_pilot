@@ -102,7 +102,13 @@
     "error": "發生錯誤，請稍後再試",
     "upgradeTitle": "已達今日上限",
     "upgradeDesc": "免費方案每日 3 次 AI 操作，升級 PRO 以無限使用",
-    "downloadPdfError": "PDF 生成失敗，請稍後再試"
+    "downloadPdfError": "PDF 生成失敗，請稍後再試",
+    "pagination": {
+      "prev": "上一頁",
+      "next": "下一頁",
+      "page": "第 {n} 頁",
+      "of": "共 {total} 頁"
+    }
   },
   "pricing": {
     "title": "選擇方案",

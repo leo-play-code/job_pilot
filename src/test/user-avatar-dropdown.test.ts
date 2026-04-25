@@ -60,9 +60,10 @@ test('handleLogout calls e.preventDefault() to keep dropdown open during logout'
 })
 
 // ---------------------------------------------------------------------------
-// [Regression] 點數餘額路由不重複 — 指向 settings?tab=credits 而非 /settings
+// [Regression] 點數餘額路由 — 指向 /settings/credits（獨立頁面）
 // ---------------------------------------------------------------------------
 
-test('credits item navigates to settings?tab=credits, not plain /settings', () => {
-  expect(src).toContain("settings?tab=credits")
+test('credits item navigates to /settings/credits (standalone page)', () => {
+  expect(src).toContain("settings/credits")
+  expect(src).not.toContain("settings?tab=credits")
 })

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { Pagination } from '@/components/shared/Pagination'
 
 type ActionType = '' | 'GENERATE_RESUME' | 'PARSE_PDF' | 'GENERATE_COVER_LETTER'
 
@@ -126,26 +127,11 @@ export default function AdminUsageLogsTab() {
         </table>
       </div>
 
-      {/* Pagination */}
-      <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-muted/10">
-        <span className="text-sm text-muted-foreground">第 {page} 頁</span>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setPage(p => p - 1)}
-            disabled={page <= 1 || loading}
-            className="text-sm px-3 py-1.5 border border-border rounded-md hover:bg-accent transition-colors disabled:opacity-50"
-          >
-            上一頁
-          </button>
-          <button
-            onClick={() => setPage(p => p + 1)}
-            disabled={page >= totalPages || total <= 50 || loading}
-            className="text-sm px-3 py-1.5 border border-border rounded-md hover:bg-accent transition-colors disabled:opacity-50"
-          >
-            下一頁
-          </button>
+      {totalPages > 1 && (
+        <div className="px-4 py-3 border-t border-border bg-muted/10">
+          <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
         </div>
-      </div>
+      )}
     </div>
   )
 }

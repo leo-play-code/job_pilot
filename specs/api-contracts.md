@@ -179,7 +179,9 @@ GET /api/user/subscription
 
 ### Pending
 
-_(no pending tasks)_
+- [x] **[pagination] Backend: 修改 `GET /api/resume`** ✅ 2026-04-25 — 加 `?page=1&limit=6` query params；response 改為 `{ data: { resumes: Resume[], total: number, page: number, totalPages: number } }`；skip=(page-1)*limit, take=limit；無 page param 時維持回傳全部（向後兼容）
+- [x] **[pagination] Backend: 修改 `GET /api/cover-letter`** ✅ 2026-04-25 — 同上，加分頁支援；response 改為 `{ data: { coverLetters: CoverLetter[], total: number, page: number, totalPages: number } }`
+- [x] **[pagination] Backend: 修改 `GET /api/templates`** ✅ 2026-04-25 — 加 `?page=1&limit=6`；response 改為 `{ data: { templates: Template[], total: number, page: number, totalPages: number } }`；`status='active'` 篩選保留
 
 ### Done
 

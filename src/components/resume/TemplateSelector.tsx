@@ -1,9 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Image from 'next/image'
 import type { TemplateRecord } from '@/types/resume'
 import { cn } from '@/lib/utils'
+import { Pagination } from '@/components/shared/Pagination'
+
+const PAGE_SIZE = 6
 
 // ── Built-in SVG previews (fallback when thumbnailUrl is not set) ─────────────
 
@@ -104,19 +107,26 @@ interface TemplateSelectorProps {
 export function TemplateSelector({ value, onChange }: TemplateSelectorProps) {
   const [templates, setTemplates] = useState<TemplateRecord[]>([])
   const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState(1)
 
   useEffect(() => {
     fetch('/api/templates')
-      .then(r => r.json())
-      .then(json => setTemplates(json.data ?? []))
+      .then((r) => r.json())
+      .then((json) => setTemplates(json.data ?? []))
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
 
+  const totalPages = Math.ceil(templates.length / PAGE_SIZE)
+  const displayedTemplates = useMemo(
+    () => templates.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [templates, page],
+  )
+
   if (loading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {[1, 2, 3].map(i => (
+        {Array.from({ length: PAGE_SIZE }).map((_, i) => (
           <div key={i} className="border-2 rounded-lg p-4 border-muted animate-pulse">
             <div className="w-full h-24 rounded mb-3 bg-muted" />
             <div className="h-4 w-20 bg-muted rounded mb-2" />
@@ -128,8 +138,9 @@ export function TemplateSelector({ value, onChange }: TemplateSelectorProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      {templates.map((t) => {
+    <div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {displayedTemplates.map((t) => {
         const selected = value === t.id
         const SvgPreview = SVG_PREVIEW_MAP[t.id]
 
@@ -166,6 +177,8 @@ export function TemplateSelector({ value, onChange }: TemplateSelectorProps) {
           </button>
         )
       })}
+      </div>
+      <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
     </div>
   )
 }

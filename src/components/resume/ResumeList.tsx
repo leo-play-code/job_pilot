@@ -1,10 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { SquarePen, Trash2 } from 'lucide-react'
 import { ClearAllDialog } from '@/components/dashboard/ClearAllDialog'
+import { Pagination } from '@/components/shared/Pagination'
+
+const PAGE_SIZE = 6
 
 interface ResumeItem {
   id: string
@@ -29,13 +32,20 @@ export function ResumeList({ resumes: initialResumes }: ResumeListProps) {
   const [deleteSelectedOpen, setDeleteSelectedOpen] = useState(false)
   const [clearAllOpen, setClearAllOpen] = useState(false)
   const [isPending, setIsPending] = useState(false)
+  const [page, setPage] = useState(1)
 
-  const allSelected = resumes.length > 0 && selectedIds.size === resumes.length
+  const totalPages = Math.ceil(resumes.length / PAGE_SIZE)
+  const displayedResumes = useMemo(
+    () => editMode ? resumes : resumes.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [resumes, editMode, page],
+  )
+  const allSelected = displayedResumes.length > 0 && selectedIds.size === resumes.length
 
   function exitEditMode() {
     setEditMode(false)
     setSelectedIds(new Set())
     setError(null)
+    setPage(1)
   }
 
   function toggleItem(id: string) {
@@ -51,7 +61,7 @@ export function ResumeList({ resumes: initialResumes }: ResumeListProps) {
     if (allSelected) {
       setSelectedIds(new Set())
     } else {
-      setSelectedIds(new Set(resumes.map(r => r.id)))
+      setSelectedIds(new Set(resumes.map((r) => r.id)))
     }
   }
 
@@ -64,10 +74,10 @@ export function ResumeList({ resumes: initialResumes }: ResumeListProps) {
         ids.map(id => fetch(`/api/resume/${id}`, { method: 'DELETE' }))
       )
       const successIds = new Set(
-        ids.filter((_, i) => results[i].status === 'fulfilled' && (results[i] as PromiseFulfilledResult<Response>).value.ok)
+        ids.filter((_, i) => results[i].status === 'fulfilled' && (results[i] as PromiseFulfilledResult<Response>).value.ok),
       )
       const failed = ids.length - successIds.size
-      setResumes(prev => prev.filter(r => !successIds.has(r.id)))
+      setResumes((prev) => prev.filter((r) => !successIds.has(r.id)))
       setSelectedIds(new Set())
       setDeleteSelectedOpen(false)
       if (failed > 0) setError(t('deleteError'))
@@ -123,7 +133,7 @@ export function ResumeList({ resumes: initialResumes }: ResumeListProps) {
       {error && <p className="text-xs text-destructive mb-2">{error}</p>}
 
       <ul className="space-y-1.5">
-        {resumes.map((r) => {
+        {displayedResumes.map((r) => {
           const checked = selectedIds.has(r.id)
           return (
             <li key={r.id} className="flex items-center gap-2">
@@ -190,6 +200,10 @@ export function ResumeList({ resumes: initialResumes }: ResumeListProps) {
           )
         })}
       </ul>
+
+      {!editMode && (
+        <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
+      )}
 
       {/* Action bar (edit mode only) */}
       {editMode && (

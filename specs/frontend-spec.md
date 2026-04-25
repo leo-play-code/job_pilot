@@ -572,10 +572,97 @@ UserAvatarDropdown.tsx
 
 ---
 
+---
+
+## 全站分頁系統（Pagination System）
+
+### 需求
+Dashboard 履歷/自薦信列表、Resume Builder 模板選擇器、Admin 管理後台，資料量多時不使用無限捲動，改為每頁 6 筆的分頁導航。
+
+### 新增元件
+
+| 元件 | 位置 | 說明 |
+|---|---|---|
+| `Pagination` | `src/components/shared/Pagination.tsx` | 通用分頁列，props: currentPage / totalPages / onPageChange |
+
+### `Pagination` 元件規格
+
+```
+Props:
+  currentPage: number
+  totalPages: number
+  onPageChange: (page: number) => void
+
+顯示規則（Smart Ellipsis）：
+  - totalPages <= 1 → return null（不渲染）
+  - 永遠顯示第 1 頁和最後一頁
+  - 永遠顯示 currentPage ±1
+  - 中間有缺口時顯示 "..."（Ellipsis）
+  - 例（10 頁，目前第 5 頁）: [1] [...] [4] [5] [6] [...] [10]
+  - 例（10 頁，目前第 1 頁）: [1] [2] [3] [...] [10]
+  - 例（10 頁，目前第 10 頁）: [1] [...] [8] [9] [10]
+
+Styling：
+  - 目前頁：bg-primary text-primary-foreground rounded
+  - 非目前頁：hover:bg-muted rounded cursor-pointer
+  - Ellipsis：cursor-default text-muted-foreground
+
+Actions: 點頁碼呼叫 onPageChange(n)，換頁後捲動至列表頂部
+```
+
+### 修改元件
+
+```
+ResumeList (src/components/dashboard/ResumeList.tsx)
+  Add: useState page=1；顯示 resumes.slice((page-1)*6, page*6)
+  Add: <Pagination currentPage totalPages={Math.ceil(resumes.length/6)} onPageChange>
+  Rule: isEditMode=true 時隱藏 Pagination、顯示全部（批量操作需要）
+  進入 Edit Mode → 重置 page=1
+
+CoverLetterList (類似 ResumeList)
+  同上邏輯，6 per page
+
+TemplateSelector (src/components/resume/TemplateSelector.tsx)
+  現有固定 3 模板 → 改為 props templates: Template[]（從 GET /api/templates 取得）
+  Add: useState page=1；顯示 templates.slice((page-1)*6, page*6)
+  Add: <Pagination> 於 grid 下方
+  Layout: grid-cols-3（桌面）/ grid-cols-2（手機），6 格/頁
+
+TemplateSelectorStep（Resume Builder Step 4）
+  Change: 改呼叫 GET /api/templates?limit=100（取全部），傳給 TemplateSelector
+  loading state: 骨架格（6 個灰色卡片）
+
+AdminResumesTab (src/components/admin/AdminResumesTab.tsx)
+  Replace: 原有 [上一頁]/[下一頁] 按鈕 → <Pagination>
+
+AdminCoverLettersTab (src/components/admin/AdminCoverLettersTab.tsx)
+  Replace: 同上
+
+AdminUsageLogsTab (src/components/admin/AdminUsageLogsTab.tsx)
+  Replace: 同上
+```
+
+### i18n 新增 key
+
+```
+common.pagination.prev        = "上一頁" / "Previous"
+common.pagination.next        = "下一頁" / "Next"
+common.pagination.page        = "第 {n} 頁" / "Page {n}"
+common.pagination.of          = "共 {total} 頁" / "of {total}"
+```
+
+---
+
 ## Task Status
 
 ### Pending
 
+- [x] **[pagination] Frontend: `Pagination` 共用元件** ✅ 2026-04-25 — `src/components/shared/Pagination.tsx`；Smart Ellipsis 分頁列；totalPages<=1 return null；目前頁高亮；onPageChange 回呼
+- [x] **[pagination] Frontend: `ResumeList` 加分頁** ✅ 2026-04-25 — `src/components/resume/ResumeList.tsx`；6 per page；Edit Mode 下隱藏 Pagination、顯示全部；換頁重置 page=1
+- [x] **[pagination] Frontend: `CoverLetterList` 加分頁** ✅ 2026-04-25 — 同 ResumeList 規則；6 per page
+- [x] **[pagination] Frontend: `TemplateSelector` 改為動態模板 + 分頁** ✅ 2026-04-25 — `src/components/resume/TemplateSelector.tsx`；6/page；loading skeleton 6 格
+- [x] **[pagination] Frontend: Admin 三個 Tab 升級分頁 UI** ✅ 2026-04-25 — AdminResumesTab / AdminCoverLettersTab / AdminUsageLogsTab 原有 [上一頁]/[下一頁] 替換為 `<Pagination>` 元件
+- [x] **[pagination] Frontend: i18n — zh.json / en.json 加入 `common.pagination.*` 四個 key** ✅ 2026-04-25 — prev / next / page / of
 - [x] **[credits-consolidation] Frontend: 新增 `/settings/credits` 頁面** ✅ 2026-04-25
   `src/app/[locale]/settings/credits/page.tsx`；頁面只顯示點數餘額 section（Coins icon + 點數數字 + 說明文字）；從 `GET /api/user/me` 取 credits；樣式與 settings/page.tsx 的點數 section 一致
 - [x] **[credits-consolidation] Frontend: 移除 `settings/page.tsx` 的點數餘額 section** ✅ 2026-04-25
