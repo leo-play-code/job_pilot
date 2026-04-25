@@ -1,0 +1,168 @@
+'use client'
+
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
+import { signOut } from 'next-auth/react'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
+import { UserCircle, Settings, CreditCard, Coins, LayoutTemplate, Users, LogOut, ChevronDown, Sparkles } from 'lucide-react'
+import type { Session } from 'next-auth'
+
+interface Props {
+  session: Session
+  locale: string
+}
+
+export function UserAvatarDropdown({ session, locale }: Props) {
+  const router = useRouter()
+  const t = useTranslations('header')
+  const { user } = session
+
+  const isPro = user.plan === 'PRO'
+
+  const handleLogout = () => signOut({ callbackUrl: `/${locale}/login` })
+
+  return (
+    <DropdownMenu.Root>
+      <DropdownMenu.Trigger asChild>
+        <button
+          className="flex items-center gap-1 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          aria-label="使用者選單"
+        >
+          <div className="relative">
+            {user.image ? (
+              <Image
+                src={user.image}
+                alt={user.name ?? 'User avatar'}
+                width={32}
+                height={32}
+                className="rounded-full object-cover"
+              />
+            ) : (
+              <UserCircle className="h-8 w-8 text-muted-foreground" />
+            )}
+            {/* Pro badge on avatar */}
+            {isPro && (
+              <span className="absolute -bottom-1 -right-1 inline-flex items-center text-[9px] font-bold px-1 py-px rounded bg-amber-400 text-amber-900 leading-none border border-white">
+                Pro
+              </span>
+            )}
+          </div>
+          <ChevronDown className="h-3 w-3 text-muted-foreground" />
+        </button>
+      </DropdownMenu.Trigger>
+
+      <DropdownMenu.Portal>
+        <DropdownMenu.Content
+          align="end"
+          sideOffset={8}
+          className="z-50 min-w-[220px] rounded-lg border border-border bg-background shadow-lg py-1 animate-in fade-in-0 zoom-in-95"
+        >
+          {/* User info header */}
+          <div className="px-3 py-2 flex items-center gap-3">
+            {user.image ? (
+              <Image
+                src={user.image}
+                alt={user.name ?? 'avatar'}
+                width={36}
+                height={36}
+                className="rounded-full object-cover flex-shrink-0"
+              />
+            ) : (
+              <UserCircle className="h-9 w-9 text-muted-foreground flex-shrink-0" />
+            )}
+            <div className="min-w-0">
+              <p className="text-sm font-medium truncate">{user.name ?? '使用者'}</p>
+              <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+              <span className={`inline-block text-[10px] font-semibold px-1.5 py-0.5 rounded mt-0.5 ${
+                isPro
+                  ? 'bg-amber-100 text-amber-700 border border-amber-300'
+                  : 'bg-muted text-muted-foreground'
+              }`}>
+                {isPro ? 'Pro' : user.plan}
+              </span>
+            </div>
+          </div>
+
+          <DropdownMenu.Separator className="my-1 h-px bg-border" />
+
+          {/* Upgrade Pro item — only for FREE users */}
+          {!isPro && (
+            <>
+              <DropdownMenu.Item
+                onSelect={() => router.push(`/${locale}/pricing`)}
+                className="flex items-center gap-2.5 px-3 py-1.5 text-sm cursor-pointer select-none outline-none rounded-sm text-primary font-medium hover:bg-primary/5 focus:bg-primary/5"
+              >
+                <Sparkles className="h-4 w-4 text-amber-500" />
+                {t('upgradePro')}
+              </DropdownMenu.Item>
+              <DropdownMenu.Separator className="my-1 h-px bg-border" />
+            </>
+          )}
+
+          {/* Settings items */}
+          <DropdownMenu.Item
+            onSelect={() => router.push(`/${locale}/settings`)}
+            className="flex items-center gap-2.5 px-3 py-1.5 text-sm cursor-pointer select-none outline-none rounded-sm hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+          >
+            <Settings className="h-4 w-4" />
+            個人設定
+          </DropdownMenu.Item>
+
+          <DropdownMenu.Item
+            onSelect={() => router.push(`/${locale}/settings/billing`)}
+            className="flex items-center gap-2.5 px-3 py-1.5 text-sm cursor-pointer select-none outline-none rounded-sm hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+          >
+            <CreditCard className="h-4 w-4" />
+            帳單與訂閱
+          </DropdownMenu.Item>
+
+          <DropdownMenu.Item
+            onSelect={() => router.push(`/${locale}/settings`)}
+            className="flex items-center gap-2.5 px-3 py-1.5 text-sm cursor-pointer select-none outline-none rounded-sm hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+          >
+            <Coins className="h-4 w-4" />
+            點數餘額
+          </DropdownMenu.Item>
+
+          {/* Admin section */}
+          {user.isAdmin && (
+            <>
+              <DropdownMenu.Separator className="my-1 h-px bg-border" />
+
+              <DropdownMenu.Label className="px-3 py-1 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                管理後台
+              </DropdownMenu.Label>
+
+              <DropdownMenu.Item
+                onSelect={() => router.push(`/${locale}/admin/templates`)}
+                className="flex items-center gap-2.5 px-3 py-1.5 text-sm cursor-pointer select-none outline-none rounded-sm hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+              >
+                <LayoutTemplate className="h-4 w-4" />
+                模板管理
+              </DropdownMenu.Item>
+
+              <DropdownMenu.Item
+                onSelect={() => router.push(`/${locale}/admin/dashboard`)}
+                className="flex items-center gap-2.5 px-3 py-1.5 text-sm cursor-pointer select-none outline-none rounded-sm hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+              >
+                <Users className="h-4 w-4" />
+                使用者後台
+              </DropdownMenu.Item>
+            </>
+          )}
+
+          <DropdownMenu.Separator className="my-1 h-px bg-border" />
+
+          <DropdownMenu.Item
+            onSelect={handleLogout}
+            className="flex items-center gap-2.5 px-3 py-1.5 text-sm cursor-pointer select-none outline-none rounded-sm text-destructive hover:bg-destructive/10 focus:bg-destructive/10"
+          >
+            <LogOut className="h-4 w-4" />
+            登出
+          </DropdownMenu.Item>
+        </DropdownMenu.Content>
+      </DropdownMenu.Portal>
+    </DropdownMenu.Root>
+  )
+}

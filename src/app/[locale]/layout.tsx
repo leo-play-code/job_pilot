@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
 import { Providers } from '@/components/shared/Providers'
 import { Header } from '@/components/shared/Header'
+import { Footer } from '@/components/shared/Footer'
 
 interface LocaleLayoutProps {
   children: React.ReactNode
@@ -19,8 +20,11 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   return (
     <NextIntlClientProvider messages={messages}>
       <Providers>
-        <Header />
-        <main>{children}</main>
+        <div className="flex flex-col min-h-screen">
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </div>
       </Providers>
     </NextIntlClientProvider>
   )

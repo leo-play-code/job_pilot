@@ -17,12 +17,25 @@
       "Bash(node -e \"const {createId} = require\\('@paralleldrive/cuid2'\\); console.log\\(createId\\(\\)\\)\")",
       "Bash(node -e \"const cuid = require\\('cuid'\\); console.log\\(cuid\\(\\)\\)\")",
       "Bash(node -e \"console.log\\(require\\('crypto'\\).randomUUID\\(\\)\\)\")",
-      "PowerShell(Stop-Process -Force)"
+      "PowerShell(Stop-Process -Force)",
+      "Bash(xargs grep *)",
+      "Bash(DIRECT_URL=\"postgresql://postgres:1x1nm5RHIdhIW8bi@db.gftiptwdnqlwkarzyhqd.supabase.co:5432/postgres\" DATABASE_URL=\"postgresql://postgres:1x1nm5RHIdhIW8bi@db.gftiptwdnqlwkarzyhqd.supabase.co:5432/postgres\" npx prisma migrate dev --name add-credits)",
+      "PowerShell(cd \"c:\\\\Users\\\\User\\\\Desktop\\\\github\\\\AI_startup\\\\job_pilot\"; $env:DATABASE_URL = \\(Select-String -Path .env.local -Pattern \"^DATABASE_URL=\\(.+\\)$\"\\).Matches.Groups[1].Value; $env:DIRECT_URL = \\(Select-String -Path .env.local -Pattern \"^DIRECT_URL=\\(.+\\)$\"\\).Matches.Groups[1].Value; npx prisma generate 2>&1)",
+      "Bash(node -e \"const Stripe = require\\('stripe'\\); const s = new Stripe\\('test', {}\\); console.log\\(JSON.stringify\\(Object.keys\\(Stripe.prototype || {}\\)\\).slice\\(0,200\\)\\)\")",
+      "Bash(node -e \"const Stripe = require\\('stripe'\\); const s = new Stripe\\('test', {apiVersion: '2026-04-22.dahlia'}\\); console.log\\('ok'\\)\")",
+      "Bash(node -e ' *)",
+      "Bash(mkdir -p \"c:/Users/User/Desktop/github/AI_startup/job_pilot/src/app/[locale]/pricing\")",
+      "Bash(mkdir -p \"c:/Users/User/Desktop/github/AI_startup/job_pilot/src/app/[locale]/settings/billing\")",
+      "Bash(mkdir -p \"c:\\\\Users\\\\User\\\\Desktop\\\\github\\\\AI_startup\\\\job_pilot\\\\src\\\\app\\\\[locale]\\\\terms\")",
+      "Bash(mkdir -p \"c:\\\\Users\\\\User\\\\Desktop\\\\github\\\\AI_startup\\\\job_pilot\\\\src\\\\app\\\\[locale]\\\\privacy\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\User\\Desktop\\github\\AI_startup\\job_pilot\\src\\app\\[locale]\\admin\\templates",
       "C:\\Users\\User\\Desktop\\github\\AI_startup\\job_pilot\\src\\app\\[locale]\\admin\\templates",
-      "c:\\Users\\User\\Desktop\\github\\AI_startup\\job_pilot\\src\\app\\api\\resume\\[id]"
+      "c:\\Users\\User\\Desktop\\github\\AI_startup\\job_pilot\\src\\app\\api\\resume\\[id]",
+      "c:\\Users\\User\\Desktop\\github\\AI_startup\\job_pilot\\src\\app\\api\\admin\\users",
+      "c:\\Users\\User\\Desktop\\github\\AI_startup\\job_pilot\\src\\app\\[locale]\\admin",
+      "c:\\Users\\User\\Desktop\\github\\AI_startup\\job_pilot\\src\\app\\[locale]"
     ]
   }
 }

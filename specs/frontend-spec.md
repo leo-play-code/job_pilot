@@ -13,6 +13,8 @@
 | Resume Preview | `/[locale]/resume/[id]` | 預覽、編輯、下載 PDF |
 | Cover Letter Builder | `/[locale]/cover-letter/new` | 3 步驟生成自薦信 |
 | Cover Letter Result | `/[locale]/cover-letter/[id]` | 查看、複製、下載自薦信 |
+| Pricing | `/[locale]/pricing` | 方案比較頁（Free vs Pro），含訂閱 CTA |
+| Settings / Billing | `/[locale]/settings/billing` | 訂閱狀態、管理帳單（Portal）、成功/取消提示 |
 
 ## 每頁主要元件
 
@@ -325,12 +327,137 @@ resume.rawImport.downloadOriginal = "下載原始 PDF" / "Download Original PDF"
 
 ---
 
+---
+
+## Stripe 訂閱前端規格
+
+### 新頁面：`/[locale]/pricing`
+
+**版面**：兩欄方案卡片（Free vs Pro）
+
+| 區塊 | Free | Pro |
+|---|---|---|
+| 價格 | $0 / 月 | $19.99 / 月 |
+| 每日 AI 次數 | 10 次 | 無限 |
+| 模板選擇 | 全部 | 全部 |
+| 下載 PDF | ✓ | ✓ |
+| 優先支援 | — | ✓ |
+| CTA 按鈕 | 「繼續免費使用」（disabled if logged in） | 「立即訂閱」→ POST checkout |
+
+**CTA 行為**：
+- 未登入 → redirect `/[locale]/login?redirect=/pricing`
+- 已登入 Free → POST `/api/stripe/create-checkout-session` → `router.push(checkoutUrl)`（full page redirect，因為是 Stripe hosted page）
+- 已登入 Pro → 顯示「已訂閱」badge，CTA 改為「管理訂閱」→ POST `/api/stripe/create-portal-session` → redirect portalUrl
+
+**元件**：
+```
+PricingPage at /[locale]/pricing
+  PlanCard × 2 (Free, Pro)
+  States: loading（spinner on CTA button）/ error（toast）
+
+PlanCard (client component)
+  Props: plan, price, features[], isCurrentPlan, onSubscribe
+  Highlighted (ring-2 ring-primary) when plan === 'PRO'
+```
+
+---
+
+### 新頁面：`/[locale]/settings/billing`
+
+**版面**：
+- 顯示目前方案（Free / Pro）
+- Pro 用戶：顯示「訂閱到期日：{date}」+ 「管理訂閱」按鈕 → portal
+- Free 用戶：顯示「升級 Pro — $19.99/月」按鈕 → checkout
+- URL 帶 `?success=true` 時：顯示綠色 Banner「訂閱成功！歡迎使用 Pro！」
+- URL 帶 `?canceled=true` 時：顯示黃色 Banner「訂閱已取消，隨時可重新訂閱」
+
+**元件**：
+```
+BillingPage at /[locale]/settings/billing (client component)
+  API calls: GET /api/user/subscription
+  States: loading / error / free / pro
+  Sub-components:
+    SubscriptionStatusCard  — 顯示 plan + period end
+    BillingActionButton     — 依 plan 顯示 checkout 或 portal 按鈕
+    SuccessBanner / CanceledBanner — query param 觸發
+```
+
+---
+
+### 修改元件
+
+```
+UpgradeModal (src/components/shared/UpgradeModal.tsx)
+  現有：API 回 429 時觸發
+  修改：「升級 Pro」按鈕改為呼叫 POST /api/stripe/create-checkout-session
+       → redirect Stripe Checkout（取代原本的 alert/placeholder）
+  States: idle / loading（spinner）/ error（toast）
+
+UsageBadge (src/components/shared/UsageBadge.tsx)
+  現有：顯示今日剩餘次數
+  修改：若 plan=PRO 顯示金色「Pro ∞」badge，隱藏次數計數
+
+Header (src/components/shared/Header.tsx)
+  修改：已登入 Pro 用戶顯示「Pro」小 badge 於 avatar 旁
+       已登入 Free 用戶在 user menu 加入「升級 Pro ✨」連結 → /pricing
+```
+
+---
+
+### i18n 新增 key（Stripe / Billing）
+
+```
+pricing.title              = "選擇方案" / "Choose Your Plan"
+pricing.free.name          = "免費版" / "Free"
+pricing.free.price         = "$0 / 月" / "$0 / month"
+pricing.free.cta           = "繼續免費使用" / "Continue for Free"
+pricing.pro.name           = "Pro"
+pricing.pro.price          = "$19.99 / 月" / "$19.99 / month"
+pricing.pro.cta            = "立即訂閱" / "Subscribe Now"
+pricing.pro.currentPlan    = "目前方案" / "Current Plan"
+pricing.pro.manage         = "管理訂閱" / "Manage Subscription"
+pricing.features.unlimited = "無限 AI 使用次數" / "Unlimited AI usage"
+pricing.features.limit10   = "每日 10 次 AI 使用" / "10 AI uses per day"
+pricing.features.templates = "全部模板" / "All templates"
+pricing.features.pdf       = "PDF 下載" / "PDF download"
+pricing.features.priority  = "優先客戶支援" / "Priority support"
+
+billing.title              = "訂閱管理" / "Billing"
+billing.currentPlan        = "目前方案" / "Current Plan"
+billing.planFree           = "免費版" / "Free"
+billing.planPro            = "Pro 專業版" / "Pro"
+billing.periodEnd          = "下次續費 / 到期日" / "Next billing / Expiry"
+billing.subscribeCta       = "升級 Pro — $19.99/月" / "Upgrade to Pro — $19.99/month"
+billing.portalCta          = "管理訂閱" / "Manage Subscription"
+billing.successBanner      = "訂閱成功！歡迎使用 Pro！" / "Subscription successful! Welcome to Pro!"
+billing.canceledBanner     = "訂閱已取消，隨時可重新訂閱。" / "Subscription canceled. You can resubscribe anytime."
+
+upgrade.title              = "升級到 Pro" / "Upgrade to Pro"
+upgrade.description        = "您已達到今日 AI 使用上限。升級 Pro 享無限使用！" / "You've reached your daily AI limit. Upgrade to Pro for unlimited usage!"
+upgrade.cta                = "立即訂閱 $19.99/月" / "Subscribe for $19.99/month"
+
+header.upgradePro          = "升級 Pro ✨" / "Upgrade to Pro ✨"
+```
+
 ## Task Status
 
 ### Pending
 
+_(no pending tasks)_
 
 ### Done
+- [x] **[stripe-subscription] Frontend: `/[locale]/pricing` 頁面** ✅ 2026-04-25
+  `src/app/[locale]/pricing/page.tsx` — 兩欄 Free vs Pro 方案卡片；CTA 依 auth 狀態呈現（未登入 → /login、Free → checkout API → Stripe redirect、Pro → portal API）；loading skeleton；ring-2 ring-primary highlight on Pro card
+- [x] **[stripe-subscription] Frontend: `/[locale]/settings/billing` 頁面** ✅ 2026-04-25
+  `src/app/[locale]/settings/billing/page.tsx` — 訂閱狀態卡片（plan + periodEnd）；Free → checkout、Pro → portal；`?success=true` 綠色 banner、`?canceled=true` 黃色 banner；Suspense boundary for useSearchParams
+- [x] **[stripe-subscription] Frontend: 修改 `UpgradeModal`** ✅ 2026-04-25
+  `src/components/shared/UpgradeModal.tsx` — 升級按鈕改呼叫 POST /api/stripe/create-checkout-session → window.location.href；loading spinner + disabled；error inline 提示；使用 upgrade.* i18n keys
+- [x] **[stripe-subscription] Frontend: 修改 `UsageBadge`** ✅ 2026-04-25
+  `src/components/shared/UsageBadge.tsx` — unlimited:true 時顯示金色「Pro ∞」badge（amber）；否則維持現有剩餘次數顯示
+- [x] **[stripe-subscription] Frontend: 修改 `Header`（UserAvatarDropdown）** ✅ 2026-04-25
+  `src/components/shared/UserAvatarDropdown.tsx` — Free 用戶 dropdown 加「升級 Pro ✨」選項（router.push /pricing）；Pro 用戶 avatar 右下角顯示小 amber「Pro」badge；帳單連結修正為 /settings/billing；使用 header.upgradePro i18n key
+- [x] **[stripe-subscription] Frontend: i18n — zh.json / en.json 新增 pricing / billing / upgrade / header key** ✅ 2026-04-25
+  `src/messages/zh.json` + `src/messages/en.json` — 新增 pricing.*（14 keys）、billing.*（8 keys）、upgrade.*（3 keys）、header.upgradePro
 - [x] **[raw-import] Frontend: 修改 `/resume/upload` 加入雙選項 tab（AI 解析 / 直接匯入）** ✅ 2026-04-24
   `src/app/[locale]/resume/upload/page.tsx` + `src/components/resume/UploadTabsClient.tsx` — 雙 tab UI（AI 解析優化 / 直接匯入），預設 AI tab，切換後顯示對應表單
 - [x] **[raw-import] Frontend: `RawImportForm` 元件** ✅ 2026-04-24

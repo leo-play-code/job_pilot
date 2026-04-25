@@ -8,6 +8,13 @@ function todayString(): string {
 }
 
 export async function checkDailyLimit(userId: string): Promise<void> {
+  // PRO users are not subject to daily limits
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { plan: true },
+  })
+  if (user?.plan === 'PRO') return
+
   const used = await prisma.usageLog.count({
     where: { userId, date: todayString() },
   })

@@ -101,5 +101,143 @@
     "error": "Something went wrong. Please try again.",
     "upgradeTitle": "Daily Limit Reached",
     "upgradeDesc": "Free plan includes 3 AI operations per day. Upgrade to PRO for unlimited use."
+  },
+  "pricing": {
+    "title": "Choose Your Plan",
+    "free": {
+      "name": "Free",
+      "price": "$0 / month",
+      "cta": "Continue for Free",
+      "currentPlan": "Current Plan"
+    },
+    "pro": {
+      "name": "Pro",
+      "price": "$19.99 / month",
+      "cta": "Subscribe Now",
+      "currentPlan": "Current Plan",
+      "manage": "Manage Subscription"
+    },
+    "features": {
+      "unlimited": "Unlimited AI usage",
+      "limit10": "10 AI uses per day",
+      "templates": "All templates",
+      "pdf": "PDF download",
+      "priority": "Priority support"
+    }
+  },
+  "billing": {
+    "title": "Billing",
+    "currentPlan": "Current Plan",
+    "planFree": "Free",
+    "planPro": "Pro",
+    "periodEnd": "Next billing / Expiry",
+    "subscribeCta": "Upgrade to Pro — $19.99/month",
+    "portalCta": "Manage Subscription",
+    "successBanner": "Subscription successful! Welcome to Pro!",
+    "canceledBanner": "Subscription canceled. You can resubscribe anytime."
+  },
+  "upgrade": {
+    "title": "Upgrade to Pro",
+    "description": "You've reached your daily AI limit. Upgrade to Pro for unlimited usage!",
+    "cta": "Subscribe for $19.99/month"
+  },
+  "header": {
+    "upgradePro": "Upgrade to Pro ✨"
+  },
+  "footer": {
+    "rights": "All rights reserved.",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "contact": "Contact Us"
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "lastUpdated": "Last updated",
+    "acceptance": {
+      "title": "1. Acceptance of Terms",
+      "body": "By using JobPilot, you agree to these Terms of Service. If you do not agree, please discontinue use of the service."
+    },
+    "service": {
+      "title": "2. Service Description",
+      "body": "JobPilot is an AI-powered resume and cover letter generation tool. We offer a Free plan (10 AI operations per day) and a Pro subscription plan (unlimited usage at $19.99 USD/month)."
+    },
+    "payment": {
+      "title": "3. Subscription & Payment",
+      "item1": "The Pro plan is billed at $19.99 USD per month, processed securely via Stripe.",
+      "item2": "Subscriptions automatically renew each billing cycle unless canceled before the renewal date.",
+      "item3": "You may cancel at any time through the Billing page. Cancellation takes effect at the end of the current billing period.",
+      "item4": "Prices may change with 30 days' advance notice sent to your registered email."
+    },
+    "refund": {
+      "title": "4. Refund Policy",
+      "body": "We offer a 7-day money-back guarantee. If you are unsatisfied within 7 days of subscribing, contact support@jobpilot.app for a full refund. Requests after 7 days will not be honored."
+    },
+    "obligations": {
+      "title": "5. User Obligations",
+      "body": "You agree not to use the service for illegal purposes, attempt to reverse-engineer the system, share your account with others, or engage in any activity that disrupts the service. You are responsible for all activity under your account."
+    },
+    "ip": {
+      "title": "6. Intellectual Property",
+      "body": "Resumes and cover letters generated using the service are owned by you. JobPilot retains ownership of the platform, design, codebase, and branding."
+    },
+    "disclaimer": {
+      "title": "7. Disclaimer",
+      "body": "The service is provided \"as is\" without warranties of any kind. AI-generated content may not be fully accurate or suitable for every position. JobPilot is not liable for any direct or indirect losses arising from use of the service. Job search outcomes depend on many factors outside our control."
+    },
+    "changes": {
+      "title": "8. Changes to Terms",
+      "body": "We reserve the right to modify these terms at any time. Significant changes will be communicated via email. Continued use of the service constitutes acceptance of the updated terms."
+    },
+    "contact": {
+      "title": "9. Contact Us",
+      "body": "For any questions regarding these terms, please reach us at:"
+    }
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated",
+    "overview": {
+      "title": "1. Overview",
+      "body": "JobPilot takes your privacy seriously. This policy explains how we collect, use, and protect your personal data. By using the service, you consent to this policy."
+    },
+    "collected": {
+      "title": "2. Data We Collect",
+      "item1": "Account information: name and email address (Email or Google login)",
+      "item2": "Resume content: personal details, work history, education, and skills you enter or upload",
+      "item3": "Usage logs: AI operation count, login times, and feature usage",
+      "item4": "Payment information: processed by Stripe — we do not store full card numbers or bank details"
+    },
+    "usage": {
+      "title": "3. How We Use Your Data",
+      "item1": "To provide and improve JobPilot services, including AI resume generation",
+      "item2": "To process subscription payments and manage your account",
+      "item3": "To send service-related notifications (billing, important updates)"
+    },
+    "stripe": {
+      "title": "4. Payment Data (Stripe)",
+      "body": "All payments are processed by Stripe. JobPilot does not directly store your credit card information. Stripe is PCI DSS Level 1 compliant. We only store Stripe-provided customer IDs and subscription IDs to manage your account status. For more details, see Stripe's privacy policy at stripe.com/privacy."
+    },
+    "thirdparty": {
+      "title": "5. Third-Party Services",
+      "item1": "Stripe: payment processing (stripe.com/privacy)",
+      "item2": "Google OAuth: authentication (optional)",
+      "item3": "AWS S3: PDF and image file storage"
+    },
+    "retention": {
+      "title": "6. Data Retention",
+      "body": "Your account data is retained for the duration of your account. You may delete resumes and cover letters at any time. To delete your account and all associated data, contact support@jobpilot.app — we will process your request within 30 days."
+    },
+    "rights": {
+      "title": "7. Your Rights",
+      "body": "You have the right to access, correct, or delete your personal data. To exercise these rights, please contact support@jobpilot.app."
+    },
+    "cookies": {
+      "title": "8. Cookies",
+      "body": "We use essential session cookies to maintain your login state. We do not use third-party tracking cookies or advertising cookies."
+    },
+    "contact": {
+      "title": "9. Contact Us",
+      "body": "For privacy-related questions, please reach us at:"
+    }
   }
 }

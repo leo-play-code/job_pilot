@@ -3,9 +3,15 @@
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 
+interface UsageData {
+  used: number
+  limit?: number
+  unlimited?: boolean
+}
+
 export function UsageBadge() {
   const t = useTranslations('dashboard')
-  const [usage, setUsage] = useState<{ used: number; limit: number } | null>(null)
+  const [usage, setUsage] = useState<UsageData | null>(null)
 
   useEffect(() => {
     fetch('/api/usage/today')
@@ -16,11 +22,21 @@ export function UsageBadge() {
 
   if (!usage) return null
 
-  const remaining = usage.limit - usage.used
+  // PRO: unlimited = true → show gold "Pro ∞" badge
+  if (usage.unlimited) {
+    return (
+      <span className="inline-flex items-center text-sm font-semibold px-2 py-0.5 rounded bg-amber-100 text-amber-700 border border-amber-300">
+        Pro ∞
+      </span>
+    )
+  }
+
+  const limit = usage.limit ?? 0
+  const remaining = limit - usage.used
 
   return (
     <span className="text-sm text-muted-foreground">
-      {t('usageRemaining', { remaining, limit: usage.limit })}
+      {t('usageRemaining', { remaining, limit })}
     </span>
   )
 }

@@ -37,6 +37,10 @@
 | POST | /api/admin/templates/import | admin | **上傳 PNG/PDF → AI 分析 → 建立 draft 模板** |
 | POST | /api/resume/import-raw | required | 上傳 PDF → 不做 AI → 存 S3 + rawText → 建立 Resume |
 | GET | /api/resume/:id/raw-pdf | required | 取得原始 PDF S3 下載連結 |
+| POST | /api/stripe/create-checkout-session | required | 建立 Stripe Checkout Session → 回傳 checkoutUrl |
+| POST | /api/stripe/create-portal-session | required | 建立 Stripe Customer Portal Session → 回傳 portalUrl |
+| POST | /api/stripe/webhook | public (Stripe signature) | 接收 Stripe webhook 事件，更新 user plan |
+| GET | /api/user/subscription | required | 取得當前訂閱狀態（plan, currentPeriodEnd）|
 
 ## 關鍵 Request / Response
 
@@ -109,14 +113,79 @@ PATCH /api/admin/templates/:id
   status='active' 時同步設 isActive=true（向後兼容）
 ```
 
+## Stripe Endpoints 詳細規格
+
+```
+POST /api/stripe/create-checkout-session
+  Auth: required
+  Body: (none)
+  200: { data: { checkoutUrl: string } }
+  Business logic:
+  1. 驗證 session
+  2. 若 user.stripeCustomerId 為空 → stripe.customers.create({ email, name }) → 更新 DB
+  3. stripe.checkout.sessions.create({
+       customer: stripeCustomerId,
+       line_items: [{ price: STRIPE_PRICE_ID_MONTHLY, quantity: 1 }],
+       mode: 'subscription',
+       success_url: `${NEXT_PUBLIC_APP_URL}/[locale]/settings/billing?success=true`,
+       cancel_url: `${NEXT_PUBLIC_APP_URL}/[locale]/settings/billing?canceled=true`,
+     })
+  4. 回傳 checkoutUrl
+
+POST /api/stripe/create-portal-session
+  Auth: required
+  Body: (none)
+  200: { data: { portalUrl: string } }
+  Business logic:
+  1. 驗證 session
+  2. 確認 user.stripeCustomerId 存在（否則 400）
+  3. stripe.billingPortal.sessions.create({
+       customer: stripeCustomerId,
+       return_url: `${NEXT_PUBLIC_APP_URL}/[locale]/settings/billing`,
+     })
+  4. 回傳 portalUrl
+
+POST /api/stripe/webhook
+  Auth: 無（用 stripe.webhooks.constructEvent 驗簽名）
+  Headers: stripe-signature
+  Body: raw string（必須 rawBody，不能 JSON.parse）
+  200: { received: true }
+  Events 處理：
+  - checkout.session.completed
+      → findUser by customer ID
+      → 從 session 取 subscription ID
+      → 取 subscription 的 current_period_end
+      → 更新 User: plan=PRO, stripeSubscriptionId, stripePriceId, stripeCurrentPeriodEnd
+  - customer.subscription.updated
+      → 更新 stripeCurrentPeriodEnd、stripePriceId
+      → 若 status='active' 確保 plan=PRO
+  - customer.subscription.deleted
+      → 更新 User: plan=FREE, stripeSubscriptionId=null, stripeCurrentPeriodEnd=null
+  - invoice.payment_failed
+      → （目前 log 即可，不降級）
+
+GET /api/user/subscription
+  Auth: required
+  200: { data: { plan: 'FREE'|'PRO', currentPeriodEnd: string|null, hasActiveSubscription: boolean } }
+  Business logic: findUnique user by session → 回傳 plan + stripeCurrentPeriodEnd
+```
+
 ## Task Status
 
 ### Pending
+
+(all tasks done)
 
 ### Done
 
 | Task | 說明 | 完成日期 |
 |---|---|---|
+| [x] [stripe-subscription] Backend: `POST /api/stripe/create-checkout-session` | 建立/取得 Stripe Customer → 建立 Checkout Session → 回傳 checkoutUrl | 2026-04-25 |
+| [x] [stripe-subscription] Backend: `POST /api/stripe/create-portal-session` | Stripe Customer Portal → 回傳 portalUrl | 2026-04-25 |
+| [x] [stripe-subscription] Backend: `POST /api/stripe/webhook` | raw body 驗簽 → 處理 checkout.session.completed / subscription.updated / subscription.deleted | 2026-04-25 |
+| [x] [stripe-subscription] Backend: `GET /api/user/subscription` | 回傳 plan + currentPeriodEnd + hasActiveSubscription | 2026-04-25 |
+| [x] [stripe-subscription] Backend: 修改 `GET /api/usage/today` | PRO 用戶回傳 `{ used: 0, limit: null, unlimited: true }` | 2026-04-25 |
+| [x] [stripe-subscription] Backend: 修改 `checkDailyLimit()` | PRO 用戶直接放行，不計算次數 | 2026-04-25 |
 | [x] [raw-import] Backend: `POST /api/resume/import-raw` | 上傳 PDF → pdf-parse 提取 rawText → S3 上傳（fallback 空字串）→ 建立 Resume，不寫 UsageLog | 2026-04-24 |
 | [x] [raw-import] Backend: `GET /api/resume/:id/raw-pdf` | 驗證擁有者 → rawPdfUrl 為空回 404 → 回傳 S3 URL | 2026-04-24 |
 | [x] [raw-import] Backend: 修改 `POST /api/cover-letter/generate` | content.rawText 存在時以 rawText 作為 resume context，否則使用結構化 content | 2026-04-24 |

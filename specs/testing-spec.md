@@ -24,16 +24,26 @@
 
 ### Pending
 
+- [x] [stripe-subscription] Unit — `checkDailyLimit()` PRO bypass：plan=PRO 時直接回傳 `{ allowed: true }`，不查 UsageLog（completed: 2026-04-25）
+- [x] [stripe-subscription] Integration — `POST /api/stripe/webhook` checkout.session.completed：mock Stripe `constructEvent`，payload 含 customer + subscription → 驗 DB user.plan=PRO、stripeSubscriptionId 已寫入（completed: 2026-04-25）
+- [x] [stripe-subscription] Integration — `POST /api/stripe/webhook` customer.subscription.deleted：驗 DB user.plan=FREE、stripeSubscriptionId=null（completed: 2026-04-25）
+- [x] [stripe-subscription] Integration — `GET /api/user/subscription`：Free 用戶回 `{ plan:'FREE', hasActiveSubscription:false }`；Pro 用戶回 `{ plan:'PRO', hasActiveSubscription:true, currentPeriodEnd: <ISO string> }`（completed: 2026-04-25）
+- [x] [stripe-subscription] Integration — `POST /api/stripe/create-checkout-session`：未登入 → 401；已登入 → 呼叫 Stripe mock → 回傳 checkoutUrl（completed: 2026-04-25）
+
 - [ ] [Regression] 原始 PDF 履歷排版保留 — 確認 raw import 上傳 PDF 後，詳細頁顯示的是嵌入 PDF iframe（`RawPdfView`）而非純文字 `RawTextView`；`rawPdfUrl` 非空時 `ResumeEditorClient` 必須優先渲染 `RawPdfView`
 
 - [ ] [Regression] Prisma client rawPdfUrl 欄位缺失 — 確認 `prisma.resume.findMany()` 的 `select` 包含 `rawPdfUrl: true` 時不拋出 `PrismaClientValidationError`；新增欄位後必須執行 `npx prisma generate` 才能讓 client types 同步
+
+- [ ] [Regression] credits 欄位 Prisma runtime 同步 — 確認 `GET /api/user/me` 在 `prisma.user.findUnique()` select `credits: true` 時不拋出 `PrismaClientValidationError`；觸發條件：`prisma db push` 時 dev server 持有 DLL 鎖導致 module cache 未更新，重啟 dev server 後必須恢復正常
+
+- [ ] [Regression] settings 頁 API 錯誤處理 — 確認 `GET /api/user/me` 回傳非 200 時，settings 頁不拋出 `Unexpected end of JSON input`；`fetch` 必須在 `.json()` 前先檢查 `r.ok`
 
 - [ ] **[raw-import] E2E — 完整匯入流程（pending，不實作）**
   登入 → /resume/upload → 切 "直接匯入" tab → 上傳 PDF → 填標題 → 儲存
   → dashboard 出現「原始」badge → 進詳細頁看到「下載原始 PDF」按鈕
   → 點擊成功下載
 
-- [ ] [resume-preview] Integration — `GET /api/resume/:id/preview-html`
+- [x] [resume-preview] Integration — `GET /api/resume/:id/preview-html` ✅ 2026-04-25
   已登入 user，DB 有 1 筆 Resume（built-in modern 模板），呼叫 endpoint，驗證：
   - 回傳 200 `{ data: { html: string } }`
   - html 包含 resume 的 personalInfo.name
@@ -58,11 +68,11 @@
 - [ ] [Regression] 模板匯入精靈即時預覽 — Step 2 預覽應使用 `<iframe srcdoc>` 注入 AI 生成 CSS，不得使用 `ResumeRenderer`（Tailwind template）；上傳相同圖片後左右欄的配色和版型應明顯相似
 - [ ] [Regression] 模板匯入精靈主色 picker — 拖動 color picker 後 `<iframe>` 預覽中的 sidebar/header 顏色應即時更新；只有原 primaryColor 被替換，其他 hex（文字色、邊框色）不受影響
 
-- [ ] **[template-import] Unit — `src/lib/template-vision.ts` analyzeTemplateImage()**
-  Mock Anthropic client，傳入 PNG Buffer，驗證：
-  - 呼叫 `messages.create` 一次，model 包含 vision 能力
-  - content 中有 `image` type block（base64 encoded）
-  - 正確 parse JSON 回傳 `{ layout, primaryColor, css, sectionOrder }`
+- [x] **[template-import] Unit — `src/lib/template-vision.ts` analyzeTemplateImage()** ✅ 2026-04-25
+  Mock OpenAI client（實際使用 OpenAI gpt-4o），傳入 PNG Buffer，驗證：
+  - 呼叫 `chat.completions.create` 一次，model 包含 gpt-4o
+  - content 中有 `image_url` type block（base64 encoded）
+  - 正確 parse JSON 回傳 `{ layout, primaryColor, css, detectedSections }`
   - Vision API 失敗時 throw `TemplateVisionError`
 
 - [ ] **[template-import] Unit — PDF 轉 PNG 工具**
@@ -70,7 +80,7 @@
   - 回傳 Buffer（PNG 格式）
   - 尺寸為 794×1123（A4 比例）
 
-- [ ] **[template-import] Integration — POST /api/admin/templates/import（PNG 上傳）**
+- [x] **[template-import] Integration — POST /api/admin/templates/import（PNG 上傳）** ✅ 2026-04-25
   Mock `analyzeTemplateImage`，以 multipart 上傳 PNG，驗證：
   - 非 admin 回傳 403
   - 合法 PNG → 200，回傳 `{ templateId, analysis, htmlDefinition }`
@@ -82,7 +92,7 @@
   - PDF 正確觸發 Puppeteer 截圖流程
   - 最終回傳與 PNG 流程相同結果
 
-- [ ] **[template-import] Integration — PATCH /api/admin/templates/:id（status 發佈）**
+- [x] **[template-import] Integration — PATCH /api/admin/templates/:id（status 發佈）** ✅ 2026-04-25
   draft Template 存在，PATCH `{ status: 'active' }`，驗證：
   - DB 中 status='active', isActive=true
   - 回傳 200 `{ data: updatedTemplate }`
@@ -102,25 +112,25 @@
 
 - [ ] [Regression] PDF 上傳 AI quota 耗盡 — 確認上傳 PDF 時 AI 呼叫失敗（503 ai_unavailable）不再回傳 500；前端應顯示可讀錯誤訊息而非空白失敗
 
-- [ ] **[refactor/openai] Unit — `src/lib/ai.ts` enhanceResume()**
+- [x] **[refactor/openai] Unit — `src/lib/ai.ts` enhanceResume()** ✅ 2026-04-25
   Mock OpenAI client，呼叫 `enhanceResume('raw text', 'zh')`，驗證：
   - 呼叫 `chat.completions.create` 一次
   - system message 包含 ResumeContent schema 說明
   - 正確 parse JSON response → 回傳 ResumeContent
 
-- [ ] **[refactor/openai] Unit — `src/lib/ai.ts` generateCoverLetter()**
+- [x] **[refactor/openai] Unit — `src/lib/ai.ts` generateCoverLetter()** ✅ 2026-04-25
   Mock OpenAI client，驗證：
   - 呼叫 `chat.completions.create` 一次
   - user message 包含 jobTitle、jobDesc、resumeText
   - 回傳純字串（非 JSON）
 
-- [ ] **[refactor/openai] Integration — POST /api/resume/generate**
+- [x] **[refactor/openai] Integration — POST /api/resume/generate** ✅ 2026-04-25
   Mock `src/lib/ai.ts` 的 `enhanceResume`，發送合法 body，驗證：
   - 回傳 200 `{ data: { resumeId, content } }`
   - resume 已寫入 DB
   - usage log 已新增一筆 GENERATE_RESUME
 
-- [ ] **[refactor/openai] Integration — POST /api/cover-letter/generate**
+- [x] **[refactor/openai] Integration — POST /api/cover-letter/generate** ✅ 2026-04-25
   Mock `generateCoverLetter`，驗證：
   - 回傳 200 `{ data: { coverLetterId, content } }`
   - 429 when daily limit exceeded

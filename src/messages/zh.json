@@ -102,5 +102,143 @@
     "error": "發生錯誤，請稍後再試",
     "upgradeTitle": "已達今日上限",
     "upgradeDesc": "免費方案每日 3 次 AI 操作，升級 PRO 以無限使用"
+  },
+  "pricing": {
+    "title": "選擇方案",
+    "free": {
+      "name": "免費版",
+      "price": "$0 / 月",
+      "cta": "繼續免費使用",
+      "currentPlan": "目前方案"
+    },
+    "pro": {
+      "name": "Pro",
+      "price": "$19.99 / 月",
+      "cta": "立即訂閱",
+      "currentPlan": "目前方案",
+      "manage": "管理訂閱"
+    },
+    "features": {
+      "unlimited": "無限 AI 使用次數",
+      "limit10": "每日 10 次 AI 使用",
+      "templates": "全部模板",
+      "pdf": "PDF 下載",
+      "priority": "優先客戶支援"
+    }
+  },
+  "billing": {
+    "title": "訂閱管理",
+    "currentPlan": "目前方案",
+    "planFree": "免費版",
+    "planPro": "Pro 專業版",
+    "periodEnd": "下次續費 / 到期日",
+    "subscribeCta": "升級 Pro — $19.99/月",
+    "portalCta": "管理訂閱",
+    "successBanner": "訂閱成功！歡迎使用 Pro！",
+    "canceledBanner": "訂閱已取消，隨時可重新訂閱。"
+  },
+  "upgrade": {
+    "title": "升級到 Pro",
+    "description": "您已達到今日 AI 使用上限。升級 Pro 享無限使用！",
+    "cta": "立即訂閱 $19.99/月"
+  },
+  "header": {
+    "upgradePro": "升級 Pro ✨"
+  },
+  "footer": {
+    "rights": "保留所有權利。",
+    "terms": "服務條款",
+    "privacy": "隱私政策",
+    "contact": "聯絡我們"
+  },
+  "terms": {
+    "title": "服務條款",
+    "lastUpdated": "最後更新",
+    "acceptance": {
+      "title": "1. 接受條款",
+      "body": "使用 JobPilot 服務即表示您同意本服務條款。若您不同意，請停止使用本服務。"
+    },
+    "service": {
+      "title": "2. 服務說明",
+      "body": "JobPilot 是一款 AI 驅動的履歷與自薦信生成工具。我們提供免費方案（每日 10 次 AI 操作）及 Pro 訂閱方案（無限使用，$19.99 美元/月）。"
+    },
+    "payment": {
+      "title": "3. 訂閱與付款",
+      "item1": "Pro 方案費用為每月 $19.99 美元，透過 Stripe 安全處理付款。",
+      "item2": "訂閱將於每個計費週期自動續費，除非您在到期前取消。",
+      "item3": "您可以隨時透過「帳單管理」頁面取消訂閱，取消後訂閱將在當前計費週期結束時失效。",
+      "item4": "價格可能隨時調整，我們將提前 30 天以電子郵件通知您。"
+    },
+    "refund": {
+      "title": "4. 退款政策",
+      "body": "我們提供 7 天退款保證。若您在訂閱後 7 天內對服務不滿意，請聯絡 support@jobpilot.app 申請全額退款。逾期恕不受理。"
+    },
+    "obligations": {
+      "title": "5. 用戶義務",
+      "body": "您同意不將本服務用於非法用途、不嘗試破解或逆向工程系統、不分享帳號給他人使用，以及對您帳號下的所有活動負責。"
+    },
+    "ip": {
+      "title": "6. 智慧財產權",
+      "body": "您使用本服務產生的履歷及自薦信內容版權歸屬於您。JobPilot 的平台、設計、程式碼及品牌等版權歸屬於 JobPilot。"
+    },
+    "disclaimer": {
+      "title": "7. 免責聲明",
+      "body": "本服務以「現狀」提供，不保證 AI 生成內容完全準確或適合特定職缺。我們不對因使用本服務直接或間接產生的損失負責。求職結果受多種因素影響，非本服務所能控制。"
+    },
+    "changes": {
+      "title": "8. 條款變更",
+      "body": "我們保留隨時修改本條款的權利。重大變更將透過電子郵件通知。繼續使用服務視為同意修改後的條款。"
+    },
+    "contact": {
+      "title": "9. 聯絡我們",
+      "body": "如有任何問題，請聯絡："
+    }
+  },
+  "privacy": {
+    "title": "隱私政策",
+    "lastUpdated": "最後更新",
+    "overview": {
+      "title": "1. 概述",
+      "body": "JobPilot 重視您的隱私。本政策說明我們如何收集、使用及保護您的個人資料。使用本服務即表示您同意本政策。"
+    },
+    "collected": {
+      "title": "2. 收集的資料",
+      "item1": "帳號資訊：姓名、電子郵件地址（Email/Google 登入）",
+      "item2": "履歷內容：您輸入或上傳的個人資料、工作經歷、學歷等",
+      "item3": "使用紀錄：AI 操作次數、登入時間、功能使用情況",
+      "item4": "付款資訊：由 Stripe 處理，我們不儲存完整卡號或銀行帳號"
+    },
+    "usage": {
+      "title": "3. 資料使用目的",
+      "item1": "提供並改善 JobPilot 服務，包括 AI 履歷生成功能",
+      "item2": "處理訂閱付款及帳號管理",
+      "item3": "發送服務相關通知（帳單、重要更新）"
+    },
+    "stripe": {
+      "title": "4. 付款資料（Stripe）",
+      "body": "所有付款均透過 Stripe 處理。JobPilot 不直接儲存您的信用卡資訊。Stripe 符合 PCI DSS Level 1 安全標準。我們僅儲存 Stripe 提供的客戶 ID 及訂閱 ID 以管理您的帳號狀態。詳細資訊請參閱 Stripe 隱私政策（stripe.com/privacy）。"
+    },
+    "thirdparty": {
+      "title": "5. 第三方服務",
+      "item1": "Stripe：付款處理（stripe.com/privacy）",
+      "item2": "Google OAuth：登入驗證（選擇性使用）",
+      "item3": "AWS S3：PDF 及圖片檔案儲存"
+    },
+    "retention": {
+      "title": "6. 資料保留",
+      "body": "您的帳號資料在帳號有效期間持續保留。您可以隨時刪除履歷及自薦信。帳號刪除請聯絡 support@jobpilot.app，我們將在 30 天內刪除您的所有資料。"
+    },
+    "rights": {
+      "title": "7. 您的權利",
+      "body": "您有權查閱、更正或刪除您的個人資料。如需行使上述權利，請聯絡 support@jobpilot.app。"
+    },
+    "cookies": {
+      "title": "8. Cookies",
+      "body": "我們使用必要的 session cookies 維持您的登入狀態，不使用第三方追蹤 cookies 或廣告 cookies。"
+    },
+    "contact": {
+      "title": "9. 聯絡我們",
+      "body": "如有隱私相關問題，請聯絡："
+    }
   }
 }

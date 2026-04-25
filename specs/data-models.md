@@ -12,7 +12,11 @@
 ## Entities
 
 ```
-User          id, name, email, emailVerified, image, plan, stripeCustomerId?, createdAt, updatedAt
+User          id, name, email, emailVerified, image, plan, stripeCustomerId?,
+              stripeSubscriptionId?,  ← NEW: Stripe Subscription ID
+              stripePriceId?,         ← NEW: 訂閱的 Price ID（future multi-plan 擴充用）
+              stripeCurrentPeriodEnd?, ← NEW: 訂閱到期時間（DateTime）
+              createdAt, updatedAt
 Account       id, userId, provider, providerAccountId, tokens...  (NextAuth)
 Session       id, sessionToken, userId, expires                   (NextAuth)
 Resume        id, userId, title, content(Json), templateId, language,
@@ -106,8 +110,11 @@ Admin 停用 → status='inactive'
 
 ### Pending
 
+<!-- all done -->
+
 ### Done
 
+- [x] [stripe-subscription] DB: User 新增 `stripeSubscriptionId String?`、`stripePriceId String?`、`stripeCurrentPeriodEnd DateTime?` 三個欄位；migration `add_stripe_subscription_fields_to_user` ✅ 2026-04-25
 - [x] [template-import] DB: Template 新增 referenceImageUrl、aiAnalysis、status 欄位；migration ✅ 2026-04-24
 - [x] [raw-import] DB: Resume 新增 `rawPdfUrl String?` 欄位；migration `add_raw_pdf_url_to_resume` ✅ 2026-04-24
 - [x] [raw-import] TypeScript: 更新 `src/types/resume.ts` 的 `ResumeContent` interface，加入 `rawText?: string` 和 `extra?: { [sectionName: string]: string[] }` ✅ 2026-04-24

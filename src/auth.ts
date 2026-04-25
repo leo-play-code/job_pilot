@@ -42,6 +42,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user) {
         token.id = user.id
         token.plan = (user as { plan?: string }).plan ?? 'FREE'
+        token.isAdmin = user.email === process.env.ADMIN_EMAIL
       }
       return token
     },
@@ -49,6 +50,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (token) {
         session.user.id = token.id as string
         session.user.plan = token.plan as string
+        session.user.isAdmin = token.isAdmin as boolean
       }
       return session
     },
