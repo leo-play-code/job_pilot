@@ -432,7 +432,7 @@ export function HeroDemo() {
       */}
       <div
         style={{ width: 460 }}
-        className="flex flex-col items-center gap-4 select-none"
+        className="flex flex-col items-center gap-8 select-none"
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
