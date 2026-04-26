@@ -19,9 +19,18 @@ const JOB_TYPES = [
   { value: '4', label: '實習' },
 ]
 
+// valueAsNumber converts empty input to NaN; preprocess it to undefined before Zod validates
+const toOptionalInt = z.preprocess(
+  (v) =>
+    v === '' || v === null || v === undefined || (typeof v === 'number' && isNaN(v as number))
+      ? undefined
+      : v,
+  z.number().int().min(0).optional(),
+)
+
 const schema = z.object({
-  salaryMin: z.number().int().min(0).optional().nullable(),
-  salaryMax: z.number().int().min(0).optional().nullable(),
+  salaryMin: toOptionalInt,
+  salaryMax: toOptionalInt,
   coverLetterMode: z.enum(['AI_GENERATED', 'PLATFORM_DEFAULT']),
   wordCount: z.enum(['SHORT', 'MEDIUM', 'LONG']),
   maxApplyCount: z.number().int().min(1).max(20),

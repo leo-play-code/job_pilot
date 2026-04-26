@@ -28,6 +28,10 @@
 - [x] [auto-apply-area] Integration — `POST /api/job-search/config`：subLocationCodes + coverLetterIndex 儲存正確；`POST /api/auto-apply/batch`：有 subLocationCodes 時 area 參數使用 subLocationCodes 而非 locationCodes（completed: 2026-04-26）
 - [ ] [auto-apply-apply] Unit — `applyTo104Job()` coverLetterIndex 邏輯：mock Puppeteer page，驗證 PLATFORM_DEFAULT 時有嘗試點載入自薦信按鈕
 
+- [ ] [Regression] SearchConfigForm 薪資範圍留空可儲存 — 薪資最低 / 最高欄位皆不填寫時，點「儲存設定」不應觸發 Zod validation error；表單應成功提交，payload 中 salaryMin / salaryMax 為 undefined
+- [ ] [Regression] POST /api/job-search/config 多縣市全選行政區可儲存 — 選取 3 個以上縣市並勾選「全部區」（subLocationCodes 超過 50 個）時，POST config 應回傳 200；確認後端 schema 上限為 500
+- [ ] [Regression] search104Jobs 非 JSON 回應拋出清晰錯誤 — mock fetch 回傳 200 OK 但 Content-Type: text/html；確認 search104Jobs 拋出含 "non-JSON" 的 Error 而非 SyntaxError；batch route 應回傳 503 而非 500
+
 - [x] [auto-apply-area-select-all] Unit — `SearchConfigForm` 全部區 checkbox：render 台北市行政區列表（12 個 district）；點「全部區」→ 所有 12 個 checkbox checked；再點「全部區」→ 全部 unchecked；手動勾選全部 12 個 → 「全部區」自動 checked；取消 1 個 → 「全部區」indeterminate ✅ 2026-04-26
 - [x] [auto-apply-area-select-all] Regression — 切換縣市後「全部區」狀態重置：先選台北市並勾選「全部區」→ 切換至台中市 → 「全部區」應為 unchecked（台中市行政區均未選）✅ 2026-04-26
 

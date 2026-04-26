@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
-import { packEncrypted, unpackDecrypt } from '@/lib/encryption'
+import { packEncrypted } from '@/lib/encryption'
 
 const saveSchema = z.object({
   platform: z.enum(['JOB_104']),
@@ -60,17 +60,3 @@ export async function DELETE() {
   return NextResponse.json({ data: { success: true } })
 }
 
-// Server-only: decrypt and return plaintext credentials
-export async function getDecryptedCredentials(
-  userId: string,
-): Promise<{ email: string; password: string } | null> {
-  const cred = await prisma.userPlatformCredential.findUnique({
-    where: { userId_platform: { userId, platform: 'JOB_104' } },
-  })
-  if (!cred) return null
-
-  return {
-    email: unpackDecrypt(cred.encryptedEmail),
-    password: unpackDecrypt(cred.encryptedPassword),
-  }
-}

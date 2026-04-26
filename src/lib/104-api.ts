@@ -68,6 +68,7 @@ const SEARCH_HEADERS = {
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
   'Accept': 'application/json, text/plain, */*',
   'Accept-Language': 'zh-TW,zh;q=0.9',
+  'X-Requested-With': 'XMLHttpRequest',
 }
 
 export async function search104Jobs(params: Job104SearchParams): Promise<Job104SearchResponse> {
@@ -87,6 +88,12 @@ export async function search104Jobs(params: Job104SearchParams): Promise<Job104S
 
   if (!res.ok) {
     throw new Error(`104 search API returned ${res.status}`)
+  }
+
+  const contentType = res.headers.get('content-type') ?? ''
+  if (!contentType.includes('application/json')) {
+    const preview = (await res.text()).slice(0, 300)
+    throw new Error(`104 search API returned non-JSON (${res.status}): ${preview}`)
   }
 
   return res.json() as Promise<Job104SearchResponse>

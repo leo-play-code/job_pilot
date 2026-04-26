@@ -6,7 +6,7 @@ import { prisma } from '@/lib/prisma'
 const configSchema = z.object({
   keywords: z.array(z.string().min(1)).min(1).max(10),
   locationCodes: z.array(z.string()).max(10),
-  subLocationCodes: z.array(z.string()).max(50).default([]),
+  subLocationCodes: z.array(z.string()).max(500).default([]),
   salaryMin: z.number().int().min(0).optional().nullable(),
   salaryMax: z.number().int().min(0).optional().nullable(),
   jobTypes: z.array(z.string()).max(5),
