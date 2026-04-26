@@ -16,10 +16,17 @@ export async function GET() {
 
   const credential = await prisma.userPlatformCredential.findUnique({
     where: { userId_platform: { userId: session.user.id, platform: 'JOB_104' } },
-    select: { id: true },
+    select: { id: true, encryptedCookies: true, cookiesUpdatedAt: true },
   })
 
-  return NextResponse.json({ data: { exists: !!credential } })
+  return NextResponse.json({
+    data: {
+      exists: !!credential,
+      hasCookies: !!credential?.encryptedCookies,
+      cookiesUpdatedAt: credential?.cookiesUpdatedAt?.toISOString() ?? null,
+      isLocal: !process.env.VERCEL,
+    },
+  })
 }
 
 export async function POST(request: Request) {

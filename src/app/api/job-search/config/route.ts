@@ -14,7 +14,7 @@ const configSchema = z.object({
   coverLetterMode: z.enum(['AI_GENERATED', 'PLATFORM_DEFAULT']).default('AI_GENERATED'),
   coverLetterIndex: z.number().int().min(1).max(5).default(1),
   wordCount: z.enum(['SHORT', 'MEDIUM', 'LONG']).default('MEDIUM'),
-  maxApplyCount: z.number().int().min(1).max(20).default(10),
+  maxApplyCount: z.number().int().min(1).max(100).default(10),
 })
 
 export async function GET() {

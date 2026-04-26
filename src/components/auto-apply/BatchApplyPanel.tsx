@@ -179,25 +179,15 @@ export function BatchApplyPanel({ resumes, config, hasCredential, onGoToSettings
         </div>
 
         <button
-          className="w-full h-11 bg-primary text-primary-foreground rounded-md text-sm font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled={!isReady || isRunning}
-          onClick={handleStart}
+          className="w-full h-11 bg-primary text-primary-foreground rounded-md text-sm font-medium flex items-center justify-center gap-2 opacity-50 cursor-not-allowed"
+          disabled
         >
-          {isRunning ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              投遞中，請耐心等候...
-            </>
-          ) : (
-            <>
-              <Play className="h-4 w-4" />
-              開始自動投遞
-            </>
-          )}
+          <Play className="h-4 w-4" />
+          開始自動投遞
         </button>
 
-        <p className="text-xs text-muted-foreground text-center">
-          失敗的投遞不扣點數。投遞過程約需數分鐘，請勿關閉頁面。
+        <p className="text-xs text-amber-600 text-center font-medium">
+          Coming soon — 自動投遞功能開發中，敬請期待
         </p>
       </div>
 

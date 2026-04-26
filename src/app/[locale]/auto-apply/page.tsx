@@ -8,7 +8,7 @@ export default async function AutoApplyPage() {
   const [session, locale] = await Promise.all([auth(), getLocale()])
   if (!session) redirect(`/${locale}/login`)
 
-  const [resumes, config, credentialExists] = await Promise.all([
+  const [resumes, config, credential] = await Promise.all([
     prisma.resume.findMany({
       where: { userId: session.user.id },
       orderBy: { createdAt: 'desc' },
@@ -17,7 +17,7 @@ export default async function AutoApplyPage() {
     prisma.jobSearchConfig.findUnique({ where: { userId: session.user.id } }),
     prisma.userPlatformCredential.findUnique({
       where: { userId_platform: { userId: session.user.id, platform: 'JOB_104' } },
-      select: { id: true },
+      select: { id: true, encryptedCookies: true, cookiesUpdatedAt: true },
     }),
   ])
 
@@ -37,7 +37,10 @@ export default async function AutoApplyPage() {
         coverLetterIndex: config.coverLetterIndex,
         maxApplyCount: config.maxApplyCount,
       } : null}
-      credentialExists={!!credentialExists}
+      credentialExists={!!credential}
+      hasCookies={!!credential?.encryptedCookies}
+      cookiesUpdatedAt={credential?.cookiesUpdatedAt?.toISOString() ?? null}
+      isLocal={!process.env.VERCEL}
     />
   )
 }

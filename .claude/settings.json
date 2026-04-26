@@ -39,7 +39,13 @@
       "Bash(node -e \"console.log\\(require\\('crypto'\\).randomBytes\\(32\\).toString\\('hex'\\)\\)\")",
       "Bash(npx vitest *)",
       "Bash(cp /tmp/debug-test.tsx src/test/debug-area.test.tsx)",
-      "Bash(rm src/test/debug-area.test.tsx)"
+      "Bash(rm src/test/debug-area.test.tsx)",
+      "WebFetch(domain:www.104.com.tw)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:pda.104.com.tw)",
+      "Bash(timeout 30 npx tsx src/scripts/debug-104-login.ts)",
+      "Bash(npx tsx *)"
     ],
     "additionalDirectories": [
       "c:\\Users\\User\\Desktop\\github\\AI_startup\\job_pilot\\src\\app\\[locale]\\admin\\templates",

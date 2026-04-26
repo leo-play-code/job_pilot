@@ -33,7 +33,7 @@ const schema = z.object({
   salaryMax: toOptionalInt,
   coverLetterMode: z.enum(['AI_GENERATED', 'PLATFORM_DEFAULT']),
   wordCount: z.enum(['SHORT', 'MEDIUM', 'LONG']),
-  maxApplyCount: z.number().int().min(1).max(20),
+  maxApplyCount: z.number().int().min(1).max(100),
 })
 type FormValues = z.infer<typeof schema>
 
@@ -471,7 +471,7 @@ export function SearchConfigForm({ initialValues, onSaved }: Props) {
           <input
             type="number"
             min={1}
-            max={20}
+            max={100}
             className="w-24 px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
             {...register('maxApplyCount', { valueAsNumber: true })}
           />

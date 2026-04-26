@@ -212,6 +212,8 @@ model UserPlatformCredential {
   platform          JobPlatform
   encryptedEmail    String      @db.Text  // format: "ciphertext|iv|authTag" (base64)
   encryptedPassword String      @db.Text  // format: "ciphertext|iv|authTag" (base64)
+  encryptedCookies  String?     @db.Text  // JSON cookie array, encrypted same format
+  cookiesUpdatedAt  DateTime?
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
 

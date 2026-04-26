@@ -1,4 +1,5 @@
-import type { Browser, Page } from 'puppeteer'
+import type { Page } from 'puppeteer'
+import { launchBrowser } from '@/lib/puppeteer'
 
 export type Apply104ErrorType =
   | 'invalid_credentials'
@@ -23,88 +24,52 @@ export interface Apply104Result {
   errorMessage?: string
 }
 
-async function launchBrowser(): Promise<Browser> {
-  // On Vercel: always headless (no display available)
-  if (process.env.VERCEL) {
-    const chromium = (await import('@sparticuz/chromium')).default
-    const puppeteerCore = (await import('puppeteer-core')).default
-    return puppeteerCore.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(),
-      headless: chromium.headless as boolean,
-    })
-  }
-  // Local dev: PUPPETEER_HEADLESS=false 可顯示瀏覽器視窗方便 debug
-  const headless = process.env.PUPPETEER_HEADLESS !== 'false'
-  const puppeteer = (await import('puppeteer')).default
-  return puppeteer.launch({
-    headless,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    slowMo: headless ? 0 : 50, // 顯示視窗時每個動作慢 50ms，方便肉眼觀察
-  })
-}
 
-async function login104(page: Page, email: string, password: string): Promise<void> {
-  await page.goto('https://www.104.com.tw/jobs/main/', {
+export async function login104(page: Page, email: string, password: string): Promise<void> {
+  // 104 uses a two-step login at signin.104.com.tw (reachable via login.104.com.tw/login)
+  await page.goto('https://login.104.com.tw/login', {
     waitUntil: 'networkidle2',
     timeout: 30000,
   })
 
-  // Click login button in 104 header
-  const loginBtn = await page.waitForSelector(
-    '[data-qa="header-login-btn"], .js-login-btn, a[href*="/member/login"]',
-    { timeout: 10000 },
-  )
-  if (!loginBtn) throw new Error('login button not found')
-  await loginBtn.click()
+  // Step 1: Fill in email / identity (id="identity", placeholder="輸入身分證或Email")
+  await page.waitForSelector('#identity', { timeout: 15000 })
+  await page.click('#identity', { clickCount: 3 })
+  await page.type('#identity', email, { delay: 60 })
 
-  // Fill credentials
-  await page.waitForSelector('input[name="email"], input[id*="email"]', { timeout: 10000 })
-  await page.type('input[name="email"], input[id*="email"]', email, { delay: 50 })
-  await page.type('input[name="password"], input[id*="password"]', password, { delay: 50 })
+  // Press Enter to advance to the password step — more reliable than finding button by text
+  await page.keyboard.press('Enter')
 
-  // Submit
-  const submitBtn = await page.$('button[type="submit"]')
-  if (submitBtn) await submitBtn.click()
-
-  // Wait for successful login (avatar appears in header)
-  await page.waitForSelector(
-    '[data-qa="header-member-avatar"], .member-avatar, .js-member-name',
+  // Step 2: Wait for the real password input to appear (distinct from name="fakeInput")
+  await page.waitForFunction(
+    () => {
+      const inputs = Array.from(document.querySelectorAll('input[type="password"]'))
+      return inputs.some(inp => (inp as HTMLInputElement).name !== 'fakeInput' && (inp as HTMLElement).offsetWidth > 0)
+    },
     { timeout: 15000 },
+  )
+
+  const pwdSelector = 'input[type="password"]:not([name="fakeInput"])'
+  await page.click(pwdSelector, { clickCount: 3 })
+  await page.type(pwdSelector, password, { delay: 60 })
+
+  // Press Enter to submit — avoids silent failure from btn?.click() when button text varies
+  await page.keyboard.press('Enter')
+
+  // Wait for login success — URL leaves signin/login domain
+  await page.waitForFunction(
+    () => !window.location.hostname.includes('signin.104') && !window.location.hostname.includes('login.104'),
+    { timeout: 20000 },
   )
 }
 
-export async function applyTo104Job(params: Apply104Params): Promise<Apply104Result> {
-  const browser = await launchBrowser()
-  const page = await browser.newPage()
-
-  await page.setExtraHTTPHeaders({ 'Accept-Language': 'zh-TW,zh;q=0.9' })
-
+/** Apply to a single job using an already-logged-in page (no browser launch). */
+export async function applyJobWithPage(
+  page: Page,
+  params: Omit<Apply104Params, 'email' | 'password'>,
+): Promise<Apply104Result> {
   try {
-    // Step 1: Login
-    try {
-      await login104(page, params.email, params.password)
-    } catch (err) {
-      // Check for CAPTCHA
-      const captchaEl = await page.$(
-        '[class*="captcha"], #recaptcha, iframe[src*="recaptcha"], [data-sitekey]',
-      )
-      if (captchaEl) {
-        return {
-          success: false,
-          errorType: 'captcha',
-          errorMessage: '偵測到 CAPTCHA，請先至 104 網站手動登入一次後再試',
-        }
-      }
-      return {
-        success: false,
-        errorType: 'invalid_credentials',
-        errorMessage: '104 帳號或密碼錯誤，請至設定頁更新帳號',
-      }
-    }
-
-    // Step 2: Navigate to job page
+    // Navigate to job page (already logged in)
     await page.goto(params.jobUrl, { waitUntil: 'networkidle2', timeout: 30000 })
 
     // Check if already applied
@@ -209,6 +174,27 @@ export async function applyTo104Job(params: Apply104Params): Promise<Apply104Res
       return { success: false, errorType: 'timeout', errorMessage: '操作逾時，請稍後再試' }
     }
     return { success: false, errorType: 'unknown', errorMessage: message }
+  }
+}
+
+/** Convenience wrapper: launch browser, login, apply one job, close. */
+export async function applyTo104Job(params: Apply104Params): Promise<Apply104Result> {
+  const browser = await launchBrowser()
+  const page = await browser.newPage()
+  await page.setExtraHTTPHeaders({ 'Accept-Language': 'zh-TW,zh;q=0.9' })
+  try {
+    try {
+      await login104(page, params.email, params.password)
+    } catch {
+      const captchaEl = await page.$(
+        '[class*="captcha"], #recaptcha, iframe[src*="recaptcha"], [data-sitekey]',
+      )
+      if (captchaEl) {
+        return { success: false, errorType: 'captcha', errorMessage: '偵測到 CAPTCHA，請先至 104 網站手動登入一次後再試' }
+      }
+      return { success: false, errorType: 'invalid_credentials', errorMessage: '104 帳號或密碼錯誤，請至設定頁更新帳號' }
+    }
+    return await applyJobWithPage(page, params)
   } finally {
     await browser.close()
   }

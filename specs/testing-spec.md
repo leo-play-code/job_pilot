@@ -31,6 +31,16 @@
 - [ ] [Regression] SearchConfigForm 薪資範圍留空可儲存 — 薪資最低 / 最高欄位皆不填寫時，點「儲存設定」不應觸發 Zod validation error；表單應成功提交，payload 中 salaryMin / salaryMax 為 undefined
 - [ ] [Regression] POST /api/job-search/config 多縣市全選行政區可儲存 — 選取 3 個以上縣市並勾選「全部區」（subLocationCodes 超過 50 個）時，POST config 應回傳 200；確認後端 schema 上限為 500
 - [ ] [Regression] search104Jobs 非 JSON 回應拋出清晰錯誤 — mock fetch 回傳 200 OK 但 Content-Type: text/html；確認 search104Jobs 拋出含 "non-JSON" 的 Error 而非 SyntaxError；batch route 應回傳 503 而非 500
+- [ ] [Regression] search104Jobs 改用 Puppeteer 成功取得 JSON — mock Puppeteer page.waitForResponse 回傳含 `{ data: { list: [] } }` 的 response；確認 search104Jobs 回傳正確結構，不再因 bot 偵測拿到 HTML
+- [ ] [Regression] 104-api.ts 無 Puppeteer import — 確認 `src/lib/104-api.ts` 不含任何 `puppeteer` import；client component 引用 `TAIWAN_AREA_CODES` 不會觸發 `Module not found: Can't resolve 'fs'` build error
+- [x] [Regression] batch route 登入優先於搜尋 — mock `login104`、`search104JobsWithPage`、`applyJobWithPage`；確認呼叫順序為 login → search → apply；login 失敗時回傳 400 `invalid_credentials`，不進入搜尋階段；搜尋返回空陣列時回傳 200 `message: '未找到符合條件的職缺'`（completed: 2026-04-26）
+- [x] [Regression] login104 改為兩步驟登入（signin.104.com.tw）— `/member/login/` 不存在；新策略：goto `https://login.104.com.tw/login`（跳轉到 signin.104.com.tw）→ 填 `#identity`（帳號/Email）→ 點「下一步」→ 等 `input[type="password"]:not([name="fakeInput"])` 出現 → 填密碼 → 再點「下一步」→ 等 URL 離開 signin/login domain（completed: 2026-04-26）
+- [ ] [Regression] login104 兩步驟完整登入流程 — mock `page.goto`、`page.waitForSelector`、`page.waitForFunction`、`page.click`、`page.type`；確認 goto URL 為 `https://login.104.com.tw/login`；確認 `#identity` 填入 email；確認填入 password 到 `input[type="password"]:not([name="fakeInput"])`；確認 `page.keyboard.press('Enter')` 被呼叫兩次（步驟一送出帳號、步驟二送出密碼）
+- [ ] [Regression] login104 密碼步驟 Enter 送出 — 填完密碼後不呼叫 btn?.click()（避免靜默失敗）；確認使用 `keyboard.press('Enter')` 提交；login 失敗不應 silently no-op，應拋出 timeout error 讓 caller 捕捉
+- [ ] [Regression] verify104Session 用 URL 判斷而非 DOM selector — mock `page.goto` 回傳；確認導覽至 `pda.104.com.tw/applyRecord`；URL 含 `signin.104` 時回傳 false；URL 為 pda.104 時回傳 true；不應使用 `page.$` 查找 DOM 元素
+- [ ] [Regression] search104JobsWithPage 不依賴 UI selector 直接取得搜尋結果 — mock `page.goto` 立即 resolve、mock `page.waitForResponse` 回傳含 `{ data: { list: [], totalPage: 1 } }` 的 JSON response；確認 `page.waitForSelector` **未被呼叫**（舊的 `.nav-search-btn` 流程已移除）；確認 `page.click` **未被呼叫**；確認 `waitForResponse` 在 `page.goto` 之前設定以避免 race condition；確認函式回傳正確 JSON 結構
+- [ ] [Regression] search104JobsWithPage 非 JSON 回應拋出清晰錯誤 — mock `waitForResponse` 回傳 content-type: text/html；確認 `search104JobsWithPage` 拋出含 "non-JSON" 的 Error；batch route 第 1 頁失敗回傳 503 `search_unavailable`
+- [ ] [Regression] batch route 多頁搜尋 — mock `search104JobsWithPage` 第 1 頁回 20 筆 totalPage=3；確認 `search104JobsWithPage` 被呼叫多次（至少 2 次）直到 newListings >= maxApplyCount
 
 - [x] [auto-apply-area-select-all] Unit — `SearchConfigForm` 全部區 checkbox：render 台北市行政區列表（12 個 district）；點「全部區」→ 所有 12 個 checkbox checked；再點「全部區」→ 全部 unchecked；手動勾選全部 12 個 → 「全部區」自動 checked；取消 1 個 → 「全部區」indeterminate ✅ 2026-04-26
 - [x] [auto-apply-area-select-all] Regression — 切換縣市後「全部區」狀態重置：先選台北市並勾選「全部區」→ 切換至台中市 → 「全部區」應為 unchecked（台中市行政區均未選）✅ 2026-04-26

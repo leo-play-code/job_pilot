@@ -29,19 +29,33 @@ interface Props {
   resumes: Resume[]
   initialConfig: SearchConfig | null
   credentialExists: boolean
+  hasCookies: boolean
+  cookiesUpdatedAt: string | null
+  isLocal: boolean
 }
 
 const TABS = [
-  { id: 'settings', label: '設定' },
-  { id: 'apply', label: '開始投遞' },
-  { id: 'history', label: '投遞記錄' },
+  { id: 'settings', label: '設定', comingSoon: false },
+  { id: 'apply', label: '開始投遞', comingSoon: true },
+  { id: 'history', label: '投遞記錄', comingSoon: false },
 ] as const
 
 type TabId = (typeof TABS)[number]['id']
 
-export function AutoApplyClient({ resumes, initialConfig, credentialExists }: Props) {
+export function AutoApplyClient({
+  resumes,
+  initialConfig,
+  credentialExists,
+  hasCookies,
+  cookiesUpdatedAt,
+  isLocal,
+}: Props) {
   const [config, setConfig] = useState<SearchConfig | null>(initialConfig)
   const [hasCredential, setHasCredential] = useState(credentialExists)
+  const [cookieState, setCookieState] = useState({
+    hasCookies,
+    cookiesUpdatedAt,
+  })
   const [activeTab, setActiveTab] = useState<TabId>('settings')
 
   return (
@@ -58,13 +72,18 @@ export function AutoApplyClient({ resumes, initialConfig, credentialExists }: Pr
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors -mb-px ${
+              className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors -mb-px flex items-center gap-1.5 ${
                 activeTab === tab.id
                   ? 'border-primary text-primary'
                   : 'border-transparent text-muted-foreground hover:text-foreground'
               }`}
             >
               {tab.label}
+              {tab.comingSoon && (
+                <span className="text-[10px] font-normal px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 leading-none">
+                  開發中
+                </span>
+              )}
             </button>
           ))}
         </div>
@@ -75,7 +94,13 @@ export function AutoApplyClient({ resumes, initialConfig, credentialExists }: Pr
         <div className="space-y-6">
           <PlatformCredentialSetup
             exists={hasCredential}
+            hasCookies={cookieState.hasCookies}
+            cookiesUpdatedAt={cookieState.cookiesUpdatedAt}
+            isLocal={isLocal}
             onSaved={() => setHasCredential(true)}
+            onSessionCaptured={(updatedAt) =>
+              setCookieState({ hasCookies: true, cookiesUpdatedAt: updatedAt })
+            }
           />
           <SearchConfigForm
             initialValues={config}

@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
-import { Shield, CheckCircle2, AlertCircle, Eye, EyeOff, X, Loader2 } from 'lucide-react'
+import { Shield, CheckCircle2, AlertCircle, Eye, EyeOff, X, Loader2, Link2 } from 'lucide-react'
 
 const schema = z.object({
   email: z.string().email('請輸入有效的 Email'),
@@ -15,12 +15,30 @@ type FormValues = z.infer<typeof schema>
 
 interface Props {
   exists: boolean
+  hasCookies: boolean
+  cookiesUpdatedAt: string | null
+  isLocal: boolean
   onSaved: () => void
+  onSessionCaptured: (updatedAt: string) => void
 }
 
-export function PlatformCredentialSetup({ exists, onSaved }: Props) {
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleString('zh-TW', {
+    month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit',
+  })
+}
+
+export function PlatformCredentialSetup({
+  exists,
+  hasCookies,
+  cookiesUpdatedAt,
+  isLocal,
+  onSaved,
+  onSessionCaptured,
+}: Props) {
   const [open, setOpen] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [isCapturing, setIsCapturing] = useState(false)
 
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -40,6 +58,31 @@ export function PlatformCredentialSetup({ exists, onSaved }: Props) {
     reset()
     setOpen(false)
     onSaved()
+  }
+
+  const handleCaptureSession = async () => {
+    setIsCapturing(true)
+    try {
+      const res = await fetch('/api/auto-apply/capture-session', { method: 'POST' })
+      const json = await res.json()
+      if (!res.ok) {
+        if (json.error === 'local_only') {
+          toast.error('此功能只能在本機開發環境使用，Vercel 部署環境不支援')
+        } else if (json.error === 'login_timeout') {
+          toast.error('等待登入逾時（5 分鐘），請重試')
+        } else {
+          toast.error(json.message ?? '連結失敗，請稍後再試')
+        }
+        return
+      }
+      const now = new Date().toISOString()
+      toast.success('104 Session 連結成功！之後投遞將不再需要驗證碼')
+      onSessionCaptured(now)
+    } catch {
+      toast.error('網路錯誤，請稍後再試')
+    } finally {
+      setIsCapturing(false)
+    }
   }
 
   return (
@@ -80,6 +123,51 @@ export function PlatformCredentialSetup({ exists, onSaved }: Props) {
           </button>
         </div>
       </div>
+
+      {/* Session 連結區塊（本機才顯示，且需已設定帳密） */}
+      {isLocal && exists && (
+        <div className="mt-4 pt-4 border-t">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              {hasCookies && cookiesUpdatedAt ? (
+                <div className="flex items-center gap-1.5 text-xs text-green-600">
+                  <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                  <span>Session 已連結（更新於 {formatDate(cookiesUpdatedAt)}）</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1.5 text-xs text-amber-600">
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                  <span>尚未連結 Session，投遞時可能遇到 CAPTCHA</span>
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={handleCaptureSession}
+              disabled={isCapturing}
+              className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md border hover:bg-muted transition-colors disabled:opacity-60"
+            >
+              {isCapturing ? (
+                <>
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  等待登入中...
+                </>
+              ) : (
+                <>
+                  <Link2 className="h-3 w-3" />
+                  {hasCookies ? '重新連結 104' : '連結 104 帳號'}
+                </>
+              )}
+            </button>
+          </div>
+
+          {!hasCookies && (
+            <p className="text-xs text-muted-foreground mt-2">
+              點擊後會開啟 104 瀏覽器視窗，手動登入一次後自動儲存 Session，之後投遞不再需要驗證碼
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Dialog */}
       {open && (
