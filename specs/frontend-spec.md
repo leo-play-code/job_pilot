@@ -57,10 +57,13 @@ Cover Letter Result → CoverLetterDisplay, CopyButton, DownloadTxtButton
 - [x] [auto-apply-area] 修改 `SearchConfigForm` (`src/components/auto-apply/SearchConfigForm.tsx`) — 地區選擇改為兩層：Layer 1 縣市 pill toggle（現有），Layer 2 選縣市後展開行政區 checkbox 列（使用 `104-area-codes.ts`）；subLocationCodes 有值時優先使用 ✅ 2026-04-26
 - [x] [auto-apply-area] 修改 `SearchConfigForm` — 自薦信方式選 PLATFORM_DEFAULT 時顯示「使用第幾份預存自薦信」selector (1-5)，附說明文字「請先至 104 → 會員中心 → 自薦信管理確認已儲存」 ✅ 2026-04-26
 
-- [ ] [credits-live-update] 新增 `useCreditsBalance` hook (`src/hooks/useCreditsBalance.ts`)，使用 React Query queryKey `['credits', 'balance']`，staleTime 30s
-- [ ] [credits-live-update] 更新 `CreditsBadge`：使用 `useCreditsBalance`，`isFetching` 時顯示 Loader2 spinner
-- [ ] [credits-live-update] 更新 pricing page `handleBuyCredits`：移除 successUrl redirect，改用 `eventCallback` 偵測 `checkout.completed`，呼叫 `invalidateQueries` + verify-transaction
-- [ ] [credits-live-update] 移除 pricing page 的 `pendingTxn` URL param 邏輯（已由 eventCallback 取代）
+- [x] [auto-apply-area-select-all] 修改 `SearchConfigForm` (`src/components/auto-apply/SearchConfigForm.tsx`) — 行政區 checkbox 列頂端新增「全部區」checkbox；勾選 → 該縣市所有 subLocationCodes 加入 selected；取消 → 全部移除；手動全選時自動打勾；部分選中時顯示 indeterminate 狀態（`ref.indeterminate = true`）；i18n key: `autoApply.allDistricts` ✅ 2026-04-26
+- [x] [auto-apply-area-select-all] i18n — zh.json / en.json 加入 `autoApply.allDistricts` = "全部區" / "All Districts" ✅ 2026-04-26
+
+- [x] [credits-live-update] 新增 `useCreditsBalance` hook (`src/hooks/useCreditsBalance.ts`)，使用 React Query queryKey `['credits', 'balance']`，staleTime 30s ✅ 2026-04-26
+- [x] [credits-live-update] 更新 `CreditsBadge`：使用 `useCreditsBalance`，`isFetching` 時顯示 Loader2 spinner ✅ 2026-04-26
+- [x] [credits-live-update] 更新 pricing page `handleBuyCredits`：移除 successUrl redirect，改用 `eventCallback` 偵測 `checkout.completed`，呼叫 `invalidateQueries` + verify-transaction ✅ 2026-04-26
+- [x] [credits-live-update] 移除 pricing page 的 `pendingTxn` URL param 邏輯（已由 eventCallback 取代） ✅ 2026-04-26
 
 ### Done
 

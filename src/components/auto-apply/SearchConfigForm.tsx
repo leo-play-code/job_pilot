@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
+import { useTranslations } from 'next-intl'
 import { X } from 'lucide-react'
 import { TAIWAN_AREA_CODES } from '@/lib/104-api'
 import { TAIWAN_DISTRICT_CODES, getDistricts } from '@/lib/104-area-codes'
@@ -46,15 +47,13 @@ interface Props {
   onSaved: (config: ConfigValues) => void
 }
 
-/** Reverse-map subLocationCodes back to district names for initialisation */
-function resolveInitialDistricts(subLocationCodes: string[]): string[] {
-  const names: string[] = []
-  for (const [, districts] of Object.entries(TAIWAN_DISTRICT_CODES)) {
-    for (const [name, code] of Object.entries(districts)) {
-      if (subLocationCodes.includes(code)) names.push(name)
-    }
-  }
-  return names
+/** Build initial selectedDistrictCodes from persisted subLocationCodes */
+function resolveInitialDistrictCodes(subLocationCodes: string[]): string[] {
+  // Only keep codes that actually exist in TAIWAN_DISTRICT_CODES
+  const allCodes = new Set(
+    Object.values(TAIWAN_DISTRICT_CODES).flatMap((d) => Object.values(d)),
+  )
+  return subLocationCodes.filter((c) => allCodes.has(c))
 }
 
 /** Reverse-map locationCodes back to city names */
@@ -65,6 +64,9 @@ function resolveInitialCities(locationCodes: string[]): string[] {
 }
 
 export function SearchConfigForm({ initialValues, onSaved }: Props) {
+  const t = useTranslations('autoApply')
+  // Refs for indeterminate state on "select all" checkboxes, keyed by city name
+  const selectAllRefsMap = useRef<Record<string, HTMLInputElement | null>>({})
   const [keywords, setKeywords] = useState<string[]>(initialValues?.keywords ?? [])
   const [kwInput, setKwInput] = useState('')
 
@@ -83,8 +85,9 @@ export function SearchConfigForm({ initialValues, onSaved }: Props) {
     return resolveInitialCities(initialValues?.locationCodes ?? [])
   })
 
-  const [selectedDistricts, setSelectedDistricts] = useState<string[]>(
-    resolveInitialDistricts(initialValues?.subLocationCodes ?? []),
+  // selectedDistrictCodes stores 10-digit 104 area codes (unique per district)
+  const [selectedDistrictCodes, setSelectedDistrictCodes] = useState<string[]>(
+    resolveInitialDistrictCodes(initialValues?.subLocationCodes ?? []),
   )
 
   const [selectedJobTypes, setSelectedJobTypes] = useState<string[]>(initialValues?.jobTypes ?? [])
@@ -120,20 +123,20 @@ export function SearchConfigForm({ initialValues, onSaved }: Props) {
   const toggleCity = (city: string) => {
     setSelectedCities((prev) => {
       const next = prev.includes(city) ? prev.filter((c) => c !== city) : [...prev, city]
-      // Remove districts that belong to deselected city
+      // Remove district codes that belong to the deselected city
       if (!next.includes(city)) {
-        const districtNames = Object.keys(getDistricts(city))
-        setSelectedDistricts((d) => d.filter((name) => !districtNames.includes(name)))
+        const cityDistrictCodes = new Set(Object.values(getDistricts(city)))
+        setSelectedDistrictCodes((codes) => codes.filter((c) => !cityDistrictCodes.has(c)))
       }
       return next
     })
   }
 
-  const toggleDistrict = (districtName: string) => {
-    setSelectedDistricts((prev) =>
-      prev.includes(districtName)
-        ? prev.filter((d) => d !== districtName)
-        : [...prev, districtName],
+  const toggleDistrictCode = (code: string) => {
+    setSelectedDistrictCodes((prev) =>
+      prev.includes(code)
+        ? prev.filter((c) => c !== code)
+        : [...prev, code],
     )
   }
 
@@ -153,13 +156,9 @@ export function SearchConfigForm({ initialValues, onSaved }: Props) {
     let locationCodes: string[] = []
     let subLocationCodes: string[] = []
 
-    if (selectedDistricts.length > 0) {
-      // Find the code for each selected district name
-      for (const [, districts] of Object.entries(TAIWAN_DISTRICT_CODES)) {
-        for (const [name, code] of Object.entries(districts)) {
-          if (selectedDistricts.includes(name)) subLocationCodes.push(code)
-        }
-      }
+    if (selectedDistrictCodes.length > 0) {
+      // Use district codes directly
+      subLocationCodes = [...selectedDistrictCodes]
       locationCodes = []
     } else {
       subLocationCodes = []
@@ -268,16 +267,56 @@ export function SearchConfigForm({ initialValues, onSaved }: Props) {
             <div className="mt-2 space-y-3 pl-1">
               {selectedCities.map((city) => {
                 const districts = getDistricts(city)
-                const districtNames = Object.keys(districts)
+                const districtEntries = Object.entries(districts) // [name, code][]
+                const districtCodes = Object.values(districts)
+                const checkedCount = districtCodes.filter((c) => selectedDistrictCodes.includes(c)).length
+                const allChecked = checkedCount === districtCodes.length
+                const someChecked = checkedCount > 0 && checkedCount < districtCodes.length
+
+                const toggleAllDistricts = () => {
+                  if (allChecked) {
+                    // Deselect all districts for this city
+                    const cityCodesSet = new Set(districtCodes)
+                    setSelectedDistrictCodes((prev) => prev.filter((c) => !cityCodesSet.has(c)))
+                  } else {
+                    // Select all districts for this city
+                    setSelectedDistrictCodes((prev) => {
+                      const cityCodesSet = new Set(districtCodes)
+                      const existing = prev.filter((c) => !cityCodesSet.has(c))
+                      return [...existing, ...districtCodes]
+                    })
+                  }
+                }
+
                 return (
                   <div key={city} className="rounded-md border border-dashed border-border p-3">
-                    <p className="text-xs font-medium text-muted-foreground mb-2">{city} 行政區</p>
+                    <div className="flex items-center gap-2 mb-2">
+                      <p className="text-xs font-medium text-muted-foreground">{city} 行政區</p>
+                      <label
+                        data-testid={`select-all-${city}`}
+                        className="flex items-center gap-1 text-xs cursor-pointer text-muted-foreground hover:text-foreground ml-auto"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={allChecked}
+                          ref={(el) => {
+                            selectAllRefsMap.current[city] = el
+                            if (el) el.indeterminate = someChecked && !allChecked
+                          }}
+                          onChange={toggleAllDistricts}
+                          aria-label={`${t('allDistricts')} ${city}`}
+                          className="h-3 w-3 accent-primary"
+                          data-testid={`select-all-checkbox-${city}`}
+                        />
+                        {t('allDistricts')}
+                      </label>
+                    </div>
                     <div className="grid grid-cols-3 sm:grid-cols-4 gap-x-3 gap-y-1.5">
-                      {districtNames.map((name) => {
-                        const checked = selectedDistricts.includes(name)
+                      {districtEntries.map(([name, code]) => {
+                        const checked = selectedDistrictCodes.includes(code)
                         return (
                           <label
-                            key={name}
+                            key={code}
                             className={`flex items-center gap-1.5 text-xs cursor-pointer rounded px-1.5 py-0.5 transition-colors ${
                               checked ? 'bg-primary/10 text-primary font-medium' : 'hover:bg-muted'
                             }`}
@@ -285,7 +324,8 @@ export function SearchConfigForm({ initialValues, onSaved }: Props) {
                             <input
                               type="checkbox"
                               checked={checked}
-                              onChange={() => toggleDistrict(name)}
+                              onChange={() => toggleDistrictCode(code)}
+                              aria-label={name}
                               className="h-3 w-3 accent-primary"
                             />
                             {name}
@@ -299,9 +339,16 @@ export function SearchConfigForm({ initialValues, onSaved }: Props) {
             </div>
           )}
 
-          {selectedDistricts.length > 0 && (
+          {selectedDistrictCodes.length > 0 && (
             <p className="text-xs text-muted-foreground">
-              已選行政區：{selectedDistricts.join('、')}
+              已選行政區：{selectedDistrictCodes.map((code) => {
+                for (const [, districts] of Object.entries(TAIWAN_DISTRICT_CODES)) {
+                  for (const [name, c] of Object.entries(districts)) {
+                    if (c === code) return name
+                  }
+                }
+                return code
+              }).join('、')}
             </p>
           )}
         </div>

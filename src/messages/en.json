@@ -274,5 +274,8 @@
       "title": "9. Contact Us",
       "body": "For privacy-related questions, please reach us at:"
     }
+  },
+  "autoApply": {
+    "allDistricts": "All Districts"
   }
 }

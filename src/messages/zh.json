@@ -275,5 +275,8 @@
       "title": "9. 聯絡我們",
       "body": "如有隱私相關問題，請聯絡："
     }
+  },
+  "autoApply": {
+    "allDistricts": "全部區"
   }
 }

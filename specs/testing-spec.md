@@ -28,6 +28,9 @@
 - [x] [auto-apply-area] Integration — `POST /api/job-search/config`：subLocationCodes + coverLetterIndex 儲存正確；`POST /api/auto-apply/batch`：有 subLocationCodes 時 area 參數使用 subLocationCodes 而非 locationCodes（completed: 2026-04-26）
 - [ ] [auto-apply-apply] Unit — `applyTo104Job()` coverLetterIndex 邏輯：mock Puppeteer page，驗證 PLATFORM_DEFAULT 時有嘗試點載入自薦信按鈕
 
+- [x] [auto-apply-area-select-all] Unit — `SearchConfigForm` 全部區 checkbox：render 台北市行政區列表（12 個 district）；點「全部區」→ 所有 12 個 checkbox checked；再點「全部區」→ 全部 unchecked；手動勾選全部 12 個 → 「全部區」自動 checked；取消 1 個 → 「全部區」indeterminate ✅ 2026-04-26
+- [x] [auto-apply-area-select-all] Regression — 切換縣市後「全部區」狀態重置：先選台北市並勾選「全部區」→ 切換至台中市 → 「全部區」應為 unchecked（台中市行政區均未選）✅ 2026-04-26
+
 - [x] [stripe-subscription] Unit — `checkDailyLimit()` PRO bypass：plan=PRO 時直接回傳 `{ allowed: true }`，不查 UsageLog（completed: 2026-04-25）
 - [x] [stripe-subscription] Integration — `POST /api/stripe/webhook` checkout.session.completed：mock Stripe `constructEvent`，payload 含 customer + subscription → 驗 DB user.plan=PRO、stripeSubscriptionId 已寫入（completed: 2026-04-25）
 - [x] [stripe-subscription] Integration — `POST /api/stripe/webhook` customer.subscription.deleted：驗 DB user.plan=FREE、stripeSubscriptionId=null（completed: 2026-04-25）

@@ -36,7 +36,10 @@
       "Bash(node -e \"const { Paddle } = require\\('@paddle/paddle-node-sdk'\\); const p = new Paddle\\('test'\\); console.log\\(Object.getOwnPropertyNames\\(p.transactions\\)\\)\")",
       "Bash(git stash *)",
       "Bash(dotenv -e .env.local -- npx prisma migrate dev --name add_auto_apply_models)",
-      "Bash(node -e \"console.log\\(require\\('crypto'\\).randomBytes\\(32\\).toString\\('hex'\\)\\)\")"
+      "Bash(node -e \"console.log\\(require\\('crypto'\\).randomBytes\\(32\\).toString\\('hex'\\)\\)\")",
+      "Bash(npx vitest *)",
+      "Bash(cp /tmp/debug-test.tsx src/test/debug-area.test.tsx)",
+      "Bash(rm src/test/debug-area.test.tsx)"
     ],
     "additionalDirectories": [
       "c:\\Users\\User\\Desktop\\github\\AI_startup\\job_pilot\\src\\app\\[locale]\\admin\\templates",
