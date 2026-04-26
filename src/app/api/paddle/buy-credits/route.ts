@@ -32,6 +32,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const transactionData: any = {
       items: [{ priceId: pack.priceId, quantity: 1 }],
@@ -40,6 +42,9 @@ export async function POST(request: Request) {
         packId,
         userId,
         credits: String(pack.credits),
+      },
+      checkoutSettings: {
+        successUrl: `${appUrl}/zh/settings/credits?success=true`,
       },
     }
 
@@ -56,7 +61,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ data: { transactionId: transaction.id } })
   } catch (error) {
-    console.error('[paddle-buy-credits] error:', error)
+    console.error('[paddle-buy-credits] error:', error, (error as any)?.errors)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
