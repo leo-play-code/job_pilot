@@ -426,18 +426,27 @@ export function HeroDemo() {
 
   return (
     <TransCtx.Provider value={transitions}>
+      {/*
+        Fixed width (460px ≥ widest card 420px) so the label, dots and hint
+        never shift horizontally when cards of different widths morph in/out.
+      */}
       <div
-        className="relative flex flex-col items-center gap-5 select-none"
+        style={{ width: 460 }}
+        className="flex flex-col items-center gap-4 select-none"
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
-        {/* Stage label */}
-        <div style={{ fontFamily: 'monospace', fontSize: '0.6rem', letterSpacing: '0.15em', color: '#9CA3AF', textTransform: 'uppercase' }}>
+        {/* Stage label — fixed position because container width is constant */}
+        <div style={{
+          fontFamily: 'monospace', fontSize: '0.6rem',
+          letterSpacing: '0.15em', color: '#9CA3AF', textTransform: 'uppercase',
+          height: 16, display: 'flex', alignItems: 'center',
+        }}>
           {['Profile', 'Modern', 'Professional', 'Cover Letter', 'Submitted'][stage]}
         </div>
 
-        {/* Card canvas */}
-        <div className="flex items-center justify-center" style={{ minHeight: 340, width: '100%' }}>
+        {/* Card canvas — fixed height prevents vertical reflow */}
+        <div className="flex items-center justify-center" style={{ width: '100%', minHeight: 360 }}>
           <LayoutGroup>
             <AnimatePresence mode="popLayout">
               {renderStage()}
@@ -466,9 +475,13 @@ export function HeroDemo() {
           ))}
         </div>
 
-        {/* Hover hint */}
-        <p style={{ fontFamily: 'monospace', fontSize: '0.58rem', color: C.faint, margin: 0, letterSpacing: '0.05em' }}>
-          Hover to pause · Click dots to navigate
+        {/* Hover hint — fixed height prevents bottom bounce */}
+        <p style={{
+          fontFamily: 'monospace', fontSize: '0.58rem',
+          color: C.faint, margin: 0, letterSpacing: '0.05em',
+          height: 14, display: 'flex', alignItems: 'center',
+        }}>
+          {hovered ? 'Paused' : 'Hover to pause · Click dots to navigate'}
         </p>
       </div>
     </TransCtx.Provider>
