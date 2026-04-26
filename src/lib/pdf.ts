@@ -138,11 +138,23 @@ export async function generateResumePdf(params: {
     definition ??= BUILTIN_TEMPLATE_DEFINITIONS.modern
   }
 
-  const puppeteer = await import('puppeteer')
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
-  })
+  const browser = await (async () => {
+    if (process.env.VERCEL) {
+      const chromium = (await import('@sparticuz/chromium')).default
+      const puppeteerCore = (await import('puppeteer-core')).default
+      return puppeteerCore.launch({
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless as boolean,
+      })
+    }
+    const puppeteer = (await import('puppeteer')).default
+    return puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    })
+  })()
 
   try {
     const page = await browser.newPage()
