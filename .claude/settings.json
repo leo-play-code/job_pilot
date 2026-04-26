@@ -45,7 +45,8 @@
       "WebFetch(domain:github.com)",
       "WebFetch(domain:pda.104.com.tw)",
       "Bash(timeout 30 npx tsx src/scripts/debug-104-login.ts)",
-      "Bash(npx tsx *)"
+      "Bash(npx tsx *)",
+      "Bash(awk '{print $NF}')"
     ],
     "additionalDirectories": [
       "c:\\Users\\User\\Desktop\\github\\AI_startup\\job_pilot\\src\\app\\[locale]\\admin\\templates",
