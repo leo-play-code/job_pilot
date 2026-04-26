@@ -445,8 +445,8 @@ export function HeroDemo() {
           {['Profile', 'Modern', 'Professional', 'Cover Letter', 'Submitted'][stage]}
         </div>
 
-        {/* Card canvas — fixed height prevents vertical reflow */}
-        <div className="flex items-center justify-center" style={{ width: '100%', minHeight: 360 }}>
+        {/* Card canvas — fixed height so the bg wrapper never resizes between stages */}
+        <div className="flex items-start justify-center" style={{ width: '100%', height: 420 }}>
           <LayoutGroup>
             <AnimatePresence mode="popLayout">
               {renderStage()}
