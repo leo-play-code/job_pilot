@@ -22,7 +22,7 @@ const D = {
   initials: 'LH',
   title: 'Senior Python Engineer',
   email: 'leo.huang@example.com',
-  bio: '6 年後端工程經驗，專注於高流量系統設計與 AI 應用整合。',
+  bio: '2 年後端工程經驗，專注於高流量系統設計與 AI 應用整合。',
   skills: [
     { id: 'python', label: 'Python' },
     { id: 'django', label: 'Django' },
@@ -32,7 +32,7 @@ const D = {
     { company: 'TechCorp', role: 'Senior Engineer', years: '2021 – Now' },
     { company: 'StartupCo', role: 'Backend Engineer', years: '2019 – 2021' },
   ],
-  education: { school: '國立台灣大學', degree: '資訊工程學士', years: '2015 – 2019' },
+  education: { school: '私立元智大學', degree: '電機工程學士', years: '2015 – 2019' },
   job: { title: 'Senior Python Backend Engineer', company: 'TechCorp Taiwan' },
   date: 'April 26, 2026',
 }
