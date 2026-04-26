@@ -32,6 +32,7 @@
 | Commit、push、release | `.claude/skills/git-workflow/SKILL.md` |
 | 單元/整合/E2E 測試 | `.claude/skills/testing-dev/SKILL.md` |
 | 執行所有層、自動分工、修改路由 | `.claude/skills/orchestrator/SKILL.md` |
+| Hero 動畫、SaaS demo、morph animation | `.claude/skills/saas-morph-demo/SKILL.md` |
 
 ---
 
