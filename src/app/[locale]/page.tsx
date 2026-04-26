@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { FileText, Upload, Zap, Search, Bot, Send } from 'lucide-react'
 import { auth } from '@/auth'
+import { HeroDemo } from '@/components/landing/HeroDemo'
 
 export default async function LandingPage() {
   const t = await getTranslations('landing')
@@ -11,39 +12,49 @@ export default async function LandingPage() {
   return (
     <>
       {/* Hero */}
-      <section className="min-h-[calc(100vh-3.5rem)] flex flex-col items-center justify-center px-4 py-16 text-center">
-        <div className="max-w-2xl mx-auto">
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
-            {t('title')}
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-xl mx-auto">
-            {t('subtitle')}
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            {isLoggedIn ? (
-              <Link
-                href="/dashboard"
-                className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:opacity-90 hover:scale-105 active:scale-95 transition-all focus-visible:ring-2 focus-visible:ring-primary outline-none"
-              >
-                立即體驗
-              </Link>
-            ) : (
-              <>
+      <section className="min-h-[calc(100vh-3.5rem)] flex items-center px-4 py-16">
+        <div className="max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+
+          {/* Left: copy + CTA */}
+          <div className="flex flex-col items-start">
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-5 leading-tight">
+              {t('title')}
+            </h1>
+            <p className="text-lg text-muted-foreground mb-8 max-w-md leading-relaxed">
+              {t('subtitle')}
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              {isLoggedIn ? (
                 <Link
-                  href="/register"
+                  href="/dashboard"
                   className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:opacity-90 hover:scale-105 active:scale-95 transition-all focus-visible:ring-2 focus-visible:ring-primary outline-none"
                 >
-                  {t('cta')}
+                  立即體驗
                 </Link>
-                <Link
-                  href="/login"
-                  className="border px-8 py-3 rounded-lg font-medium hover:bg-muted hover:scale-105 active:scale-95 transition-all focus-visible:ring-2 focus-visible:ring-primary outline-none"
-                >
-                  登入
-                </Link>
-              </>
-            )}
+              ) : (
+                <>
+                  <Link
+                    href="/register"
+                    className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:opacity-90 hover:scale-105 active:scale-95 transition-all focus-visible:ring-2 focus-visible:ring-primary outline-none"
+                  >
+                    {t('cta')}
+                  </Link>
+                  <Link
+                    href="/login"
+                    className="border px-8 py-3 rounded-lg font-medium hover:bg-muted hover:scale-105 active:scale-95 transition-all focus-visible:ring-2 focus-visible:ring-primary outline-none"
+                  >
+                    登入
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
+
+          {/* Right: animated demo */}
+          <div className="flex items-center justify-center lg:justify-end">
+            <HeroDemo />
+          </div>
+
         </div>
       </section>
 
