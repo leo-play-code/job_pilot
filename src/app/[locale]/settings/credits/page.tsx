@@ -1,46 +1,24 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useLocale } from 'next-intl'
 import Link from 'next/link'
 import { Coins } from 'lucide-react'
-
-interface UserProfile {
-  id: string
-  name: string | null
-  email: string
-  image: string | null
-  plan: 'FREE' | 'PRO'
-  credits: number
-  createdAt: string
-}
+import { useCreditsBalance } from '@/hooks/useCreditsBalance'
 
 export default function CreditsPage() {
   const { status } = useSession()
   const router = useRouter()
   const locale = useLocale()
-
-  const [profile, setProfile] = useState<UserProfile | null>(null)
-  const [loading, setLoading] = useState(true)
+  const { data: credits, isLoading } = useCreditsBalance()
 
   useEffect(() => {
     if (status === 'unauthenticated') router.replace(`/${locale}/login`)
   }, [status, router, locale])
 
-  useEffect(() => {
-    if (status !== 'authenticated') return
-    fetch('/api/user/me')
-      .then(r => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`)
-        return r.json()
-      })
-      .then(data => { setProfile(data); setLoading(false) })
-      .catch(() => setLoading(false))
-  }, [status])
-
-  if (status === 'loading' || loading || !profile) {
+  if (status === 'loading' || isLoading) {
     return (
       <div className="container mx-auto px-4 py-16 flex justify-center">
         <div className="text-muted-foreground text-sm">載入中…</div>
@@ -58,7 +36,7 @@ export default function CreditsPage() {
           <Coins className="h-5 w-5 text-amber-500" />
           <h2 className="text-base font-semibold">點數餘額</h2>
         </div>
-        <p className="text-3xl font-bold mt-2">{profile.credits} <span className="text-sm font-normal text-muted-foreground">點</span></p>
+        <p className="text-3xl font-bold mt-2">{credits ?? 0} <span className="text-sm font-normal text-muted-foreground">點</span></p>
         <p className="text-xs text-muted-foreground mt-1">點數永不過期，可用於自動投遞履歷（1 次投遞 = 5 點）。</p>
         <div className="mt-4">
           <Link

@@ -13,6 +13,8 @@ export function useCreditsBalance() {
   return useQuery({
     queryKey: CREDITS_QUERY_KEY,
     queryFn: fetchCreditsBalance,
-    staleTime: 30_000,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+    refetchInterval: 30_000,
   })
 }

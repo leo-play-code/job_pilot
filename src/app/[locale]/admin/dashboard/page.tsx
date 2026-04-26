@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useLocale } from 'next-intl'
+import { useQueryClient } from '@tanstack/react-query'
 import { Link } from '@/i18n/navigation'
 import { Users, FileText, Mail, Zap, LayoutTemplate, RefreshCw, Check, X, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -11,6 +12,7 @@ import AdminResumesTab from '@/components/admin/AdminResumesTab'
 import AdminCoverLettersTab from '@/components/admin/AdminCoverLettersTab'
 import AdminUsageLogsTab from '@/components/admin/AdminUsageLogsTab'
 import { Pagination } from '@/components/shared/Pagination'
+import { CREDITS_QUERY_KEY } from '@/hooks/useCreditsBalance'
 
 const USER_PAGE_SIZE = 10
 
@@ -49,6 +51,7 @@ export default function AdminDashboardPage() {
   const router = useRouter()
   const locale = useLocale()
 
+  const queryClient = useQueryClient()
   const [activeTab, setActiveTab] = useState<TabId>('users')
 
   const [users, setUsers] = useState<UserRow[]>([])
@@ -91,6 +94,9 @@ export default function AdminDashboardPage() {
     const data = await res.json()
     if (res.ok) {
       setUsers(prev => prev.map(u => u.id === userId ? { ...u, ...data } : u))
+      if (body.credits !== undefined && userId === session?.user?.id) {
+        queryClient.invalidateQueries({ queryKey: CREDITS_QUERY_KEY })
+      }
       toast.success('已更新')
     } else {
       toast.error('更新失敗，請再試一次')

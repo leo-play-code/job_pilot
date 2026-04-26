@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import {
   UserCircle, Settings, CreditCard, Coins, LayoutTemplate,
-  Users, LogOut, ChevronDown, Sparkles, Loader2,
+  Users, LogOut, ChevronDown, Sparkles, Loader2, Home,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { Session } from 'next-auth'
@@ -172,6 +172,17 @@ export function UserAvatarDropdown({ session, locale }: Props) {
           )}
 
           {/* Settings items */}
+          <DropdownMenu.Item
+            onSelect={() => navigate('/dashboard')}
+            className={itemClass('/dashboard')}
+          >
+            {navigatingTo === '/dashboard'
+              ? <Loader2 className="h-4 w-4 animate-spin" />
+              : <Home className="h-4 w-4" />
+            }
+            首頁
+          </DropdownMenu.Item>
+
           <DropdownMenu.Item
             onSelect={() => navigate('/settings')}
             className={itemClass('/settings')}

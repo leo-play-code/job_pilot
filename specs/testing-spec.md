@@ -77,11 +77,18 @@
 
 - [ ] [Regression] UserAvatarDropdown 導航路徑不重複 locale — 點選「點數餘額」後 URL 為 `/zh/settings/credits`；點選「個人設定」後 URL 為 `/zh/settings`；確認所有 navigate() 呼叫已改用 `@/i18n/navigation` router，路徑不含手動 locale 前綴
 
+- [ ] [Regression] Header 點數 badge 與 /settings/credits 頁同步 — admin 在後台修改用戶點數後，用戶進入 /settings/credits 頁應顯示最新值；右上角 CreditsBadge 應在同次頁面訪問後立即顯示相同數字，不得出現兩邊不一致的情況（確認 `useCreditsBalance` staleTime=0 且兩個地方共用同一 React Query cache key）
+
 - [ ] [credits-live-update] Unit — `useCreditsBalance` hook：mock fetch，驗回傳 credits 數字；fetch 非 200 時回傳 null；queryKey 為 `['credits', 'balance']`
 - [ ] [credits-live-update] Integration — Paddle checkout.completed 後點數即時更新：mock `paddle.Checkout.open` 觸發 eventCallback；驗 `invalidateQueries` 被呼叫；驗 verify-transaction API 被 POST；驗 badge 最終顯示新點數
 - [ ] [Regression] CreditsBadge 跨頁導航後即時更新 — 初始顯示 0 點數，模擬 pathname 改變後，badge 應重新 fetch 並顯示 120；API 回 401/500 時 badge 應保持隱藏（不顯示 0）
 - [ ] [Regression] 點數購買後 CreditsBadge 即時更新 — 購買後 `checkout.completed` 事件觸發，`verify-transaction` 成功時直接以回傳的 `credits` 更新 React Query cache；verify 失敗時輪詢 `/api/credits/balance` 每 2 秒直到 `newCredits > snapshot`；badge 顯示數字不再需要手動刷新頁面
 - [ ] [Regression] 點數購買期間 beforeunload 阻擋 — `paddle.Checkout.open` 後 `beforeunload` listener 掛上，關閉視窗會出現離開確認；`checkout.closed`（取消）移除阻擋；`checkout.completed` 後阻擋持續到 credits 確認更新才解除
+
+- [ ] [Regression] Admin 使用者列表初始載入顯示點數 — `GET /api/admin/users` 回傳的每個 user 物件必須包含 `credits` 欄位；確認不需要觸發 plan 更新即可看到所有用戶的點數數字
+
+- [ ] [Regression] CreditsBadge 30 秒輪詢自動更新 — `useCreditsBalance` 的 `refetchInterval` 為 30000；mock `fetch` 第一次回 50、第二次回 80；等待 30 秒後 badge 自動顯示 80，不需要任何用戶操作
+- [ ] [Regression] Admin 改自己點數後 badge 立即更新 — 在 AdminDashboardPage 中，當 `patchUser(currentUserId, { credits: 999 })` 成功後，`queryClient.invalidateQueries` 應立即被呼叫（queryKey = CREDITS_QUERY_KEY）；badge 不需等 30 秒輪詢即顯示新點數
 - [ ] [Regression] PRO 訂閱購買使用 overlay 而非整頁跳轉 — `handleCheckout` 呼叫 `paddle.Checkout.open({ transactionId })`，`window.location.href` 不再被呼叫；完成後輪詢 `GET /api/user/subscription` 直到 `plan=PRO`；不得出現 `?_ptxn=` 根路徑跳轉
 - [ ] [Regression] subscription.created webhook 無 customData 仍升級 PRO — mock Paddle webhook `subscription.created` 事件，`customData` 為 null、`customerId = 'ctm_existing'`；DB 有 user 的 `paddleCustomerId = 'ctm_existing'`；驗 `prisma.user.update` 被呼叫且 `data.plan = 'PRO'`
 - [ ] [Regression] transaction.completed 訂閱付款更新 plan — mock `transaction.completed` 事件，`customData = { userId: 'u1' }`、`subscriptionId = 'sub_123'`；驗 `prisma.user.update` 被呼叫且 `data.plan = 'PRO'` 且 `paddleSubscriptionId = 'sub_123'`

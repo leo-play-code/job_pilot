@@ -22,6 +22,7 @@ export async function GET() {
         name: true,
         email: true,
         plan: true,
+        credits: true,
         createdAt: true,
         _count: {
           select: {
