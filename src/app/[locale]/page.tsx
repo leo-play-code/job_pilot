@@ -1,6 +1,6 @@
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
-import { FileText, Upload, Zap } from 'lucide-react'
+import { FileText, Upload, Zap, Search, Bot, Send } from 'lucide-react'
 import { auth } from '@/auth'
 
 export default async function LandingPage() {
@@ -73,6 +73,55 @@ export default async function LandingPage() {
               <h3 className="font-semibold">下載即用</h3>
               <p className="text-sm text-muted-foreground">選擇專業模板，一鍵下載 PDF，立即投遞</p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Auto Apply Feature Section */}
+      <section className="border-t py-20 px-4 bg-muted/30">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex flex-col items-center text-center mb-12">
+            <span className="text-xs font-medium px-3 py-1 rounded-full bg-amber-100 text-amber-700 mb-4">
+              即將推出 Coming Soon
+            </span>
+            <h2 className="text-2xl md:text-3xl font-bold mb-4">104 自動投遞</h2>
+            <p className="text-muted-foreground max-w-lg text-sm md:text-base">
+              設定好搜尋條件，AI 自動搜尋符合職缺並批次投遞，一覺醒來履歷已送出數十份
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="rounded-xl border bg-card p-6 flex flex-col gap-3">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Search className="h-5 w-5 text-primary" />
+              </div>
+              <h3 className="font-semibold">智能搜尋職缺</h3>
+              <p className="text-sm text-muted-foreground">依關鍵字、地區、薪資範圍自動搜尋 104 平台最新職缺，篩選符合條件的機會</p>
+            </div>
+            <div className="rounded-xl border bg-card p-6 flex flex-col gap-3">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Bot className="h-5 w-5 text-primary" />
+              </div>
+              <h3 className="font-semibold">AI 客製自薦信</h3>
+              <p className="text-sm text-muted-foreground">針對每個職缺自動生成個性化自薦信，或選用 104 預設自薦信，大幅提升錄取率</p>
+            </div>
+            <div className="rounded-xl border bg-card p-6 flex flex-col gap-3">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Send className="h-5 w-5 text-primary" />
+              </div>
+              <h3 className="font-semibold">全自動批次投遞</h3>
+              <p className="text-sm text-muted-foreground">無需人工操作，系統自動登入帳號完成投遞，並回報每筆結果與消耗點數明細</p>
+            </div>
+          </div>
+
+          <div className="mt-10 flex justify-center">
+            <Link
+              href="/auto-apply"
+              className="inline-flex items-center gap-2 border px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-muted transition-colors"
+            >
+              <Send className="h-4 w-4" />
+              搶先了解自動投遞
+            </Link>
           </div>
         </div>
       </section>
