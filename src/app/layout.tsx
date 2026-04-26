@@ -5,8 +5,8 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'JobPilot — AI 履歷生成工具',
-  description: 'AI 驅動的履歷與自薦信生成工具',
+  title: 'JobPilot — AI 求職助手',
+  description: '用 AI 產出專業履歷、自薦信，並自動搜尋 104 職缺批次投遞',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
