@@ -52,7 +52,7 @@ export default async function LandingPage() {
 
           {/* Right: animated demo — subtle bg wraps only the demo content */}
           <div className="flex items-center justify-center lg:justify-end">
-            <div className="rounded-2xl bg-slate-50 px-8 py-10">
+            <div className="rounded-2xl bg-slate-50 px-8 py-12">
               <HeroDemo />
             </div>
           </div>
