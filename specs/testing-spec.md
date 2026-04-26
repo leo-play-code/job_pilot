@@ -27,6 +27,7 @@
 - [x] [auto-apply-area] Unit — `src/lib/104-area-codes.ts`：驗證每個縣市都有對應行政區、area code 格式為 10 位數字字串（completed: 2026-04-26）
 - [x] [auto-apply-area] Integration — `POST /api/job-search/config`：subLocationCodes + coverLetterIndex 儲存正確；`POST /api/auto-apply/batch`：有 subLocationCodes 時 area 參數使用 subLocationCodes 而非 locationCodes（completed: 2026-04-26）
 - [ ] [auto-apply-apply] Unit — `applyTo104Job()` coverLetterIndex 邏輯：mock Puppeteer page，驗證 PLATFORM_DEFAULT 時有嘗試點載入自薦信按鈕
+- [ ] [Regression] Paddle SDK 環境設定不依賴 NODE_ENV — mock `process.env.PADDLE_ENVIRONMENT = 'sandbox'` 且 `NODE_ENV = 'production'`；確認 `paddle` 實例使用 `Environment.sandbox`；避免 Vercel 部署時 sandbox key 打到 production endpoint 導致 `forbidden`
 
 - [ ] [Regression] SearchConfigForm 薪資範圍留空可儲存 — 薪資最低 / 最高欄位皆不填寫時，點「儲存設定」不應觸發 Zod validation error；表單應成功提交，payload 中 salaryMin / salaryMax 為 undefined
 - [ ] [Regression] POST /api/job-search/config 多縣市全選行政區可儲存 — 選取 3 個以上縣市並勾選「全部區」（subLocationCodes 超過 50 個）時，POST config 應回傳 200；確認後端 schema 上限為 500
