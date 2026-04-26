@@ -54,6 +54,9 @@ Cover Letter Result → CoverLetterDisplay, CopyButton, DownloadTxtButton
 
 ### Pending
 
+- [x] [auto-apply-area] 修改 `SearchConfigForm` (`src/components/auto-apply/SearchConfigForm.tsx`) — 地區選擇改為兩層：Layer 1 縣市 pill toggle（現有），Layer 2 選縣市後展開行政區 checkbox 列（使用 `104-area-codes.ts`）；subLocationCodes 有值時優先使用 ✅ 2026-04-26
+- [x] [auto-apply-area] 修改 `SearchConfigForm` — 自薦信方式選 PLATFORM_DEFAULT 時顯示「使用第幾份預存自薦信」selector (1-5)，附說明文字「請先至 104 → 會員中心 → 自薦信管理確認已儲存」 ✅ 2026-04-26
+
 - [ ] [credits-live-update] 新增 `useCreditsBalance` hook (`src/hooks/useCreditsBalance.ts`)，使用 React Query queryKey `['credits', 'balance']`，staleTime 30s
 - [ ] [credits-live-update] 更新 `CreditsBadge`：使用 `useCreditsBalance`，`isFetching` 時顯示 Loader2 spinner
 - [ ] [credits-live-update] 更新 pricing page `handleBuyCredits`：移除 successUrl redirect，改用 `eventCallback` 偵測 `checkout.completed`，呼叫 `invalidateQueries` + verify-transaction

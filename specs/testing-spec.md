@@ -24,6 +24,10 @@
 
 ### Pending
 
+- [x] [auto-apply-area] Unit — `src/lib/104-area-codes.ts`：驗證每個縣市都有對應行政區、area code 格式為 10 位數字字串（completed: 2026-04-26）
+- [x] [auto-apply-area] Integration — `POST /api/job-search/config`：subLocationCodes + coverLetterIndex 儲存正確；`POST /api/auto-apply/batch`：有 subLocationCodes 時 area 參數使用 subLocationCodes 而非 locationCodes（completed: 2026-04-26）
+- [ ] [auto-apply-apply] Unit — `applyTo104Job()` coverLetterIndex 邏輯：mock Puppeteer page，驗證 PLATFORM_DEFAULT 時有嘗試點載入自薦信按鈕
+
 - [x] [stripe-subscription] Unit — `checkDailyLimit()` PRO bypass：plan=PRO 時直接回傳 `{ allowed: true }`，不查 UsageLog（completed: 2026-04-25）
 - [x] [stripe-subscription] Integration — `POST /api/stripe/webhook` checkout.session.completed：mock Stripe `constructEvent`，payload 含 customer + subscription → 驗 DB user.plan=PRO、stripeSubscriptionId 已寫入（completed: 2026-04-25）
 - [x] [stripe-subscription] Integration — `POST /api/stripe/webhook` customer.subscription.deleted：驗 DB user.plan=FREE、stripeSubscriptionId=null（completed: 2026-04-25）

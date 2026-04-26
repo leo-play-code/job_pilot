@@ -1,9 +1,5 @@
 import { prisma } from '@/lib/prisma'
-
-export const CREDIT_COSTS = {
-  AUTO_APPLY: 5,
-  AI_OP: 1,
-} as const
+export { CREDIT_COSTS } from '@/lib/constants'
 
 export const CREDIT_PACKS = {
   starter: { credits: 20, priceId: process.env.PADDLE_CREDIT_PACK_STARTER_PRICE_ID! },

@@ -110,7 +110,10 @@ Admin 停用 → status='inactive'
 
 ### Pending
 
-<!-- all done -->
+### Done (recent)
+
+- [x] [auto-apply-area] DB: `JobSearchConfig` 新增 `subLocationCodes String[]`（鄉鎮市區代碼）、`coverLetterIndex Int @default(1)`（使用第幾份預存自薦信 1-5）；`prisma db push` ✅ 2026-04-26
+- [x] [auto-apply-area] Lib: 新增 `src/lib/104-area-codes.ts` — 完整縣市+行政區代碼對照表（巢狀結構 `Record<縣市, Record<行政區, string>>`）✅ 2026-04-26
 
 ### Done
 

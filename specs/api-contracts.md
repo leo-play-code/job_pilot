@@ -202,6 +202,10 @@ GET /api/user/subscription
 
 ### Pending
 
+- [x] **[auto-apply-area] Backend: 修改 `POST /api/job-search/config`** ✅ 2026-04-26 — 新增 `subLocationCodes` (string[], max 50) 和 `coverLetterIndex` (1-5, default 1) 欄位驗證與儲存
+- [x] **[auto-apply-area] Backend: 修改 `POST /api/auto-apply/batch`** ✅ 2026-04-26 — 搜尋時若有 `subLocationCodes` 優先使用；將 `coverLetterIndex` 傳給 `applyTo104Job()`
+- [x] **[auto-apply-apply] Lib: 修改 `src/lib/104-apply.ts`** ✅ 2026-04-26 — `applyTo104Job()` 加 `coverLetterIndex` 參數；PLATFORM_DEFAULT 時點「載入自薦信」按鈕選第 N 份；若無預存自薦信則回傳 `errorType: 'no_saved_cover_letter'`（不扣點）
+
 - [x] **[pagination] Backend: 修改 `GET /api/resume`** ✅ 2026-04-25 — 加 `?page=1&limit=6` query params；response 改為 `{ data: { resumes: Resume[], total: number, page: number, totalPages: number } }`；skip=(page-1)*limit, take=limit；無 page param 時維持回傳全部（向後兼容）
 - [x] **[pagination] Backend: 修改 `GET /api/cover-letter`** ✅ 2026-04-25 — 同上，加分頁支援；response 改為 `{ data: { coverLetters: CoverLetter[], total: number, page: number, totalPages: number } }`
 - [x] **[pagination] Backend: 修改 `GET /api/templates`** ✅ 2026-04-25 — 加 `?page=1&limit=6`；response 改為 `{ data: { templates: Template[], total: number, page: number, totalPages: number } }`；`status='active'` 篩選保留

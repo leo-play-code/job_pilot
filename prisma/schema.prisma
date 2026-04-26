@@ -26,6 +26,22 @@ enum UsageAction {
   AUTO_APPLY
 }
 
+enum JobApplicationStatus {
+  PENDING
+  APPLIED
+  FAILED
+  ALREADY_APPLIED
+}
+
+enum JobPlatform {
+  JOB_104
+}
+
+enum CoverLetterMode {
+  AI_GENERATED
+  PLATFORM_DEFAULT
+}
+
 model User {
   id               String    @id @default(cuid())
   name             String?
@@ -42,12 +58,15 @@ model User {
   createdAt              DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
-  accounts           Account[]
-  sessions           Session[]
-  resumes            Resume[]
-  coverLetters       CoverLetter[]
-  usageLogs          UsageLog[]
-  creditTransactions CreditTransaction[]
+  accounts              Account[]
+  sessions              Session[]
+  resumes               Resume[]
+  coverLetters          CoverLetter[]
+  usageLogs             UsageLog[]
+  creditTransactions    CreditTransaction[]
+  platformCredentials   UserPlatformCredential[]
+  jobSearchConfig       JobSearchConfig?
+  jobApplications       JobApplication[]
 
   @@index([plan])
   @@index([createdAt])
@@ -131,8 +150,9 @@ model Resume {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  coverLetters CoverLetter[]
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coverLetters     CoverLetter[]
+  jobApplications  JobApplication[]
 
   @@index([userId])
   @@index([createdAt])
@@ -184,4 +204,87 @@ model CreditTransaction {
 
   @@index([userId])
   @@map("credit_transactions")
+}
+
+model UserPlatformCredential {
+  id                String      @id @default(cuid())
+  userId            String
+  platform          JobPlatform
+  encryptedEmail    String      @db.Text  // format: "ciphertext|iv|authTag" (base64)
+  encryptedPassword String      @db.Text  // format: "ciphertext|iv|authTag" (base64)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, platform])
+  @@index([userId])
+  @@map("user_platform_credentials")
+}
+
+model JobSearchConfig {
+  id              String          @id @default(cuid())
+  userId          String          @unique
+  keywords        String[]
+  locationCodes   String[]
+  salaryMin       Int?
+  salaryMax       Int?
+  jobTypes        String[]
+  industries      String[]
+  subLocationCodes  String[]
+  coverLetterIndex  Int             @default(1)
+  coverLetterMode   CoverLetterMode @default(AI_GENERATED)
+  wordCount         String          @default("MEDIUM")
+  maxApplyCount     Int             @default(10)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("job_search_configs")
+}
+
+model JobListing {
+  id           String      @id @default(cuid())
+  jobId        String
+  platform     JobPlatform @default(JOB_104)
+  title        String
+  company      String
+  location     String
+  salaryDesc   String?
+  description  String      @db.Text
+  tags         String[]
+  applyUrl     String
+  fetchedAt    DateTime    @default(now())
+
+  applications JobApplication[]
+
+  @@unique([jobId, platform])
+  @@index([platform])
+  @@index([fetchedAt])
+  @@map("job_listings")
+}
+
+model JobApplication {
+  id                 String               @id @default(cuid())
+  userId             String
+  jobListingId       String
+  resumeId           String?
+  coverLetterContent String?              @db.Text
+  coverLetterMode    CoverLetterMode      @default(AI_GENERATED)
+  status             JobApplicationStatus @default(PENDING)
+  platform           JobPlatform          @default(JOB_104)
+  errorMessage       String?
+  appliedAt          DateTime?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobListing JobListing @relation(fields: [jobListingId], references: [id])
+  resume     Resume?    @relation(fields: [resumeId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([userId, status])
+  @@index([jobListingId])
+  @@map("job_applications")
 }

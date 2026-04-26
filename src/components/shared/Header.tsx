@@ -48,6 +48,12 @@ export function Header() {
             >
               首頁
             </Link>
+            <Link
+              href="/auto-apply"
+              className="text-sm px-3 py-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            >
+              自動投遞
+            </Link>
           </nav>
         )}
 
